@@ -1,0 +1,293 @@
+<Window
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="using:Flashcards.ViewModels"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignWidth="800"
+    d:DesignHeight="450"
+    x:Class="Flashcards.Views.MainWindow"
+    x:DataType="vm:MainWindowViewModel"
+    Icon="/Assets/avalonia-logo.ico"
+    Title="Flashcards"
+    Width="460"
+    Height="600"
+    CanResize="False"
+    ShowInTaskbar="False"
+    SystemDecorations="None"
+    Topmost="True"
+    WindowStartupLocation="CenterScreen"
+    Background="Transparent"
+    TransparencyLevelHint="Transparent">
+
+    <Design.DataContext>
+        <!-- This only sets the DataContext for the previewer in an IDE,
+             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+        <vm:MainWindowViewModel />
+    </Design.DataContext>
+
+    <Border
+        Margin="12"
+        Padding="16"
+        CornerRadius="18"
+        Background="#CC1E293B"
+        BorderBrush="#668ECAE6"
+        BorderThickness="1">
+        <Grid
+            RowDefinitions="Auto,Auto,*,Auto,Auto">
+            <StackPanel
+                Grid.Row="2"
+                Margin="0,12,0,0"
+                Spacing="10"
+                IsVisible="{Binding IsFlashcardPage}">
+                <Border
+                    Margin="0,6,0,0"
+                    Padding="12"
+                    CornerRadius="12"
+                    Background="#332E3A4F"
+                    BorderBrush="#334BA3C7"
+                    BorderThickness="1">
+                    <StackPanel
+                        Spacing="4">
+                        <TextBlock
+                            Text="{Binding CurrentDanish}"
+                            FontSize="30"
+                            FontWeight="SemiBold"
+                            Foreground="White"
+                            HorizontalAlignment="Center" />
+                        <TextBlock
+                            Text="{Binding CurrentConjugation}"
+                            IsVisible="{Binding HasCurrentConjugation}"
+                            FontSize="12"
+                            FontStyle="Italic"
+                            HorizontalAlignment="Center"
+                            Foreground="#FFCBD5E1" />
+
+                        <TextBlock
+                            Text="{Binding CurrentEnglish}"
+                            IsVisible="{Binding HasFlashcards}"
+                            FontSize="20"
+                            Foreground="#FFE2E8F0"
+                            HorizontalAlignment="Center" />
+
+                    </StackPanel>
+                </Border>
+
+                <Border
+                    Margin="0,6,0,0"
+                    Padding="12"
+                    CornerRadius="12"
+                    Background="#332E3A4F"
+                    BorderBrush="#334BA3C7"
+                    BorderThickness="1"
+                    IsVisible="{Binding HasCurrentExampleDanish}">
+                    <StackPanel
+                        Spacing="6">
+                        <TextBlock
+                            FontSize="12"
+                            TextWrapping="Wrap"
+                            Foreground="#FFCBD5E1">
+                            <Run
+                                Text="DA : "
+                                FontStyle="Italic"
+                                FontSize="11" />
+                            <Run
+                                Text="{Binding HighlightedExampleDanish.BeforeWord}"
+                                FontSize="12" />
+                            <Run
+                                Text="{Binding HighlightedExampleDanish.HighlightedWord}"
+                                TextDecorations="Underline"
+                                FontWeight="SemiBold"
+                                FontSize="12" />
+                            <Run
+                                Text="{Binding HighlightedExampleDanish.AfterWord}"
+                                FontSize="12" />
+                        </TextBlock>
+                        <!-- Fallback: Show full text if highlighting failed -->
+                        <TextBlock
+                            FontSize="12"
+                            TextWrapping="Wrap"
+                            Foreground="#FFCBD5E1"
+                            Text="{Binding HighlightedExampleDanish.FullText}"
+                            IsVisible="{Binding HighlightedExampleDanish.IsFullTextOnly}"/>
+                        <TextBlock
+                            FontSize="12"
+                            TextWrapping="Wrap"
+                            Foreground="#FFCBD5E1"
+                            IsVisible="{Binding HasCurrentExampleEnglish}">
+                            <Run
+                                Text="EN : "
+                                FontStyle="Italic"
+                                FontSize="11" />
+                            <Run
+                                Text="{Binding HighlightedExampleEnglish.BeforeWord}"
+                                FontSize="12" />
+                            <Run
+                                Text="{Binding HighlightedExampleEnglish.HighlightedWord}"
+                                TextDecorations="Underline"
+                                FontWeight="SemiBold"
+                                FontSize="12" />
+                            <Run
+                                Text="{Binding HighlightedExampleEnglish.AfterWord}"
+                                FontSize="12" />
+                        </TextBlock>
+                        <!-- Fallback: Show full text if highlighting failed -->
+                        <TextBlock
+                            FontSize="12"
+                            TextWrapping="Wrap"
+                            Foreground="#FFCBD5E1"
+                            Text="{Binding HighlightedExampleEnglish.FullText}"
+                            IsVisible="{Binding HighlightedExampleEnglish.IsFullTextOnly}"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <StackPanel
+                Grid.Row="2"
+                Margin="0,12,0,0"
+                Spacing="8"
+                IsVisible="{Binding IsAddRecordPage}">
+                <TextBlock
+                    Text="Add flashcard"
+                    FontSize="16"
+                    FontWeight="SemiBold"
+                    Foreground="White" />
+
+                <TextBox
+                    Text="{Binding NewDanish}"
+                    Watermark="Danish" />
+
+                <TextBox
+                    Text="{Binding NewEnglish}"
+                    Watermark="English" />
+
+                <TextBox
+                    Text="{Binding NewConjugation}"
+                    Watermark="Conjugation (optional)"
+                    AcceptsReturn="True"
+                    TextWrapping="Wrap"
+                    Height="50" />
+
+                <TextBox
+                    Text="{Binding NewExampleDanish}"
+                    Watermark="Example Danish (optional)"
+                    AcceptsReturn="True"
+                    TextWrapping="Wrap"
+                    Height="50" />
+
+                <TextBox
+                    Text="{Binding NewExampleEnglish}"
+                    Watermark="Example English (optional)"
+                    AcceptsReturn="True"
+                    TextWrapping="Wrap"
+                    Height="50" />
+
+                <TextBox
+                    Text="{Binding NewContextualTip}"
+                    Watermark="Contextual tip (optional)"
+                    AcceptsReturn="True"
+                    TextWrapping="Wrap"
+                    Height="50" />
+
+                <TextBlock
+                    Text="{Binding ValidationMessage}"
+                    IsVisible="{Binding HasValidationMessage}"
+                    TextWrapping="Wrap"
+                    Foreground="#FFFCA5A5"
+                    FontSize="12" />
+
+                <StackPanel
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Spacing="8">
+                    <Button
+                        Content="Cancel"
+                        Command="{Binding CancelAddRecordCommand}" />
+                    <Button
+                        Content="Save"
+                        Command="{Binding SaveNewRecordCommand}" />
+                </StackPanel>
+            </StackPanel>
+
+            <Border
+                Grid.Row="3"
+                Margin="0,8,0,0"
+                Padding="8,6"
+                CornerRadius="8"
+                Background="#22F59E0B"
+                IsVisible="{Binding HasCurrentContextualTip}">
+                <Grid
+                    ColumnDefinitions="Auto,*">
+                    <TextBlock
+                        Grid.Column="0"
+                        Text="💡"
+                        FontSize="12"
+                        VerticalAlignment="Top"
+                        Margin="0,0,6,0" />
+                    <TextBlock
+                        Grid.Column="1"
+                        Text="{Binding CurrentContextualTip}"
+                        FontSize="12"
+                        TextWrapping="Wrap"
+                        Foreground="#FFFBBF24" />
+                </Grid>
+            </Border>
+
+            <Button
+                Grid.Row="4"
+                Width="32"
+                Height="32"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                CornerRadius="16"
+                FontSize="18"
+                FontWeight="Bold"
+                Content="+"
+                Command="{Binding ShowAddRecordCommand}"
+                IsVisible="{Binding IsFlashcardPage}" />
+
+            <Button
+                Grid.Row="4"
+                Width="32"
+                Height="32"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                Margin="0,0,44,0"
+                CornerRadius="16"
+                FontSize="14"
+                FontWeight="SemiBold"
+                Content="✎"
+                Command="{Binding ShowEditRecordCommand}"
+                IsVisible="{Binding HasFlashcards}" />
+
+            <StackPanel
+                Grid.Row="4"
+                Orientation="Horizontal"
+                HorizontalAlignment="Left"
+                Spacing="8">
+                <Button
+                    Width="32"
+                    Height="32"
+                    CornerRadius="16"
+                    FontSize="14"
+                    FontWeight="SemiBold"
+                    Content="▶"
+                    Command="{Binding PlayCommand}"
+                    IsEnabled="{Binding IsRotationPaused}"
+                    IsVisible="{Binding IsFlashcardPage}" />
+                <Button
+                    Width="32"
+                    Height="32"
+                    CornerRadius="16"
+                    FontSize="14"
+                    FontWeight="SemiBold"
+                    Content="⏸"
+                    Command="{Binding PauseCommand}"
+                    IsEnabled="{Binding IsRotationPlaying}"
+                    IsVisible="{Binding IsFlashcardPage}" />
+            </StackPanel>
+        </Grid>
+    </Border>
+
+</Window>
