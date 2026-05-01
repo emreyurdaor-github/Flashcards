@@ -303,6 +303,31 @@
             <StackPanel
                 Grid.Row="4"
                 Orientation="Horizontal"
+                HorizontalAlignment="Center"
+                Spacing="8">
+                <Button
+                    Width="32"
+                    Height="32"
+                    CornerRadius="16"
+                    FontSize="14"
+                    FontWeight="SemiBold"
+                    Content="◀"
+                    Command="{Binding PreviousCardCommand}"
+                    IsVisible="{Binding IsFlashcardPage}" />
+                <Button
+                    Width="32"
+                    Height="32"
+                    CornerRadius="16"
+                    FontSize="14"
+                    FontWeight="SemiBold"
+                    Content="▶"
+                    Command="{Binding NextCardCommand}"
+                    IsVisible="{Binding IsFlashcardPage}" />
+            </StackPanel>
+
+            <StackPanel
+                Grid.Row="4"
+                Orientation="Horizontal"
                 HorizontalAlignment="Left"
                 Spacing="8">
                 <Button

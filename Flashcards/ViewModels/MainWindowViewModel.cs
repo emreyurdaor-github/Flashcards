@@ -18,6 +18,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     private readonly DispatcherTimer _rotationTimer;
     private readonly Random _random = new();
     private readonly AudioService _audioService = new();
+    private readonly Stack<FlashcardEntry> _navigationHistory = new();
     private FlashcardEntry? _currentFlashcard;
     private bool _isAddRecordPage;
     private bool _isRotationPaused;
@@ -36,6 +37,8 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     public IRelayCommand ShowEditRecordCommand { get; }
     public IRelayCommand PlayCommand { get; }
     public IRelayCommand PauseCommand { get; }
+    public IRelayCommand PreviousCardCommand { get; }
+    public IRelayCommand NextCardCommand { get; }
     public IAsyncRelayCommand PlayDanishWordCommand { get; }
     public IAsyncRelayCommand PlayDanishExampleCommand { get; }
 
@@ -424,6 +427,8 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         CancelAddRecordCommand = new RelayCommand(CancelAddRecord);
         PlayCommand = new RelayCommand(Play);
         PauseCommand = new RelayCommand(Pause);
+        PreviousCardCommand = new RelayCommand(SelectPreviousFlashcard);
+        NextCardCommand = new RelayCommand(SelectNextFlashcard);
         PlayDanishWordCommand = new AsyncRelayCommand(PlayCurrentDanishWord);
         PlayDanishExampleCommand = new AsyncRelayCommand(PlayCurrentDanishExample);
 
@@ -567,6 +572,12 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
             return;
         }
 
+        // Store the current flashcard in the history before moving to the next one
+        if (CurrentFlashcard is not null)
+        {
+            _navigationHistory.Push(CurrentFlashcard);
+        }
+
         if (_flashcards.Count == 1)
         {
             CurrentFlashcard = _flashcards[0];
@@ -582,6 +593,28 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         while (ReferenceEquals(nextFlashcard, CurrentFlashcard));
 
         CurrentFlashcard = nextFlashcard;
+    }
+
+    private void SelectPreviousFlashcard()
+    {
+        if (_navigationHistory.Count == 0)
+        {
+            // No previous flashcard in history
+            return;
+        }
+
+        // Pop the latest entry from the navigation history
+        var previousFlashcard = _navigationHistory.Pop();
+
+        if (ReferenceEquals(previousFlashcard, CurrentFlashcard))
+        {
+            // If the popped flashcard is the same as the current one, continue popping
+            SelectPreviousFlashcard();
+            return;
+        }
+
+        // Set the current flashcard to the previous one
+        CurrentFlashcard = previousFlashcard;
     }
 
     private void Play()
