@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
 using Flashcards.Data;
 using Flashcards.Models;
+using Flashcards.Services;
 
 namespace Flashcards.ViewModels;
 
@@ -15,6 +17,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     private readonly IReadOnlyList<FlashcardEntry> _flashcards = FlashcardDataSource.GetFlashcards();
     private readonly DispatcherTimer _rotationTimer;
     private readonly Random _random = new();
+    private readonly AudioService _audioService = new();
     private FlashcardEntry? _currentFlashcard;
     private bool _isAddRecordPage;
     private bool _isRotationPaused;
@@ -33,6 +36,8 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     public IRelayCommand ShowEditRecordCommand { get; }
     public IRelayCommand PlayCommand { get; }
     public IRelayCommand PauseCommand { get; }
+    public IAsyncRelayCommand PlayDanishWordCommand { get; }
+    public IAsyncRelayCommand PlayDanishExampleCommand { get; }
 
     public FlashcardEntry? CurrentFlashcard
     {
@@ -419,6 +424,8 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         CancelAddRecordCommand = new RelayCommand(CancelAddRecord);
         PlayCommand = new RelayCommand(Play);
         PauseCommand = new RelayCommand(Pause);
+        PlayDanishWordCommand = new AsyncRelayCommand(PlayCurrentDanishWord);
+        PlayDanishExampleCommand = new AsyncRelayCommand(PlayCurrentDanishExample);
 
         _rotationTimer = new DispatcherTimer
         {
@@ -434,6 +441,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     {
         _rotationTimer.Stop();
         _rotationTimer.Tick -= OnRotationTimerTick;
+        _audioService?.Dispose();
     }
 
     private void OnRotationTimerTick(object? sender, EventArgs e)
@@ -584,5 +592,29 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     private void Pause()
     {
         IsRotationPaused = true;
+    }
+
+    private async Task PlayCurrentDanishWord()
+    {
+        if (CurrentFlashcard is null)
+        {
+            System.Diagnostics.Debug.WriteLine("[ViewModel] PlayCurrentDanishWord: No current flashcard");
+            return;
+        }
+
+        System.Diagnostics.Debug.WriteLine($"[ViewModel] PlayCurrentDanishWord: Playing '{CurrentFlashcard.Danish}'");
+        await _audioService.PlayDanishPronunciation(CurrentFlashcard.Danish);
+    }
+
+    private async Task PlayCurrentDanishExample()
+    {
+        if (CurrentFlashcard is null || string.IsNullOrWhiteSpace(CurrentFlashcard.ExampleDanish))
+        {
+            System.Diagnostics.Debug.WriteLine("[ViewModel] PlayCurrentDanishExample: No example available");
+            return;
+        }
+
+        System.Diagnostics.Debug.WriteLine($"[ViewModel] PlayCurrentDanishExample: Playing '{CurrentFlashcard.ExampleDanish}'");
+        await _audioService.PlayDanishPronunciation(CurrentFlashcard.ExampleDanish);
     }
 }

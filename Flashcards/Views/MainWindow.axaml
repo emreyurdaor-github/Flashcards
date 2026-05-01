@@ -50,19 +50,40 @@
                     BorderThickness="1">
                     <StackPanel
                         Spacing="4">
-                        <TextBlock
-                            Text="{Binding CurrentDanish}"
-                            FontSize="30"
-                            FontWeight="SemiBold"
-                            Foreground="White"
-                            HorizontalAlignment="Center" />
-                        <TextBlock
-                            Text="{Binding CurrentConjugation}"
-                            IsVisible="{Binding HasCurrentConjugation}"
-                            FontSize="12"
-                            FontStyle="Italic"
-                            HorizontalAlignment="Center"
-                            Foreground="#FFCBD5E1" />
+                        <Grid
+                            ColumnDefinitions="*,Auto">
+                            <StackPanel
+                                Grid.Column="0"
+                                Spacing="4">
+                                <TextBlock
+                                    Text="{Binding CurrentDanish}"
+                                    FontSize="30"
+                                    FontWeight="SemiBold"
+                                    Foreground="White"
+                                    HorizontalAlignment="Center" />
+                                <TextBlock
+                                    Text="{Binding CurrentConjugation}"
+                                    IsVisible="{Binding HasCurrentConjugation}"
+                                    FontSize="12"
+                                    FontStyle="Italic"
+                                    HorizontalAlignment="Center"
+                                    Foreground="#FFCBD5E1" />
+                            </StackPanel>
+                            <Button
+                                Grid.Column="1"
+                                Width="28"
+                                Height="28"
+                                Padding="0"
+                                CornerRadius="6"
+                                FontSize="14"
+                                Content="🔊"
+                                VerticalAlignment="Top"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Command="{Binding PlayDanishWordCommand}" />
+                        </Grid>
 
                         <TextBlock
                             Text="{Binding CurrentEnglish}"
@@ -84,26 +105,44 @@
                     IsVisible="{Binding HasCurrentExampleDanish}">
                     <StackPanel
                         Spacing="6">
-                        <TextBlock
-                            FontSize="12"
-                            TextWrapping="Wrap"
-                            Foreground="#FFCBD5E1">
-                            <Run
-                                Text="DA : "
-                                FontStyle="Italic"
-                                FontSize="11" />
-                            <Run
-                                Text="{Binding HighlightedExampleDanish.BeforeWord}"
-                                FontSize="12" />
-                            <Run
-                                Text="{Binding HighlightedExampleDanish.HighlightedWord}"
-                                TextDecorations="Underline"
-                                FontWeight="SemiBold"
-                                FontSize="12" />
-                            <Run
-                                Text="{Binding HighlightedExampleDanish.AfterWord}"
-                                FontSize="12" />
-                        </TextBlock>
+                        <Grid
+                            ColumnDefinitions="*,Auto">
+                            <TextBlock
+                                Grid.Column="0"
+                                FontSize="12"
+                                TextWrapping="Wrap"
+                                Foreground="#FFCBD5E1">
+                                <Run
+                                    Text="DA : "
+                                    FontStyle="Italic"
+                                    FontSize="11" />
+                                <Run
+                                    Text="{Binding HighlightedExampleDanish.BeforeWord}"
+                                    FontSize="12" />
+                                <Run
+                                    Text="{Binding HighlightedExampleDanish.HighlightedWord}"
+                                    TextDecorations="Underline"
+                                    FontWeight="SemiBold"
+                                    FontSize="12" />
+                                <Run
+                                    Text="{Binding HighlightedExampleDanish.AfterWord}"
+                                    FontSize="12" />
+                            </TextBlock>
+                            <Button
+                                Grid.Column="1"
+                                Width="24"
+                                Height="24"
+                                Padding="0"
+                                CornerRadius="4"
+                                FontSize="12"
+                                Content="🔊"
+                                VerticalAlignment="Top"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Command="{Binding PlayDanishExampleCommand}" />
+                        </Grid>
                         <!-- Fallback: Show full text if highlighting failed -->
                         <TextBlock
                             FontSize="12"
