@@ -7,10 +7,10 @@
     mc:Ignorable="d"
     d:DesignWidth="800"
     d:DesignHeight="450"
-    x:Class="Flashcards.Views.MainWindow"
-    x:DataType="vm:MainWindowViewModel"
-    Icon="/Assets/avalonia-logo.ico"
-    Title="Flashcards"
+        x:Class="Flashcards.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/app.ico"
+        Title="Flashcards"
     Width="460"
     Height="600"
     CanResize="False"
@@ -34,8 +34,22 @@
         Background="#CC1E293B"
         BorderBrush="#668ECAE6"
         BorderThickness="1">
-        <Grid
-            RowDefinitions="Auto,Auto,*,Auto,Auto">
+        <Grid RowDefinitions="Auto,Auto,*,Auto,Auto">
+            <!-- Close button at top right -->
+            <Button
+                Grid.Row="0"
+                Grid.Column="0"
+                Width="28"
+                Height="28"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top"
+                CornerRadius="6"
+                FontSize="16"
+                FontWeight="Bold"
+                Content="✕"
+                Command="{Binding MinimizeToTrayCommand}"
+                Margin="0,0,0,8" />
+
             <StackPanel
                 Grid.Row="2"
                 Margin="0,12,0,0"

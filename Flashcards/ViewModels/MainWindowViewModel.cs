@@ -41,6 +41,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     public IRelayCommand NextCardCommand { get; }
     public IAsyncRelayCommand PlayDanishWordCommand { get; }
     public IAsyncRelayCommand PlayDanishExampleCommand { get; }
+    public IRelayCommand MinimizeToTrayCommand { get; set; }
 
     public FlashcardEntry? CurrentFlashcard
     {
@@ -411,6 +412,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         NextCardCommand = new RelayCommand(SelectNextFlashcard);
         PlayDanishWordCommand = new AsyncRelayCommand(PlayCurrentDanishWord);
         PlayDanishExampleCommand = new AsyncRelayCommand(PlayCurrentDanishExample);
+        MinimizeToTrayCommand = new RelayCommand(MinimizeToTray);
 
         _rotationTimer = new DispatcherTimer
         {
@@ -629,5 +631,12 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
 
         System.Diagnostics.Debug.WriteLine($"[ViewModel] PlayCurrentDanishExample: Playing '{CurrentFlashcard.ExampleDanish}'");
         await _audioService.PlayDanishPronunciation(CurrentFlashcard.ExampleDanish);
+    }
+
+    private void MinimizeToTray()
+    {
+        // This method will be called when the close button is clicked
+        // The actual minimization to tray will be handled in the MainWindow code-behind
+        System.Diagnostics.Debug.WriteLine("[ViewModel] MinimizeToTray command executed");
     }
 }
