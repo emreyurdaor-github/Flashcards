@@ -161,6 +161,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     /// <summary>
     /// Extracts keywords from a word expression (e.g., "to destroy / to ruin / to break" -> ["destroy", "ruin", "break"])
     /// Also handles multi-word phrases like "at skabe" -> ["skabe"]
+    /// Handles noun articles like "en ulempe" -> ["ulempe"]
     /// </summary>
     private List<string> ExtractKeywords(string word)
     {
@@ -176,39 +177,18 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
             // Split multi-word phrases and process each word separately
             var words = trimmed.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
             
-            // If it's a multi-word phrase, skip common prefixes like "to", "at", "de"
-            if (words.Length > 1)
+            // Language-specific prefixes and articles to skip
+            var prefixesToSkip = new[] { "to", "at", "de", "for", "en", "et" };
+            
+            foreach (var singleWord in words)
             {
-                // Language-specific prefixes to skip in multi-word phrases
-                var prefixesToSkip = new[] { "to", "at", "de", "for" };
+                var lowerWord = singleWord.ToLowerInvariant();
                 
-                foreach (var singleWord in words)
-                {
-                    var lowerWord = singleWord.ToLowerInvariant();
-                    
-                    // Skip single-letter words and common prefixes
-                    if (lowerWord.Length <= 1 || Array.Exists(prefixesToSkip, p => p == lowerWord))
-                        continue;
-                    
-                    var rootWord = ExtractRootWord(singleWord);
-                    
-                    if (!string.IsNullOrEmpty(rootWord) && !keywords.Contains(rootWord, StringComparer.OrdinalIgnoreCase))
-                        keywords.Add(rootWord);
-                }
-            }
-            else
-            {
-                // Single word - process normally
-                var singleWord = words[0];
-                var wordToProcess = singleWord;
+                // Skip single-letter words and common prefixes/articles
+                if (lowerWord.Length <= 1 || Array.Exists(prefixesToSkip, p => p == lowerWord))
+                    continue;
                 
-                // Remove common prefixes like "to ", "at ", etc. only if they have a suffix
-                if (wordToProcess.StartsWith("to ", StringComparison.OrdinalIgnoreCase))
-                    wordToProcess = wordToProcess.Substring(3).Trim();
-                if (wordToProcess.StartsWith("at ", StringComparison.OrdinalIgnoreCase))
-                    wordToProcess = wordToProcess.Substring(3).Trim();
-                
-                var rootWord = ExtractRootWord(wordToProcess);
+                var rootWord = ExtractRootWord(singleWord);
                 
                 if (!string.IsNullOrEmpty(rootWord) && !keywords.Contains(rootWord, StringComparer.OrdinalIgnoreCase))
                     keywords.Add(rootWord);
