@@ -73,7 +73,7 @@
                                     Text="{Binding CurrentDanish}"
                                     FontSize="30"
                                     FontWeight="SemiBold"
-                                    Foreground="White"
+                                    Foreground="#FFFBBF24"
                                     HorizontalAlignment="Center" />
                                 <TextBlock
                                     Text="{Binding CurrentConjugation}"
@@ -123,24 +123,25 @@
                             ColumnDefinitions="*,Auto">
                             <TextBlock
                                 Grid.Column="0"
-                                FontSize="12"
+                                FontSize="14"
                                 TextWrapping="Wrap"
                                 Foreground="#FFCBD5E1">
                                 <Run
                                     Text="DA : "
                                     FontStyle="Italic"
-                                    FontSize="11" />
+                                    FontSize="12" />
                                 <Run
                                     Text="{Binding HighlightedExampleDanish.BeforeWord}"
-                                    FontSize="12" />
+                                    FontSize="14" />
                                 <Run
                                     Text="{Binding HighlightedExampleDanish.HighlightedWord}"
                                     TextDecorations="Underline"
                                     FontWeight="SemiBold"
-                                    FontSize="12" />
+                                    Foreground="#FFFBBF24"
+                                    FontSize="14" />
                                 <Run
                                     Text="{Binding HighlightedExampleDanish.AfterWord}"
-                                    FontSize="12" />
+                                    FontSize="14" />
                             </TextBlock>
                             <Button
                                 Grid.Column="1"
@@ -159,35 +160,35 @@
                         </Grid>
                         <!-- Fallback: Show full text if highlighting failed -->
                         <TextBlock
-                            FontSize="12"
+                            FontSize="14"
                             TextWrapping="Wrap"
                             Foreground="#FFCBD5E1"
                             Text="{Binding HighlightedExampleDanish.FullText}"
                             IsVisible="{Binding HighlightedExampleDanish.IsFullTextOnly}"/>
                         <TextBlock
-                            FontSize="12"
+                            FontSize="14"
                             TextWrapping="Wrap"
                             Foreground="#FFCBD5E1"
                             IsVisible="{Binding HasCurrentExampleEnglish}">
                             <Run
                                 Text="EN : "
                                 FontStyle="Italic"
-                                FontSize="11" />
+                                FontSize="12" />
                             <Run
                                 Text="{Binding HighlightedExampleEnglish.BeforeWord}"
-                                FontSize="12" />
+                                FontSize="14" />
                             <Run
                                 Text="{Binding HighlightedExampleEnglish.HighlightedWord}"
                                 TextDecorations="Underline"
                                 FontWeight="SemiBold"
-                                FontSize="12" />
+                                FontSize="14" />
                             <Run
                                 Text="{Binding HighlightedExampleEnglish.AfterWord}"
-                                FontSize="12" />
+                                FontSize="14" />
                         </TextBlock>
                         <!-- Fallback: Show full text if highlighting failed -->
                         <TextBlock
-                            FontSize="12"
+                            FontSize="14"
                             TextWrapping="Wrap"
                             Foreground="#FFCBD5E1"
                             Text="{Binding HighlightedExampleEnglish.FullText}"

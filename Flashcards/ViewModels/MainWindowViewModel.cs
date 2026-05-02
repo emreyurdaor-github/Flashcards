@@ -13,7 +13,7 @@ namespace Flashcards.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase, IDisposable
 {
-    private static readonly TimeSpan RotationInterval = TimeSpan.FromSeconds(10);
+    private static readonly TimeSpan RotationInterval = TimeSpan.FromSeconds(20);
     private readonly IReadOnlyList<FlashcardEntry> _flashcards = FlashcardDataSource.GetFlashcards();
     private readonly DispatcherTimer _rotationTimer;
     private readonly Random _random = new();
@@ -66,6 +66,9 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
                 UpdateHighlightedExamples();
                 OnPropertyChanged(nameof(HighlightedExampleDanish));
                 OnPropertyChanged(nameof(HighlightedExampleEnglish));
+                
+                // Play the Danish example sound twice with 1 second delay
+                _ = PlayDanishWordTwiceAsync();
             }
         }
     }
@@ -146,16 +149,22 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         // Handle multi-word expressions like "to destroy / to ruin / to break"
         var keywords = ExtractKeywords(word);
         
+        System.Diagnostics.Debug.WriteLine($"[HighlightWord] Input word: '{word}' -> Keywords: {string.Join(", ", keywords)}");
+        
         // Try to find any of the keywords in the text
         foreach (var keyword in keywords)
         {
             var result = FindAndHighlightWord(text, keyword);
             if (!string.IsNullOrEmpty(result.HighlightedWord))
+            {
+                System.Diagnostics.Debug.WriteLine($"[HighlightWord] Found highlight: '{result.HighlightedWord}' in text");
                 return result;
+            }
         }
 
         // If no keywords found, return the full text without highlighting
         // This ensures the text is still visible even if highlighting fails
+        System.Diagnostics.Debug.WriteLine($"[HighlightWord] No highlight found for keywords: {string.Join(", ", keywords)}");
         return new FormattedExampleText { FullText = text };
     }
 
@@ -213,7 +222,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
 
     /// <summary>
     /// Finds and highlights a word in text using flexible matching
-    /// Priority: exact match > case-insensitive match > word form match
+    /// Priority: whole word form match > exact match > case-insensitive match
     /// </summary>
     private FormattedExampleText FindAndHighlightWord(string text, string keyword)
     {
@@ -223,47 +232,88 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         var lowerText = text.ToLowerInvariant();
         var lowerKeyword = keyword.ToLowerInvariant();
 
-        // First, try exact match (case-insensitive)
-        var index = lowerText.IndexOf(lowerKeyword, StringComparison.OrdinalIgnoreCase);
-        if (index >= 0)
-        {
-            return ExtractHighlightedText(text, index, keyword.Length);
-        }
-
-        // Second, try to find word forms (e.g., "destroy" in "destroying")
+        // Generate variants sorted by length (longest first) to match whole words
         var variants = GenerateWordVariants(lowerKeyword);
+        
+        System.Diagnostics.Debug.WriteLine($"[FindAndHighlightWord] Keyword: '{lowerKeyword}' -> Variants: {string.Join(", ", variants)}");
+        
+        // Try to find any variant as a whole word (with word boundaries)
         foreach (var variant in variants)
         {
-            index = lowerText.IndexOf(variant, StringComparison.OrdinalIgnoreCase);
+            var (index, length) = FindWholeWord(lowerText, variant);
             if (index >= 0)
             {
-                return ExtractHighlightedText(text, index, variant.Length);
+                System.Diagnostics.Debug.WriteLine($"[FindAndHighlightWord] Found variant '{variant}' at index {index} with length {length}");
+                return ExtractHighlightedText(text, index, length);
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"[FindAndHighlightWord] Variant '{variant}' not found as whole word");
             }
         }
 
         // If still no match, return full text (don't hide it)
+        System.Diagnostics.Debug.WriteLine($"[FindAndHighlightWord] No variant found for keyword '{keyword}'");
         return new FormattedExampleText { FullText = text };
     }
 
     /// <summary>
-    /// Generates common word variants (e.g., "destroy" -> ["destroy", "destroys", "destroyed", "destroying", "destroyer"])
+    /// Finds a whole word in text with word boundaries
+    /// Returns the index and length of the found word, or (-1, 0) if not found
+    /// </summary>
+    private (int index, int length) FindWholeWord(string text, string word)
+    {
+        int index = 0;
+        while ((index = text.IndexOf(word, index, StringComparison.OrdinalIgnoreCase)) >= 0)
+        {
+            // Check if it's a whole word (has word boundaries before and after)
+            bool isStartBoundary = (index == 0) || !char.IsLetterOrDigit(text[index - 1]);
+            bool isEndBoundary = (index + word.Length >= text.Length) || !char.IsLetterOrDigit(text[index + word.Length]);
+
+            if (isStartBoundary && isEndBoundary)
+            {
+                return (index, word.Length);
+            }
+
+            index += 1; // Move past this match to find the next occurrence
+        }
+
+        return (-1, 0); // Not found as a whole word
+    }
+
+    /// <summary>
+    /// Generates common word variants (e.g., "holdning" -> ["holdninger", "holdning"])
+    /// Longer variants first to match whole word forms over base forms
     /// </summary>
     private List<string> GenerateWordVariants(string word)
     {
-        var variants = new List<string> { word };
+        var variants = new List<string>();
         
-        // Add common endings
+        // Add Danish plural forms (longer first for priority)
+        // Always add +er and +s variants regardless of word ending
+        variants.Add(word + "er"); // holdning -> holdninger, ulempe -> ulemper
+        variants.Add(word + "ne"); // Danish definite plural
+        
+        if (!word.EndsWith("e"))
+        {
+            variants.Add(word + "e"); // Danish definite form (for words not ending in 'e')
+        }
+        
+        // Add English-style variants
+        variants.Add(word + "s");
         variants.Add(word + "ing");
         variants.Add(word + "ed");
-        variants.Add(word + "s");
-        variants.Add(word + "er");
         variants.Add(word + "est");
         
-        // Add variants with common suffix replacements
+        // Add the base word (lowest priority)
+        variants.Add(word);
+        
+        // Add variants with vowel handling for 'e' ending words
         if (word.EndsWith("e"))
         {
-            variants.Add(word.Substring(0, word.Length - 1) + "ing");
-            variants.Add(word.Substring(0, word.Length - 1) + "ed");
+            var withoutE = word.Substring(0, word.Length - 1);
+            variants.Add(withoutE + "ing");
+            variants.Add(withoutE + "ed");
         }
         
         // For words ending in consonant, double the consonant before adding suffix
@@ -273,7 +323,14 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
             variants.Add(word + word[word.Length - 1] + "ed");
         }
 
-        return variants.OrderByDescending(v => v.Length).ToList(); // Longer matches first
+        // Remove duplicates and sort by length (longest first)
+        var result = variants.Distinct(StringComparer.OrdinalIgnoreCase)
+                      .OrderByDescending(v => v.Length)
+                      .ToList();
+        
+        System.Diagnostics.Debug.WriteLine($"[GenerateWordVariants] Word: '{word}' -> Variants: [{string.Join(", ", result)}]");
+        
+        return result;
     }
 
     /// <summary>
@@ -631,6 +688,64 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
 
         System.Diagnostics.Debug.WriteLine($"[ViewModel] PlayCurrentDanishExample: Playing '{CurrentFlashcard.ExampleDanish}'");
         await _audioService.PlayDanishPronunciation(CurrentFlashcard.ExampleDanish);
+    }
+
+    /// <summary>
+    /// Plays the Danish word twice, waits 1 second, plays English once, then plays Danish example once
+    /// Called automatically when a new flashcard is loaded
+    /// </summary>
+    private async Task PlayDanishWordTwiceAsync()
+    {
+        if (CurrentFlashcard is null || string.IsNullOrWhiteSpace(CurrentFlashcard.Danish))
+        {
+            System.Diagnostics.Debug.WriteLine("[ViewModel] PlayDanishWordTwiceAsync: No Danish word available");
+            return;
+        }
+
+        try
+        {
+            System.Diagnostics.Debug.WriteLine($"[ViewModel] PlayDanishWordTwiceAsync: Starting playback sequence");
+            
+            // Play Danish word first time
+            System.Diagnostics.Debug.WriteLine($"[ViewModel] PlayDanishWordTwiceAsync: Playing Danish '{CurrentFlashcard.Danish}' (1st time)");
+            await _audioService.PlayDanishPronunciation(CurrentFlashcard.Danish);
+            
+            // Wait a brief moment between repeats
+            await Task.Delay(TimeSpan.FromMilliseconds(500));
+            
+            // Play Danish word second time
+            System.Diagnostics.Debug.WriteLine($"[ViewModel] PlayDanishWordTwiceAsync: Playing Danish '{CurrentFlashcard.Danish}' (2nd time)");
+            await _audioService.PlayDanishPronunciation(CurrentFlashcard.Danish);
+            
+            // Wait 1 second before playing English
+            System.Diagnostics.Debug.WriteLine("[ViewModel] PlayDanishWordTwiceAsync: Waiting 1 second before English playback");
+            await Task.Delay(TimeSpan.FromSeconds(1));
+            
+            // Play English translation once
+            if (!string.IsNullOrWhiteSpace(CurrentFlashcard.English))
+            {
+                System.Diagnostics.Debug.WriteLine($"[ViewModel] PlayDanishWordTwiceAsync: Playing English '{CurrentFlashcard.English}'");
+                await _audioService.PlayEnglishPronunciation(CurrentFlashcard.English);
+                System.Diagnostics.Debug.WriteLine("[ViewModel] PlayDanishWordTwiceAsync: English playback complete");
+            }
+            
+            // Wait 500ms before playing Danish example
+            await Task.Delay(TimeSpan.FromMilliseconds(500));
+            
+            // Play Danish example once
+            if (!string.IsNullOrWhiteSpace(CurrentFlashcard.ExampleDanish))
+            {
+                System.Diagnostics.Debug.WriteLine($"[ViewModel] PlayDanishWordTwiceAsync: Playing Danish example '{CurrentFlashcard.ExampleDanish}'");
+                await _audioService.PlayDanishPronunciation(CurrentFlashcard.ExampleDanish);
+                System.Diagnostics.Debug.WriteLine("[ViewModel] PlayDanishWordTwiceAsync: Danish example playback complete");
+            }
+            
+            System.Diagnostics.Debug.WriteLine("[ViewModel] PlayDanishWordTwiceAsync: Complete playback sequence finished");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ViewModel] PlayDanishWordTwiceAsync: Error - {ex.Message}");
+        }
     }
 
     private void MinimizeToTray()
