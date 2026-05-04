@@ -2,6 +2,8 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:vm="using:Flashcards.ViewModels"
+    xmlns:models="using:Flashcards.Models"
+    xmlns:converters="using:Flashcards.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
@@ -27,6 +29,10 @@
         <vm:MainWindowViewModel />
     </Design.DataContext>
 
+    <Window.Resources>
+        <converters:MultiBooleanAndConverter x:Key="MultiBooleanAndConverter" />
+    </Window.Resources>
+
     <Border
         Margin="12"
         Padding="16"
@@ -34,24 +40,82 @@
         Background="#CC1E293B"
         BorderBrush="#668ECAE6"
         BorderThickness="1">
-        <Grid RowDefinitions="Auto,Auto,*,Auto,Auto">
-            <!-- Close button at top right -->
-            <Button
+        <Grid RowDefinitions="Auto,Auto,Auto,*,Auto,Auto">
+            <!-- Top row with search and close button -->
+            <Grid
                 Grid.Row="0"
-                Grid.Column="0"
-                Width="28"
-                Height="28"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Top"
-                CornerRadius="6"
-                FontSize="16"
-                FontWeight="Bold"
-                Content="✕"
-                Command="{Binding MinimizeToTrayCommand}"
-                Margin="0,0,0,8" />
+                ColumnDefinitions="*,Auto,Auto"
+                Margin="0,0,0,12">
+                <!-- Search box at top center -->
+                <AutoCompleteBox
+                    x:Name="SearchBox"
+                    Grid.Column="0"
+                    Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    ItemsSource="{Binding SearchResults}"
+                    FilterMode="None"
+                    Watermark="🔍"
+                    VerticalAlignment="Center"
+                    IsTextCompletionEnabled="False"
+                    Padding="8,6"
+                    Margin="0,0,12,0"
+                    Width="200"
+                    Background="Transparent">
+                    <AutoCompleteBox.ItemTemplate>
+                        <DataTemplate DataType="models:FlashcardEntry">
+                            <StackPanel>
+                                <TextBlock
+                                    Text="{Binding Danish}"
+                                    FontSize="14"
+                                    FontWeight="SemiBold"
+                                    Foreground="#FFFBBF24" />
+                                <TextBlock
+                                    Text="{Binding English}"
+                                    FontSize="12"
+                                    Foreground="#FFCBD5E1" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </AutoCompleteBox.ItemTemplate>
+                </AutoCompleteBox>
+
+                <!-- Mute button -->
+                <Button
+                    Grid.Column="1"
+                    Width="22"
+                    Height="22"
+                    Padding="0"
+                    CornerRadius="6"
+                    FontSize="14"
+                    FontWeight="Bold"
+                    Content="{Binding MuteIcon}"
+                    ToolTip.Tip="{Binding MuteTooltip}"
+                    Command="{Binding ToggleMuteCommand}"
+                    VerticalAlignment="Center"
+                    HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Margin="0,0,8,0" />
+
+                <!-- Close button at top right -->
+                <Button
+                    Grid.Column="2"
+                    Width="22"
+                    Height="22"
+                    Padding="0"
+                    CornerRadius="6"
+                    FontSize="14"
+                    FontWeight="Bold"
+                    Content="✕"
+                    Command="{Binding MinimizeToTrayCommand}"
+                    VerticalAlignment="Center"
+                    HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center"
+                    Background="Transparent"
+                    BorderThickness="0" />
+            </Grid>
 
             <StackPanel
-                Grid.Row="2"
+                Grid.Row="3"
                 Margin="0,12,0,0"
                 Spacing="10"
                 IsVisible="{Binding IsFlashcardPage}">
@@ -198,7 +262,7 @@
             </StackPanel>
 
             <StackPanel
-                Grid.Row="2"
+                Grid.Row="3"
                 Margin="0,12,0,0"
                 Spacing="8"
                 IsVisible="{Binding IsAddRecordPage}">
@@ -265,12 +329,17 @@
             </StackPanel>
 
             <Border
-                Grid.Row="3"
+                Grid.Row="4"
                 Margin="0,8,0,0"
                 Padding="8,6"
                 CornerRadius="8"
-                Background="#22F59E0B"
-                IsVisible="{Binding HasCurrentContextualTip}">
+                Background="#22F59E0B">
+                <Border.IsVisible>
+                    <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
+                        <Binding Path="HasCurrentContextualTip" />
+                        <Binding Path="IsFlashcardPage" />
+                    </MultiBinding>
+                </Border.IsVisible>
                 <Grid
                     ColumnDefinitions="Auto,*">
                     <TextBlock
@@ -289,7 +358,7 @@
             </Border>
 
             <Button
-                Grid.Row="4"
+                Grid.Row="5"
                 Width="32"
                 Height="32"
                 HorizontalAlignment="Right"
@@ -299,24 +368,28 @@
                 FontWeight="Bold"
                 Content="+"
                 Command="{Binding ShowAddRecordCommand}"
-                IsVisible="{Binding IsFlashcardPage}" />
+                IsVisible="{Binding IsFlashcardPage}"
+                HorizontalContentAlignment="Center"
+                VerticalContentAlignment="Center"/>
 
             <Button
-                Grid.Row="4"
+                Grid.Row="5"
                 Width="32"
                 Height="32"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Bottom"
                 Margin="0,0,44,0"
                 CornerRadius="16"
                 FontSize="14"
                 FontWeight="SemiBold"
                 Content="✎"
                 Command="{Binding ShowEditRecordCommand}"
-                IsVisible="{Binding HasFlashcards}" />
+                IsVisible="{Binding HasFlashcards}"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                HorizontalContentAlignment="Center"
+                VerticalContentAlignment="Center"/>
 
             <StackPanel
-                Grid.Row="4"
+                Grid.Row="5"
                 Orientation="Horizontal"
                 HorizontalAlignment="Center"
                 Spacing="8">
@@ -328,7 +401,9 @@
                     FontWeight="SemiBold"
                     Content="◀"
                     Command="{Binding PreviousCardCommand}"
-                    IsVisible="{Binding IsFlashcardPage}" />
+                    IsVisible="{Binding IsFlashcardPage}"
+                    HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center"/>
                 <Button
                     Width="32"
                     Height="32"
@@ -337,11 +412,13 @@
                     FontWeight="SemiBold"
                     Content="▶"
                     Command="{Binding NextCardCommand}"
-                    IsVisible="{Binding IsFlashcardPage}" />
+                    IsVisible="{Binding IsFlashcardPage}"
+                    HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center"/>
             </StackPanel>
 
             <StackPanel
-                Grid.Row="4"
+                Grid.Row="5"
                 Orientation="Horizontal"
                 HorizontalAlignment="Left"
                 Spacing="8">
@@ -349,22 +426,26 @@
                     Width="32"
                     Height="32"
                     CornerRadius="16"
-                    FontSize="14"
+                    FontSize="11"
                     FontWeight="SemiBold"
                     Content="▶"
                     Command="{Binding PlayCommand}"
                     IsEnabled="{Binding IsRotationPaused}"
-                    IsVisible="{Binding IsFlashcardPage}" />
+                    IsVisible="{Binding IsFlashcardPage}"
+                    HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center"/>
                 <Button
                     Width="32"
                     Height="32"
                     CornerRadius="16"
-                    FontSize="14"
+                    FontSize="11"
                     FontWeight="SemiBold"
                     Content="⏸"
                     Command="{Binding PauseCommand}"
                     IsEnabled="{Binding IsRotationPlaying}"
-                    IsVisible="{Binding IsFlashcardPage}" />
+                    IsVisible="{Binding IsFlashcardPage}"
+                    HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center"/>
             </StackPanel>
         </Grid>
     </Border>

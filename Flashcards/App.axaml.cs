@@ -3,16 +3,20 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core;
 using Avalonia.Data.Core.Plugins;
+using Avalonia.Platform;
 using System;
 using System.Linq;
 using Avalonia.Markup.Xaml;
 using Flashcards.ViewModels;
 using Flashcards.Views;
+using Microsoft.Win32;
 
 namespace Flashcards;
 
 public partial class App : Application
 {
+    private MainWindow? _mainWindow;
+    private IClassicDesktopStyleApplicationLifetime? _desktop;
     private TrayIcon? _trayIcon;
 
     public override void Initialize()
@@ -24,86 +28,104 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
-            // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
             DisableAvaloniaDataAnnotationValidation();
-            
-            var mainWindow = new MainWindow
+
+            _desktop = desktop;
+            _mainWindow = new MainWindow
             {
                 DataContext = new MainWindowViewModel(),
             };
-            
-            desktop.MainWindow = mainWindow;
-            
-            // Add system tray icon
-            SetupTrayIcon(mainWindow, desktop);
+            desktop.MainWindow = _mainWindow;
         }
 
         base.OnFrameworkInitializationCompleted();
+
+        BuildTrayIcon();
     }
 
-    private void SetupTrayIcon(MainWindow mainWindow, IClassicDesktopStyleApplicationLifetime desktop)
+    private void BuildTrayIcon()
     {
-        try
+        // Build menu items
+        var restoreItem = new NativeMenuItem("Restore");
+        restoreItem.Click += (_, _) =>
         {
-            _trayIcon = new TrayIcon
-            {
-                Icon = new WindowIcon("avares://Flashcards/Assets/app.ico"),
-                IsVisible = true,
-                Menu = new NativeMenu()
-            };
+            _mainWindow?.Show();
+            if (_mainWindow != null) _mainWindow.WindowState = WindowState.Normal;
+            _mainWindow?.Activate();
+        };
 
-            var showMenuItem = new NativeMenuItem { Header = "Show" };
-            showMenuItem.Click += (sender, e) =>
-            {
-                mainWindow.Show();
-                mainWindow.WindowState = WindowState.Normal;
-                mainWindow.Activate();
-            };
+        var startupItem = new NativeMenuItem("Run on Windows Startup");
+        startupItem.Click += (_, _) => ToggleWindowsStartup();
 
-            var exitMenuItem = new NativeMenuItem { Header = "Exit" };
-            exitMenuItem.Click += (sender, e) =>
-            {
-                desktop.Shutdown();
-            };
+        var exitItem = new NativeMenuItem("Exit");
+        exitItem.Click += (_, _) => _desktop?.Shutdown();
 
-            _trayIcon.Menu?.Items?.Add(showMenuItem);
-            _trayIcon.Menu?.Items?.Add(exitMenuItem);
+        // Build menu
+        var menu = new NativeMenu();
+        menu.Add(restoreItem);
+        menu.Add(new NativeMenuItemSeparator());
+        menu.Add(startupItem);
+        menu.Add(new NativeMenuItemSeparator());
+        menu.Add(exitItem);
 
-            // Handle tray icon click to toggle window
-            _trayIcon.Clicked += (sender, e) =>
-            {
-                if (mainWindow.WindowState == WindowState.Minimized || !mainWindow.IsVisible)
-                {
-                    mainWindow.Show();
-                    mainWindow.WindowState = WindowState.Normal;
-                    mainWindow.Activate();
-                }
-                else
-                {
-                    mainWindow.Hide();
-                }
-            };
-
-            System.Diagnostics.Debug.WriteLine("Tray icon setup completed successfully");
-        }
-        catch (Exception ex)
+        // Build tray icon
+        _trayIcon = new TrayIcon
         {
-            System.Diagnostics.Debug.WriteLine($"Failed to setup tray icon: {ex.Message}");
-            System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
-        }
+            Icon = new WindowIcon(AssetLoader.Open(new Uri("avares://Flashcards/Assets/app.ico"))),
+            ToolTipText = "Flashcards Widget",
+            Menu = menu,
+            IsVisible = true,
+        };
+
+        _trayIcon.Clicked += (_, _) =>
+        {
+            if (_mainWindow == null) return;
+            if (!_mainWindow.IsVisible || _mainWindow.WindowState == WindowState.Minimized)
+            {
+                _mainWindow.Show();
+                _mainWindow.WindowState = WindowState.Normal;
+                _mainWindow.Activate();
+            }
+            else
+            {
+                _mainWindow.Hide();
+            }
+        };
     }
 
     private void DisableAvaloniaDataAnnotationValidation()
     {
-        // Get an array of plugins to remove
         var dataValidationPluginsToRemove =
             BindingPlugins.DataValidators.OfType<DataAnnotationsValidationPlugin>().ToArray();
-
-        // remove each entry found
         foreach (var plugin in dataValidationPluginsToRemove)
-        {
             BindingPlugins.DataValidators.Remove(plugin);
+    }
+
+#pragma warning disable CA1416
+    private void ToggleWindowsStartup()
+    {
+        try
+        {
+            const string runKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Run";
+            const string appName = "Flashcards";
+
+            using var key = Registry.CurrentUser.OpenSubKey(runKey, writable: true);
+            if (key == null) return;
+
+            if (key.GetValue(appName) != null)
+            {
+                key.DeleteValue(appName);
+            }
+            else
+            {
+                var appPath = System.Diagnostics.Process.GetCurrentProcess().MainModule?.FileName ?? string.Empty;
+                key.SetValue(appName, appPath);
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ToggleWindowsStartup] Error: {ex.Message}");
         }
     }
+#pragma warning restore CA1416
 }

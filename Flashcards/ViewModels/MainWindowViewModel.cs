@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
@@ -21,7 +22,8 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     private readonly Stack<FlashcardEntry> _navigationHistory = new();
     private FlashcardEntry? _currentFlashcard;
     private bool _isAddRecordPage;
-    private bool _isRotationPaused;
+    private bool _isRotationPaused = true;
+    private bool _isMuted = true;
     private string _newDanish = string.Empty;
     private string _newEnglish = string.Empty;
     private string _newConjugation = string.Empty;
@@ -29,6 +31,10 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     private string _newExampleEnglish = string.Empty;
     private string _newContextualTip = string.Empty;
     private string _validationMessage = string.Empty;
+    private string _searchText = string.Empty;
+    
+    // Search autocomplete collection
+    private ObservableCollection<FlashcardEntry> _searchResults = new();
 
     public string DataSourceName { get; } = "Local in-solution data source";
     public IRelayCommand ShowAddRecordCommand { get; }
@@ -42,6 +48,8 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     public IAsyncRelayCommand PlayDanishWordCommand { get; }
     public IAsyncRelayCommand PlayDanishExampleCommand { get; }
     public IRelayCommand MinimizeToTrayCommand { get; set; }
+    public IRelayCommand<FlashcardEntry?> SelectSearchResultCommand { get; }
+    public IRelayCommand ToggleMuteCommand { get; }
 
     public FlashcardEntry? CurrentFlashcard
     {
@@ -457,6 +465,45 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
 
     public bool IsRotationPlaying => !IsRotationPaused;
 
+     public string SearchText
+     {
+         get => _searchText;
+         set
+         {
+             var newValue = value ?? string.Empty;
+             // Only update if the value actually changed
+             if (_searchText != newValue)
+             {
+                 _searchText = newValue;
+                 OnPropertyChanged(nameof(SearchText));
+                 UpdateSearchResults();
+             }
+         }
+     }
+
+    public ObservableCollection<FlashcardEntry> SearchResults
+    {
+        get => _searchResults;
+        private set => SetProperty(ref _searchResults, value);
+    }
+
+    public bool IsMuted
+    {
+        get => _isMuted;
+        private set
+        {
+            if (SetProperty(ref _isMuted, value))
+            {
+                OnPropertyChanged(nameof(MuteIcon));
+                OnPropertyChanged(nameof(MuteTooltip));
+            }
+        }
+    }
+
+    public string MuteIcon => IsMuted ? "🔕" : "🔔";
+
+    public string MuteTooltip => IsMuted ? "Unmute translations" : "Mute translations";
+
     public MainWindowViewModel()
     {
         ShowAddRecordCommand = new RelayCommand(ShowAddRecordPage);
@@ -470,6 +517,8 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         PlayDanishWordCommand = new AsyncRelayCommand(PlayCurrentDanishWord);
         PlayDanishExampleCommand = new AsyncRelayCommand(PlayCurrentDanishExample);
         MinimizeToTrayCommand = new RelayCommand(MinimizeToTray);
+        SelectSearchResultCommand = new RelayCommand<FlashcardEntry?>(SelectSearchResult);
+        ToggleMuteCommand = new RelayCommand(ToggleMute);
 
         _rotationTimer = new DispatcherTimer
         {
@@ -486,6 +535,51 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         _rotationTimer.Stop();
         _rotationTimer.Tick -= OnRotationTimerTick;
         _audioService?.Dispose();
+    }
+
+    /// <summary>
+    /// Updates search results based on the current search text
+    /// Performs a case-insensitive "like" search on Danish words
+    /// </summary>
+    private void UpdateSearchResults()
+    {
+        SearchResults.Clear();
+
+        if (string.IsNullOrWhiteSpace(SearchText))
+        {
+            return;
+        }
+
+        var searchLower = SearchText.Trim().ToLowerInvariant();
+        
+        // Filter flashcards by Danish text containing the search text (case-insensitive)
+        var results = _flashcards
+            .Where(fc => fc.Danish.ToLowerInvariant().Contains(searchLower))
+            .OrderBy(fc => fc.Danish) // Sort alphabetically for better UX
+            .ToList();
+
+        foreach (var result in results)
+        {
+            SearchResults.Add(result);
+        }
+    }
+
+    /// <summary>
+    /// Handles selection of a search result
+    /// Sets it as the current flashcard and clears the search
+    /// </summary>
+    private void SelectSearchResult(FlashcardEntry? flashcard)
+    {
+        if (flashcard is not null)
+        {
+            CurrentFlashcard = flashcard;
+            // Defer clearing the search text to avoid AutoCompleteBox issues
+            // Use Dispatcher to clear it after the current event is processed
+            Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                SearchText = string.Empty;
+            }, DispatcherPriority.Input);
+        }
     }
 
     private void OnRotationTimerTick(object? sender, EventArgs e)
@@ -693,9 +787,16 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     /// <summary>
     /// Plays the Danish word twice, waits 1 second, plays English once, then plays Danish example once
     /// Called automatically when a new flashcard is loaded
+    /// Only plays if not muted
     /// </summary>
     private async Task PlayDanishWordTwiceAsync()
     {
+        if (IsMuted)
+        {
+            System.Diagnostics.Debug.WriteLine("[ViewModel] PlayDanishWordTwiceAsync: Skipped - audio is muted");
+            return;
+        }
+
         if (CurrentFlashcard is null || string.IsNullOrWhiteSpace(CurrentFlashcard.Danish))
         {
             System.Diagnostics.Debug.WriteLine("[ViewModel] PlayDanishWordTwiceAsync: No Danish word available");
@@ -753,5 +854,14 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         // This method will be called when the close button is clicked
         // The actual minimization to tray will be handled in the MainWindow code-behind
         System.Diagnostics.Debug.WriteLine("[ViewModel] MinimizeToTray command executed");
+    }
+
+    /// <summary>
+    /// Toggles the mute state for automatic audio playback
+    /// </summary>
+    private void ToggleMute()
+    {
+        IsMuted = !IsMuted;
+        System.Diagnostics.Debug.WriteLine($"[ViewModel] ToggleMute: Audio is now {(IsMuted ? "muted" : "unmuted")}");
     }
 }
