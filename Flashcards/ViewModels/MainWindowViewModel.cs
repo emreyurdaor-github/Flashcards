@@ -365,13 +365,25 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
 
     /// <summary>
     /// Updates the highlighted examples based on the current flashcard
+    /// For Danish examples, tries to highlight the main word first, then the conjugation if available
     /// </summary>
     private void UpdateHighlightedExamples()
     {
         if (string.IsNullOrEmpty(CurrentExampleDanish) || string.IsNullOrEmpty(CurrentDanish))
             HighlightedExampleDanish = new FormattedExampleText { FullText = CurrentExampleDanish ?? string.Empty };
         else
-            HighlightedExampleDanish = HighlightWord(CurrentExampleDanish, CurrentDanish);
+        {
+            // Try to highlight the main Danish word first
+            var result = HighlightWord(CurrentExampleDanish, CurrentDanish);
+            
+            // If main word wasn't found and conjugation exists, try to highlight the conjugation
+            if (string.IsNullOrEmpty(result.HighlightedWord) && !string.IsNullOrEmpty(CurrentConjugation))
+            {
+                result = HighlightWord(CurrentExampleDanish, CurrentConjugation);
+            }
+            
+            HighlightedExampleDanish = result;
+        }
 
         if (string.IsNullOrEmpty(CurrentExampleEnglish) || string.IsNullOrEmpty(CurrentEnglish))
             HighlightedExampleEnglish = new FormattedExampleText { FullText = CurrentExampleEnglish ?? string.Empty };

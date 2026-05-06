@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net9.0-android</TargetFramework>
+        <OutputType>Exe</OutputType>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        
+        <!-- Android Properties -->
+        <ApplicationId>com.emyur.flashcards</ApplicationId>
+        <ApplicationVersion>1</ApplicationVersion>
+        <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+        <AndroidUseAapt2>true</AndroidUseAapt2>
+        <AndroidCreatePackagePerAbi>false</AndroidCreatePackagePerAbi>
+        <SupportedOSPlatformVersion>34</SupportedOSPlatformVersion>
+        <AndroidResourceDir>Resources</AndroidResourceDir>
+        
+        <!-- Packaging Configuration -->
+        <AndroidPackageFormat>apk</AndroidPackageFormat>
+        <GenerateAppInstallerFile>false</GenerateAppInstallerFile>
+        <AndroidEnableProfiledAotDexSplitting>false</AndroidEnableProfiledAotDexSplitting>
+        <AndroidDexTool>d8</AndroidDexTool>
+        <AndroidUseLegacyVersionCode>false</AndroidUseLegacyVersionCode>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Xamarin.AndroidX.AppCompat" Version="1.7.0.3"/>
+        <PackageReference Include="Xamarin.AndroidX.ConstraintLayout" Version="2.1.4.16"/>
+        <PackageReference Include="Xamarin.AndroidX.Lifecycle.Runtime" Version="2.8.6"/>
+        <PackageReference Include="Xamarin.AndroidX.Lifecycle.Common" Version="2.8.6"/>
+        <PackageReference Include="Xamarin.Google.Android.Material" Version="1.12.0"/>
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <AndroidResource Include="Resources/**"/>
+    </ItemGroup>
+
+    <!-- Copy AndroidManifest.xml to output for Rider integration -->
+    <Target Name="CopyAndroidManifest" BeforeTargets="Build;Publish">
+        <Copy SourceFiles="Platforms/Android/AndroidManifest.xml" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="false" />
+        <Copy SourceFiles="AndroidManifest.xml" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="false" Condition="Exists('AndroidManifest.xml')" />
+    </Target>
+
+</Project>

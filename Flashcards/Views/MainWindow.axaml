@@ -36,7 +36,7 @@
     <Border
         Margin="12"
         Padding="16"
-        CornerRadius="18"
+        CornerRadius="10"
         Background="#CC1E293B"
         BorderBrush="#668ECAE6"
         BorderThickness="1">
@@ -44,12 +44,31 @@
             <!-- Top row with search and close button -->
             <Grid
                 Grid.Row="0"
-                ColumnDefinitions="*,Auto,Auto"
+                ColumnDefinitions="Auto,*,Auto"
                 Margin="0,0,0,12">
+                <!-- Mute button -->
+                <Button
+                    Grid.Column="0"
+                    Width="22"
+                    Height="22"
+                    Padding="0"
+                    CornerRadius="6"
+                    FontSize="14"
+                    FontWeight="Bold"
+                    Content="{Binding MuteIcon}"
+                    ToolTip.Tip="{Binding MuteTooltip}"
+                    Command="{Binding ToggleMuteCommand}"
+                    VerticalAlignment="Center"
+                    HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Margin="0,0,8,0" />
+
                 <!-- Search box at top center -->
                 <AutoCompleteBox
                     x:Name="SearchBox"
-                    Grid.Column="0"
+                    Grid.Column="1"
                     Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                     ItemsSource="{Binding SearchResults}"
                     FilterMode="None"
@@ -57,7 +76,7 @@
                     VerticalAlignment="Center"
                     IsTextCompletionEnabled="False"
                     Padding="8,6"
-                    Margin="0,0,12,0"
+                    Margin="0,0,0,0"
                     Width="200"
                     Background="Transparent">
                     <AutoCompleteBox.ItemTemplate>
@@ -77,24 +96,7 @@
                     </AutoCompleteBox.ItemTemplate>
                 </AutoCompleteBox>
 
-                <!-- Mute button -->
-                <Button
-                    Grid.Column="1"
-                    Width="22"
-                    Height="22"
-                    Padding="0"
-                    CornerRadius="6"
-                    FontSize="14"
-                    FontWeight="Bold"
-                    Content="{Binding MuteIcon}"
-                    ToolTip.Tip="{Binding MuteTooltip}"
-                    Command="{Binding ToggleMuteCommand}"
-                    VerticalAlignment="Center"
-                    HorizontalContentAlignment="Center"
-                    VerticalContentAlignment="Center"
-                    Background="Transparent"
-                    BorderThickness="0"
-                    Margin="0,0,8,0" />
+
 
                 <!-- Close button at top right -->
                 <Button
