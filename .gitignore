@@ -3,6 +3,7 @@ bin/
 obj/
 
 # Visual Studio / Rider / JetBrains
+Publish/
 .idea/
 *.suo
 *.user
