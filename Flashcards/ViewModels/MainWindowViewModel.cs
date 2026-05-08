@@ -16,20 +16,26 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
 {
     private static readonly TimeSpan RotationInterval = TimeSpan.FromSeconds(20);
     private readonly IReadOnlyList<FlashcardEntry> _flashcards = FlashcardDataSource.GetFlashcards();
+    private readonly IReadOnlyList<WritingEntry> _writingEntries = WritingDataSource.GetWritingEntries();
     private readonly DispatcherTimer _rotationTimer;
     private readonly Random _random = new();
     private readonly AudioService _audioService = new();
     private readonly Stack<FlashcardEntry> _navigationHistory = new();
     private FlashcardEntry? _currentFlashcard;
+    private WritingEntry? _currentWritingEntry;
     private bool _isAddRecordPage;
+    private bool _isAddWritingPage;
     private bool _isRotationPaused = true;
     private bool _isMuted = true;
+    private int _selectedTabIndex = 0;
     private string _newDanish = string.Empty;
     private string _newEnglish = string.Empty;
     private string _newConjugation = string.Empty;
     private string _newExampleDanish = string.Empty;
     private string _newExampleEnglish = string.Empty;
     private string _newContextualTip = string.Empty;
+    private string _newWritingDanish = string.Empty;
+    private string _newWritingEnglish = string.Empty;
     private string _validationMessage = string.Empty;
     private string _searchText = string.Empty;
     
@@ -41,6 +47,12 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     public IRelayCommand SaveNewRecordCommand { get; }
     public IRelayCommand CancelAddRecordCommand { get; }
     public IRelayCommand ShowEditRecordCommand { get; }
+    public IRelayCommand ShowAddWritingCommand { get; }
+    public IRelayCommand SaveNewWritingCommand { get; }
+    public IRelayCommand CancelAddWritingCommand { get; }
+    public IRelayCommand ShowEditWritingCommand { get; }
+    public IRelayCommand NextWritingCommand { get; }
+    public IRelayCommand PreviousWritingCommand { get; }
     public IRelayCommand PlayCommand { get; }
     public IRelayCommand PauseCommand { get; }
     public IRelayCommand PreviousCardCommand { get; }
@@ -516,12 +528,54 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
 
     public string MuteTooltip => IsMuted ? "Unmute translations" : "Mute translations";
 
+    public int SelectedTabIndex
+    {
+        get => _selectedTabIndex;
+        set => SetProperty(ref _selectedTabIndex, value);
+    }
+
+    public WritingEntry? CurrentWritingEntry
+    {
+        get => _currentWritingEntry;
+        private set => SetProperty(ref _currentWritingEntry, value);
+    }
+
+    public string CurrentDanishWriting => CurrentWritingEntry?.DanishWriting ?? "No writing exercises available";
+
+    public string CurrentEnglishWriting => CurrentWritingEntry?.EnglishWriting ?? string.Empty;
+
+    public bool HasWritingEntries => CurrentWritingEntry is not null;
+
+    public bool IsAddWritingPage
+    {
+        get => _isAddWritingPage;
+        private set => SetProperty(ref _isAddWritingPage, value);
+    }
+
+    public string NewWritingDanish
+    {
+        get => _newWritingDanish;
+        set => SetProperty(ref _newWritingDanish, value);
+    }
+
+    public string NewWritingEnglish
+    {
+        get => _newWritingEnglish;
+        set => SetProperty(ref _newWritingEnglish, value);
+    }
+
     public MainWindowViewModel()
     {
         ShowAddRecordCommand = new RelayCommand(ShowAddRecordPage);
         ShowEditRecordCommand = new RelayCommand(ShowEditRecord);
         SaveNewRecordCommand = new RelayCommand(SaveNewRecord);
         CancelAddRecordCommand = new RelayCommand(CancelAddRecord);
+        ShowAddWritingCommand = new RelayCommand(ShowAddWritingPage);
+        ShowEditWritingCommand = new RelayCommand(ShowEditWriting);
+        SaveNewWritingCommand = new RelayCommand(SaveNewWriting);
+        CancelAddWritingCommand = new RelayCommand(CancelAddWriting);
+        NextWritingCommand = new RelayCommand(SelectNextWritingEntry);
+        PreviousWritingCommand = new RelayCommand(SelectPreviousWritingEntry);
         PlayCommand = new RelayCommand(Play);
         PauseCommand = new RelayCommand(Pause);
         PreviousCardCommand = new RelayCommand(SelectPreviousFlashcard);
@@ -540,6 +594,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
 
         SelectNextFlashcard();
         UpdateRotationState();
+        SelectFirstWritingEntry();
     }
 
     public void Dispose()
@@ -684,6 +739,79 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         IsEditMode = false;
     }
 
+    private void ShowAddWritingPage()
+    {
+        ResetForm();
+        IsAddWritingPage = true;
+        IsEditMode = false;
+    }
+
+    private void ShowEditWriting()
+    {
+        if (CurrentWritingEntry is null) return;
+
+        // Populate form with current values and switch to edit mode
+        NewWritingDanish = CurrentWritingEntry.DanishWriting;
+        NewWritingEnglish = CurrentWritingEntry.EnglishWriting;
+
+        IsEditMode = true;
+        IsAddWritingPage = true;
+    }
+
+    private void SaveNewWriting()
+    {
+        var danish = NewWritingDanish.Trim();
+        var english = NewWritingEnglish.Trim();
+
+        if (string.IsNullOrWhiteSpace(danish) || string.IsNullOrWhiteSpace(english))
+        {
+            ValidationMessage = "Danish and English are required.";
+            return;
+        }
+
+        var writingEntry = new WritingEntry
+        {
+            DanishWriting = danish,
+            EnglishWriting = english,
+        };
+
+        if (IsEditMode)
+        {
+            // Update existing writing entry
+            var original = CurrentWritingEntry?.DanishWriting ?? string.Empty;
+            if (!WritingDataSource.TryUpdateWritingEntry(original, writingEntry))
+            {
+                ValidationMessage = $"Unable to update: Danish '{danish}' conflicts with an existing record.";
+                return;
+            }
+
+            CurrentWritingEntry = writingEntry;
+            IsEditMode = false;
+            ResetForm();
+            IsAddWritingPage = false;
+        }
+        else
+        {
+            if (!WritingDataSource.TryAddWritingEntry(writingEntry))
+            {
+                ValidationMessage = $"A record with Danish '{danish}' already exists.";
+                return;
+            }
+
+            CurrentWritingEntry = writingEntry;
+
+            ResetForm();
+            IsAddWritingPage = false;
+        }
+    }
+
+    private void CancelAddWriting()
+    {
+        ResetForm();
+        IsAddWritingPage = false;
+        IsEditMode = false;
+    }
+
     private void ResetForm()
     {
         NewDanish = string.Empty;
@@ -692,6 +820,8 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         NewExampleDanish = string.Empty;
         NewExampleEnglish = string.Empty;
         NewContextualTip = string.Empty;
+        NewWritingDanish = string.Empty;
+        NewWritingEnglish = string.Empty;
         ValidationMessage = string.Empty;
     }
 
@@ -760,6 +890,69 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
 
         // Set the current flashcard to the previous one
         CurrentFlashcard = previousFlashcard;
+    }
+
+    private void SelectFirstWritingEntry()
+    {
+        if (_writingEntries.Count > 0)
+        {
+            CurrentWritingEntry = _writingEntries[0];
+        }
+    }
+
+    private void SelectNextWritingEntry()
+    {
+        if (_writingEntries.Count == 0)
+        {
+            CurrentWritingEntry = null;
+            return;
+        }
+
+        if (_writingEntries.Count == 1)
+        {
+            CurrentWritingEntry = _writingEntries[0];
+            return;
+        }
+
+        WritingEntry nextWritingEntry;
+
+        do
+        {
+            nextWritingEntry = _writingEntries[_random.Next(_writingEntries.Count)];
+        }
+        while (ReferenceEquals(nextWritingEntry, CurrentWritingEntry));
+
+        CurrentWritingEntry = nextWritingEntry;
+    }
+
+    private void SelectPreviousWritingEntry()
+    {
+        if (_writingEntries.Count == 0)
+        {
+            CurrentWritingEntry = null;
+            return;
+        }
+
+        // Find the index of the current entry
+        var currentIndex = -1;
+        for (int i = 0; i < _writingEntries.Count; i++)
+        {
+            if (ReferenceEquals(_writingEntries[i], CurrentWritingEntry))
+            {
+                currentIndex = i;
+                break;
+            }
+        }
+
+        if (currentIndex <= 0)
+        {
+            // If at the beginning or not found, wrap to the end
+            CurrentWritingEntry = _writingEntries[_writingEntries.Count - 1];
+        }
+        else
+        {
+            CurrentWritingEntry = _writingEntries[currentIndex - 1];
+        }
     }
 
     private void Play()

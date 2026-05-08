@@ -18,6 +18,7 @@
 
     <UserControl.Resources>
         <converters:MultiBooleanAndConverter x:Key="MultiBooleanAndConverter" />
+        <converters:EqualityConverter x:Key="EqualityConverter" />
     </UserControl.Resources>
 
     <Border
@@ -27,7 +28,31 @@
         Background="#CC1E293B"
         BorderBrush="#668ECAE6"
         BorderThickness="1">
-        <Grid RowDefinitions="Auto,Auto,Auto,*,Auto,Auto">
+        <Grid RowDefinitions="Auto,Auto,Auto,Auto,*,Auto,Auto">
+            <!-- Tab Control -->
+            <TabControl
+                Grid.Row="1"
+                SelectedIndex="{Binding SelectedTabIndex}"
+                Margin="0,0,0,12"
+                HorizontalAlignment="Center"
+                Height="44">
+                <TabItem Padding="8,3" BorderBrush="White" BorderThickness="2">
+                    <TabItem.Header>
+                        <TextBlock Text="Flashcards" FontSize="16" VerticalAlignment="Center" />
+                    </TabItem.Header>
+                </TabItem>
+                <TabItem Padding="8,3" BorderBrush="White" BorderThickness="2">
+                    <TabItem.Header>
+                        <TextBlock Text="Quiz" FontSize="16" VerticalAlignment="Center" />
+                    </TabItem.Header>
+                </TabItem>
+                <TabItem Padding="8,3" BorderBrush="White" BorderThickness="2">
+                    <TabItem.Header>
+                        <TextBlock Text="Writing" FontSize="16" VerticalAlignment="Center" />
+                    </TabItem.Header>
+                </TabItem>
+            </TabControl>
+
             <!-- Top row with search and close button -->
             <Grid
                 Grid.Row="0"
@@ -89,10 +114,10 @@
             </Grid>
 
             <StackPanel
-                Grid.Row="3"
+                Grid.Row="4"
                 Margin="0,12,0,0"
                 Spacing="10"
-                IsVisible="{Binding IsFlashcardPage}">
+                IsVisible="{Binding SelectedTabIndex, Converter={StaticResource EqualityConverter}, ConverterParameter=0}">
                 <Border
                     Margin="0,6,0,0"
                     Padding="12"
@@ -219,7 +244,7 @@
             </StackPanel>
 
             <StackPanel
-                Grid.Row="3"
+                Grid.Row="4"
                 Margin="0,12,0,0"
                 Spacing="8"
                 IsVisible="{Binding IsAddRecordPage}">
@@ -242,8 +267,63 @@
                 </StackPanel>
             </StackPanel>
 
-            <Border
+            <!-- Quiz Page (Empty) -->
+            <StackPanel
                 Grid.Row="4"
+                Margin="0,12,0,0"
+                Spacing="10"
+                IsVisible="{Binding SelectedTabIndex, Converter={StaticResource EqualityConverter}, ConverterParameter=1}">
+                <TextBlock
+                    Text="Quiz Page"
+                    FontSize="22"
+                    FontWeight="SemiBold"
+                    Foreground="White"
+                    HorizontalAlignment="Center" />
+            </StackPanel>
+
+            <!-- Writing Page -->
+            <StackPanel
+                Grid.Row="4"
+                Margin="0,12,0,0"
+                Spacing="10"
+                IsVisible="{Binding SelectedTabIndex, Converter={StaticResource EqualityConverter}, ConverterParameter=2}">
+                <Grid RowDefinitions="*,*">
+                    <Border
+                        Grid.Row="0"
+                        Margin="0,6,0,5"
+                        Padding="12"
+                        CornerRadius="12"
+                        Background="#332E3A4F"
+                        BorderBrush="#334BA3C7"
+                        BorderThickness="1">
+                        <TextBlock
+                            Text="Writing Section 1"
+                            FontSize="20"
+                            Foreground="#FFCBD5E1"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center" />
+                    </Border>
+
+                    <Border
+                        Grid.Row="1"
+                        Margin="0,5,0,0"
+                        Padding="12"
+                        CornerRadius="12"
+                        Background="#332E3A4F"
+                        BorderBrush="#334BA3C7"
+                        BorderThickness="1">
+                        <TextBlock
+                            Text="Writing Section 2"
+                            FontSize="20"
+                            Foreground="#FFCBD5E1"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center" />
+                    </Border>
+                </Grid>
+            </StackPanel>
+
+            <Border
+                Grid.Row="5"
                 Margin="0,8,0,0"
                 Padding="8,6"
                 CornerRadius="8"
@@ -261,7 +341,7 @@
             </Border>
 
             <Button
-                Grid.Row="5"
+                Grid.Row="6"
                 Width="50" Height="50"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
@@ -274,7 +354,7 @@
                 VerticalContentAlignment="Center"/>
 
             <Button
-                Grid.Row="5"
+                Grid.Row="6"
                 Width="50" Height="50"
                 Margin="0,0,62,0"
                 CornerRadius="25"
@@ -287,7 +367,7 @@
                 HorizontalContentAlignment="Center"
                 VerticalContentAlignment="Center"/>
 
-            <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="8">
+            <StackPanel Grid.Row="6" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="8">
                 <Button Width="50" Height="50" CornerRadius="25" FontSize="22" FontWeight="SemiBold"
                         Content="◀" Command="{Binding PreviousCardCommand}" IsVisible="{Binding IsFlashcardPage}"
                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
@@ -296,7 +376,7 @@
                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
             </StackPanel>
 
-            <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Left" Spacing="8">
+            <StackPanel Grid.Row="6" Orientation="Horizontal" HorizontalAlignment="Left" Spacing="8">
                 <Button Width="50" Height="50" CornerRadius="25" FontSize="18" FontWeight="SemiBold"
                         Content="▶" Command="{Binding PlayCommand}" IsEnabled="{Binding IsRotationPaused}"
                         IsVisible="{Binding IsFlashcardPage}"

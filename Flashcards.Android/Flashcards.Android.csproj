@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFramework>net9.0-android</TargetFramework>
         <OutputType>Exe</OutputType>
@@ -24,6 +24,7 @@
         <Compile Include="..\Flashcards\BuildInfo.g.cs" Condition="Exists('..\Flashcards\BuildInfo.g.cs')" />
         <Compile Include="..\Flashcards\Converters\*.cs" />
         <Compile Include="..\Flashcards\Data\FlashcardDataSource.cs" />
+        <Compile Include="..\Flashcards\Data\WritingDataSource.cs" />
         <Compile Include="..\Flashcards\Models\*.cs" />
         <Compile Include="..\Flashcards\ViewModels\*.cs" />
         <!-- MainWindow.axaml.cs is NOT linked - Android uses MainView instead -->
@@ -36,9 +37,10 @@
         <AvaloniaResource Include="..\Flashcards\Assets\**" />
     </ItemGroup>
 
-    <!-- Link the CSV data file -->
+    <!-- Link the CSV data files -->
     <ItemGroup>
         <AndroidAsset Include="..\Flashcards\Data\flashcards.csv" />
+        <AndroidAsset Include="..\Flashcards\Data\writing.csv" />
     </ItemGroup>
 
     <ItemGroup>
