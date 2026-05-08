@@ -1,51 +1,55 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFramework>net9.0-android35.0</TargetFramework>
+        <TargetFramework>net9.0-android</TargetFramework>
         <OutputType>Exe</OutputType>
         <Nullable>enable</Nullable>
-        <ImplicitUsings>enable</ImplicitUsings>
-        
-        <!-- Android Properties -->
-        <ApplicationId>com.emyur.flashcards</ApplicationId>
+        <ApplicationId>com.flashcards.app</ApplicationId>
         <ApplicationVersion>1</ApplicationVersion>
         <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
-        <AndroidUseAapt2>true</AndroidUseAapt2>
-        <AndroidCreatePackagePerAbi>false</AndroidCreatePackagePerAbi>
-        <SupportedOSPlatformVersion>34</SupportedOSPlatformVersion>
-        <AndroidResourceDir>Resources</AndroidResourceDir>
-        
-        <!-- Packaging Configuration -->
-        <AndroidPackageFormat>apk</AndroidPackageFormat>
-        <GenerateAppInstallerFile>false</GenerateAppInstallerFile>
-        <AndroidEnableProfiledAotDexSplitting>false</AndroidEnableProfiledAotDexSplitting>
-        <AndroidDexTool>d8</AndroidDexTool>
-        <AndroidUseLegacyVersionCode>false</AndroidUseLegacyVersionCode>
-        
-        <!-- Suppress NuGet transitive dependency version warnings -->
-        <NoWarn>$(NoWarn);NU1608</NoWarn>
-        
-        <!-- Android SDK path -->
-        <AndroidSdkDirectory Condition="'$(AndroidSdkDirectory)' == ''">$(ANDROID_HOME)</AndroidSdkDirectory>
-        <AndroidSdkDirectory Condition="'$(AndroidSdkDirectory)' == ''">$(LOCALAPPDATA)\Android\Sdk</AndroidSdkDirectory>
+        <ApplicationTitle>Flashcards</ApplicationTitle>
+        <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+        <AndroidManifest>Platforms\Android\AndroidManifest.xml</AndroidManifest>
+        <TrimmerRootDescriptor>Platforms\Android\linker.xml</TrimmerRootDescriptor>
+        <RootNamespace>Flashcards</RootNamespace>
+        <SupportedOSPlatformVersion>21</SupportedOSPlatformVersion>
+        <!-- Embed all assemblies into the APK so they are always available on device -->
+        <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
     </PropertyGroup>
 
+    <!-- Link shared source files from the Flashcards project -->
     <ItemGroup>
-        <PackageReference Include="Xamarin.AndroidX.AppCompat" Version="1.7.0.3"/>
-        <PackageReference Include="Xamarin.AndroidX.ConstraintLayout" Version="2.1.4.16"/>
-        <PackageReference Include="Xamarin.AndroidX.Lifecycle.Runtime" Version="2.8.6"/>
-        <PackageReference Include="Xamarin.AndroidX.Lifecycle.Common" Version="2.8.6"/>
-        <PackageReference Include="Xamarin.Google.Android.Material" Version="1.12.0"/>
-        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1"/>
+        <!-- App.axaml.cs is NOT linked - Android has its own App.axaml.cs below -->
+
+        <Compile Include="..\Flashcards\ViewLocator.cs" />
+        <Compile Include="..\Flashcards\BuildInfo.g.cs" Condition="Exists('..\Flashcards\BuildInfo.g.cs')" />
+        <Compile Include="..\Flashcards\Converters\*.cs" />
+        <Compile Include="..\Flashcards\Data\FlashcardDataSource.cs" />
+        <Compile Include="..\Flashcards\Models\*.cs" />
+        <Compile Include="..\Flashcards\ViewModels\*.cs" />
+        <!-- MainWindow.axaml.cs is NOT linked - Android uses MainView instead -->
+    </ItemGroup>
+
+    <!-- Link shared XAML/Avalonia resources -->
+    <ItemGroup>
+        <AvaloniaXaml Include="..\Flashcards\App.axaml" />
+        <!-- MainWindow.axaml is NOT linked - Android has its own MainView.axaml -->
+        <AvaloniaResource Include="..\Flashcards\Assets\**" />
+    </ItemGroup>
+
+    <!-- Link the CSV data file -->
+    <ItemGroup>
+        <AndroidAsset Include="..\Flashcards\Data\flashcards.csv" />
     </ItemGroup>
 
     <ItemGroup>
-        <AndroidResource Include="Resources/**"/>
+        <PackageReference Include="Avalonia" Version="11.3.8" />
+        <PackageReference Include="Avalonia.Android" Version="11.3.8" />
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.8" />
+        <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.8" />
+        <PackageReference Include="Avalonia.Diagnostics" Version="11.3.8">
+            <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
+            <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1" />
     </ItemGroup>
-
-    <!-- Copy AndroidManifest.xml to output for Rider integration -->
-    <Target Name="CopyAndroidManifest" BeforeTargets="Build;Publish">
-        <Copy SourceFiles="Platforms/Android/AndroidManifest.xml" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="false" />
-        <Copy SourceFiles="AndroidManifest.xml" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="false" Condition="Exists('AndroidManifest.xml')" />
-    </Target>
-
 </Project>

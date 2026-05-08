@@ -11,10 +11,18 @@ public static class FlashcardDataSource
     private const string CsvFileName = "flashcards.csv";
     private const string CsvHeader = "Danish,English,Conjugation,ExampleDanish,ExampleEnglish,ContextualTip";
 
-    private static readonly string CsvPath =
-        Path.Combine(AppContext.BaseDirectory, "Data", CsvFileName);
+    private static string? _overrideCsvPath;
 
-    private static readonly List<FlashcardEntry> Flashcards = LoadFromCsv();
+    private static string CsvPath =>
+        _overrideCsvPath ?? Path.Combine(AppContext.BaseDirectory, "Data", CsvFileName);
+
+    /// <summary>
+    /// Call before first access to override the default CSV path (e.g. on Android).
+    /// </summary>
+    public static void SetCsvPath(string path) => _overrideCsvPath = path;
+
+    private static List<FlashcardEntry>? _flashcards;
+    private static List<FlashcardEntry> Flashcards => _flashcards ??= LoadFromCsv();
 
     public static IReadOnlyList<FlashcardEntry> GetFlashcards() => Flashcards;
 

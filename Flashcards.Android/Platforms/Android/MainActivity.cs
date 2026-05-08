@@ -1,17 +1,25 @@
-﻿using Android.App;
-using Android.Content;
+using Android.App;
 using Android.Content.PM;
-using Android.OS;
+using Avalonia;
+using Avalonia.Android;
+using Flashcards.Data;
 
 namespace Flashcards.Android;
 
-[Activity(Theme = "@android:style/Theme.Material.Light", MainLauncher = true, Exported = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation | ConfigChanges.Density)]
-[IntentFilter(new[] { Intent.ActionMain }, Categories = new[] { Intent.CategoryLauncher })]
-public class MainActivity : Activity
+[Activity(
+    Label = "Flashcards",
+    Theme = "@style/MyTheme.NoActionBar",
+    Icon = "@drawable/icon",
+    MainLauncher = true,
+    ConfigurationChanges = ConfigChanges.Orientation | ConfigChanges.ScreenSize | ConfigChanges.UiMode)]
+public class MainActivity : AvaloniaMainActivity<App>
 {
-    protected override void OnCreate(Bundle? savedInstanceState)
+    protected override AppBuilder CustomizeAppBuilder(AppBuilder builder)
     {
-        base.OnCreate(savedInstanceState);
-        SetContentView(Resource.Layout.activity_main);
+        // Initialize Android-specific data source before the app starts
+        AndroidFlashcardDataSource.Initialize(Application!);
+
+        return base.CustomizeAppBuilder(builder)
+            .WithInterFont();
     }
 }
