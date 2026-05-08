@@ -512,7 +512,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         }
     }
 
-    public string MuteIcon => IsMuted ? "🔕" : "🔔";
+    public string MuteIcon => IsMuted ? "M" : "S";
 
     public string MuteTooltip => IsMuted ? "Unmute translations" : "Mute translations";
 
