@@ -193,10 +193,6 @@
                                 TextWrapping="Wrap"
                                 Foreground="#FFCBD5E1">
                                 <Run
-                                    Text="DA : "
-                                    FontStyle="Italic"
-                                    FontSize="12" />
-                                <Run
                                     Text="{Binding HighlightedExampleDanish.BeforeWord}"
                                     FontSize="14" />
                                 <Run
@@ -231,15 +227,19 @@
                             Foreground="#FFCBD5E1"
                             Text="{Binding HighlightedExampleDanish.FullText}"
                             IsVisible="{Binding HighlightedExampleDanish.IsFullTextOnly}"/>
+                        <!-- Separator -->
+                        <Rectangle
+                            IsVisible="{Binding HasCurrentExampleEnglish}"
+                            Height="1"
+                            HorizontalAlignment="Center"
+                            Width="200"
+                            Margin="0,6,0,6"
+                            Fill="#66888888" />
                         <TextBlock
                             FontSize="14"
                             TextWrapping="Wrap"
                             Foreground="#FFCBD5E1"
                             IsVisible="{Binding HasCurrentExampleEnglish}">
-                            <Run
-                                Text="EN : "
-                                FontStyle="Italic"
-                                FontSize="12" />
                             <Run
                                 Text="{Binding HighlightedExampleEnglish.BeforeWord}"
                                 FontSize="14" />

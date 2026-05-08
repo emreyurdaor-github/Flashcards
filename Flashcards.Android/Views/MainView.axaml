@@ -36,11 +36,11 @@
                 <!-- Mute button -->
                 <Button
                     Grid.Column="0"
-                    Width="32"
-                    Height="32"
+                    Width="38"
+                    Height="38"
                     Padding="0"
                     CornerRadius="6"
-                    FontSize="18"
+                    FontSize="22"
                     FontWeight="Bold"
                     Content="{Binding MuteIcon}"
                     ToolTip.Tip="{Binding MuteTooltip}"
@@ -65,19 +65,19 @@
                     Padding="8,6"
                     Margin="0,0,0,0"
                     Width="200"
-                    FontSize="16"
+                    FontSize="19"
                     Background="Transparent">
                     <AutoCompleteBox.ItemTemplate>
                         <DataTemplate DataType="models:FlashcardEntry">
                             <StackPanel>
                                 <TextBlock
                                     Text="{Binding Danish}"
-                                    FontSize="18"
+                                    FontSize="22"
                                     FontWeight="SemiBold"
                                     Foreground="#FFFBBF24" />
                                 <TextBlock
                                     Text="{Binding English}"
-                                    FontSize="15"
+                                    FontSize="18"
                                     Foreground="#FFCBD5E1" />
                             </StackPanel>
                         </DataTemplate>
@@ -85,7 +85,7 @@
                 </AutoCompleteBox>
 
                 <!-- Placeholder for symmetry -->
-                <Panel Grid.Column="2" Width="32" Height="32" />
+                <Panel Grid.Column="2" Width="38" Height="38" />
             </Grid>
 
             <StackPanel
@@ -105,25 +105,25 @@
                             <StackPanel Grid.Column="0" Spacing="4">
                                 <TextBlock
                                     Text="{Binding CurrentDanish}"
-                                    FontSize="38"
+                                    FontSize="46"
                                     FontWeight="SemiBold"
                                     Foreground="#FFFBBF24"
                                     HorizontalAlignment="Center" />
                                 <TextBlock
                                     Text="{Binding CurrentConjugation}"
                                     IsVisible="{Binding HasCurrentConjugation}"
-                                    FontSize="16"
+                                    FontSize="20"
                                     FontStyle="Italic"
                                     HorizontalAlignment="Center"
                                     Foreground="#FFCBD5E1" />
                             </StackPanel>
                             <Button
                                 Grid.Column="1"
-                                Width="36"
-                                Height="36"
+                                Width="42"
+                                Height="42"
                                 Padding="0"
                                 CornerRadius="6"
-                                FontSize="18"
+                                FontSize="22"
                                 Content="))"
                                 VerticalAlignment="Top"
                                 HorizontalContentAlignment="Center"
@@ -136,7 +136,7 @@
                         <TextBlock
                             Text="{Binding CurrentEnglish}"
                             IsVisible="{Binding HasFlashcards}"
-                            FontSize="26"
+                            FontSize="32"
                             Foreground="#FFE2E8F0"
                             HorizontalAlignment="Center" />
                     </StackPanel>
@@ -154,26 +154,25 @@
                         <Grid ColumnDefinitions="*,Auto">
                             <TextBlock
                                 Grid.Column="0"
-                                FontSize="18"
+                                FontSize="22"
                                 TextWrapping="Wrap"
                                 Foreground="#FFCBD5E1">
-                                <Run Text="DA : " FontStyle="Italic" FontSize="15" />
-                                <Run Text="{Binding HighlightedExampleDanish.BeforeWord}" FontSize="18" />
+                                <Run Text="{Binding HighlightedExampleDanish.BeforeWord}" FontSize="22" />
                                 <Run
                                     Text="{Binding HighlightedExampleDanish.HighlightedWord}"
                                     TextDecorations="Underline"
                                     FontWeight="SemiBold"
                                     Foreground="#FFFBBF24"
-                                    FontSize="18" />
-                                <Run Text="{Binding HighlightedExampleDanish.AfterWord}" FontSize="18" />
+                                    FontSize="22" />
+                                <Run Text="{Binding HighlightedExampleDanish.AfterWord}" FontSize="22" />
                             </TextBlock>
                             <Button
                                 Grid.Column="1"
-                                Width="32"
-                                Height="32"
+                                Width="38"
+                                Height="38"
                                 Padding="0"
                                 CornerRadius="4"
-                                FontSize="15"
+                                FontSize="18"
                                 Content="))"
                                 VerticalAlignment="Top"
                                 HorizontalContentAlignment="Center"
@@ -183,27 +182,34 @@
                                 Command="{Binding PlayDanishExampleCommand}" />
                         </Grid>
                         <TextBlock
-                            FontSize="18"
+                            FontSize="22"
                             TextWrapping="Wrap"
                             Foreground="#FFCBD5E1"
                             Text="{Binding HighlightedExampleDanish.FullText}"
                             IsVisible="{Binding HighlightedExampleDanish.IsFullTextOnly}"/>
+                        <!-- Separator -->
+                        <Rectangle
+                            IsVisible="{Binding HasCurrentExampleEnglish}"
+                            Height="1"
+                            HorizontalAlignment="Center"
+                            Width="200"
+                            Margin="0,8,0,8"
+                            Fill="#66888888" />
                         <TextBlock
-                            FontSize="18"
+                            FontSize="22"
                             TextWrapping="Wrap"
                             Foreground="#FFCBD5E1"
                             IsVisible="{Binding HasCurrentExampleEnglish}">
-                            <Run Text="EN : " FontStyle="Italic" FontSize="15" />
-                            <Run Text="{Binding HighlightedExampleEnglish.BeforeWord}" FontSize="18" />
+                            <Run Text="{Binding HighlightedExampleEnglish.BeforeWord}" FontSize="22" />
                             <Run
                                 Text="{Binding HighlightedExampleEnglish.HighlightedWord}"
                                 TextDecorations="Underline"
                                 FontWeight="SemiBold"
-                                FontSize="18" />
-                            <Run Text="{Binding HighlightedExampleEnglish.AfterWord}" FontSize="18" />
+                                FontSize="22" />
+                            <Run Text="{Binding HighlightedExampleEnglish.AfterWord}" FontSize="22" />
                         </TextBlock>
                         <TextBlock
-                            FontSize="18"
+                            FontSize="22"
                             TextWrapping="Wrap"
                             Foreground="#FFCBD5E1"
                             Text="{Binding HighlightedExampleEnglish.FullText}"
@@ -217,22 +223,22 @@
                 Margin="0,12,0,0"
                 Spacing="8"
                 IsVisible="{Binding IsAddRecordPage}">
-                <TextBlock Text="Add flashcard" FontSize="20" FontWeight="SemiBold" Foreground="White" />
-                <TextBox Text="{Binding NewDanish}" Watermark="Danish" FontSize="16" />
-                <TextBox Text="{Binding NewEnglish}" Watermark="English" FontSize="16" />
-                <TextBox Text="{Binding NewConjugation}" Watermark="Conjugation (optional)" AcceptsReturn="True" TextWrapping="Wrap" Height="60" FontSize="16" />
-                <TextBox Text="{Binding NewExampleDanish}" Watermark="Example Danish (optional)" AcceptsReturn="True" TextWrapping="Wrap" Height="60" FontSize="16" />
-                <TextBox Text="{Binding NewExampleEnglish}" Watermark="Example English (optional)" AcceptsReturn="True" TextWrapping="Wrap" Height="60" FontSize="16" />
-                <TextBox Text="{Binding NewContextualTip}" Watermark="Contextual tip (optional)" AcceptsReturn="True" TextWrapping="Wrap" Height="60" FontSize="16" />
+                <TextBlock Text="Add flashcard" FontSize="24" FontWeight="SemiBold" Foreground="White" />
+                <TextBox Text="{Binding NewDanish}" Watermark="Danish" FontSize="19" />
+                <TextBox Text="{Binding NewEnglish}" Watermark="English" FontSize="19" />
+                <TextBox Text="{Binding NewConjugation}" Watermark="Conjugation (optional)" AcceptsReturn="True" TextWrapping="Wrap" Height="65" FontSize="19" />
+                <TextBox Text="{Binding NewExampleDanish}" Watermark="Example Danish (optional)" AcceptsReturn="True" TextWrapping="Wrap" Height="65" FontSize="19" />
+                <TextBox Text="{Binding NewExampleEnglish}" Watermark="Example English (optional)" AcceptsReturn="True" TextWrapping="Wrap" Height="65" FontSize="19" />
+                <TextBox Text="{Binding NewContextualTip}" Watermark="Contextual tip (optional)" AcceptsReturn="True" TextWrapping="Wrap" Height="65" FontSize="19" />
                 <TextBlock
                     Text="{Binding ValidationMessage}"
                     IsVisible="{Binding HasValidationMessage}"
                     TextWrapping="Wrap"
                     Foreground="#FFFCA5A5"
-                    FontSize="15" />
+                    FontSize="18" />
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
-                    <Button Content="Cancel" FontSize="16" Command="{Binding CancelAddRecordCommand}" />
-                    <Button Content="Save" FontSize="16" Command="{Binding SaveNewRecordCommand}" />
+                    <Button Content="Cancel" FontSize="19" Command="{Binding CancelAddRecordCommand}" />
+                    <Button Content="Save" FontSize="19" Command="{Binding SaveNewRecordCommand}" />
                 </StackPanel>
             </StackPanel>
 
@@ -249,18 +255,18 @@
                     </MultiBinding>
                 </Border.IsVisible>
                 <Grid ColumnDefinitions="Auto,*">
-                    <TextBlock Grid.Column="0" Text="*" FontSize="15" VerticalAlignment="Top" Margin="0,0,6,0" />
-                    <TextBlock Grid.Column="1" Text="{Binding CurrentContextualTip}" FontSize="15" TextWrapping="Wrap" Foreground="#FFFBBF24" />
+                    <TextBlock Grid.Column="0" Text="*" FontSize="18" VerticalAlignment="Top" Margin="0,0,6,0" />
+                    <TextBlock Grid.Column="1" Text="{Binding CurrentContextualTip}" FontSize="18" TextWrapping="Wrap" Foreground="#FFFBBF24" />
                 </Grid>
             </Border>
 
             <Button
                 Grid.Row="5"
-                Width="42" Height="42"
+                Width="50" Height="50"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
-                CornerRadius="21"
-                FontSize="22" FontWeight="Bold"
+                CornerRadius="25"
+                FontSize="26" FontWeight="Bold"
                 Content="+"
                 Command="{Binding ShowAddRecordCommand}"
                 IsVisible="{Binding IsFlashcardPage}"
@@ -269,10 +275,10 @@
 
             <Button
                 Grid.Row="5"
-                Width="42" Height="42"
-                Margin="0,0,54,0"
-                CornerRadius="21"
-                FontSize="16" FontWeight="SemiBold"
+                Width="50" Height="50"
+                Margin="0,0,62,0"
+                CornerRadius="25"
+                FontSize="19" FontWeight="SemiBold"
                 Content="Ed"
                 Command="{Binding ShowEditRecordCommand}"
                 IsVisible="{Binding HasFlashcards}"
@@ -282,20 +288,20 @@
                 VerticalContentAlignment="Center"/>
 
             <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="8">
-                <Button Width="42" Height="42" CornerRadius="21" FontSize="18" FontWeight="SemiBold"
+                <Button Width="50" Height="50" CornerRadius="25" FontSize="22" FontWeight="SemiBold"
                         Content="◀" Command="{Binding PreviousCardCommand}" IsVisible="{Binding IsFlashcardPage}"
                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-                <Button Width="42" Height="42" CornerRadius="21" FontSize="18" FontWeight="SemiBold"
+                <Button Width="50" Height="50" CornerRadius="25" FontSize="22" FontWeight="SemiBold"
                         Content="▶" Command="{Binding NextCardCommand}" IsVisible="{Binding IsFlashcardPage}"
                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
             </StackPanel>
 
             <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Left" Spacing="8">
-                <Button Width="42" Height="42" CornerRadius="21" FontSize="15" FontWeight="SemiBold"
+                <Button Width="50" Height="50" CornerRadius="25" FontSize="18" FontWeight="SemiBold"
                         Content="▶" Command="{Binding PlayCommand}" IsEnabled="{Binding IsRotationPaused}"
                         IsVisible="{Binding IsFlashcardPage}"
                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-                <Button Width="42" Height="42" CornerRadius="21" FontSize="15" FontWeight="SemiBold"
+                <Button Width="50" Height="50" CornerRadius="25" FontSize="18" FontWeight="SemiBold"
                         Content="||" Command="{Binding PauseCommand}" IsEnabled="{Binding IsRotationPlaying}"
                         IsVisible="{Binding IsFlashcardPage}"
                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
