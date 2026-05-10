@@ -9,7 +9,7 @@ namespace Flashcards.Data;
 public static class FlashcardDataSource
 {
     private const string CsvFileName = "flashcards.csv";
-    private const string CsvHeader = "Danish,English,Conjugation,ExampleDanish,ExampleEnglish,ContextualTip";
+    private const string CsvHeader = "Danish,English,Type,Conjugation,ExampleDanish,ExampleEnglish,ContextualTip";
 
     private static string? _overrideCsvPath;
 
@@ -84,17 +84,20 @@ public static class FlashcardDataSource
             {
                 Danish = parts[0],
                 English = parts[1],
-                Conjugation = parts.Length > 2 && !string.IsNullOrWhiteSpace(parts[2])
+                Type = parts.Length > 2 && !string.IsNullOrWhiteSpace(parts[2])
                     ? parts[2]
                     : null,
-                ExampleDanish = parts.Length > 3 && !string.IsNullOrWhiteSpace(parts[3])
+                Conjugation = parts.Length > 3 && !string.IsNullOrWhiteSpace(parts[3])
                     ? parts[3]
                     : null,
-                ExampleEnglish = parts.Length > 4 && !string.IsNullOrWhiteSpace(parts[4])
+                ExampleDanish = parts.Length > 4 && !string.IsNullOrWhiteSpace(parts[4])
                     ? parts[4]
                     : null,
-                ContextualTip = parts.Length > 5 && !string.IsNullOrWhiteSpace(parts[5])
+                ExampleEnglish = parts.Length > 5 && !string.IsNullOrWhiteSpace(parts[5])
                     ? parts[5]
+                    : null,
+                ContextualTip = parts.Length > 6 && !string.IsNullOrWhiteSpace(parts[6])
+                    ? parts[6]
                     : null,
             };
 
@@ -116,7 +119,7 @@ public static class FlashcardDataSource
 
         foreach (var card in Flashcards)
         {
-            lines.Add($"{EscapeCsvField(card.Danish)},{EscapeCsvField(card.English)},{EscapeCsvField(card.Conjugation ?? string.Empty)},{EscapeCsvField(card.ExampleDanish ?? string.Empty)},{EscapeCsvField(card.ExampleEnglish ?? string.Empty)},{EscapeCsvField(card.ContextualTip ?? string.Empty)}");
+            lines.Add($"{EscapeCsvField(card.Danish)},{EscapeCsvField(card.English)},{EscapeCsvField(card.Type ?? string.Empty)},{EscapeCsvField(card.Conjugation ?? string.Empty)},{EscapeCsvField(card.ExampleDanish ?? string.Empty)},{EscapeCsvField(card.ExampleEnglish ?? string.Empty)},{EscapeCsvField(card.ContextualTip ?? string.Empty)}");
         }
 
         // Write to the runtime output directory (where the app reads from)

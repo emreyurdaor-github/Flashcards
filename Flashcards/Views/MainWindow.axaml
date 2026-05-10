@@ -144,8 +144,13 @@
             <StackPanel
                 Grid.Row="4"
                 Margin="0,12,0,0"
-                Spacing="10"
-                IsVisible="{Binding SelectedTabIndex, Converter={StaticResource EqualityConverter}, ConverterParameter=0}">
+                Spacing="10">
+                <StackPanel.IsVisible>
+                    <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
+                        <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="0" />
+                        <Binding Path="IsFlashcardPage" />
+                    </MultiBinding>
+                </StackPanel.IsVisible>
                 <!-- ...existing flashcard content... -->
                 <Border
                     Margin="0,6,0,0"
@@ -309,6 +314,10 @@
                     Watermark="English" />
 
                 <TextBox
+                    Text="{Binding NewType}"
+                    Watermark="Type (optional)" />
+
+                <TextBox
                     Text="{Binding NewConjugation}"
                     Watermark="Conjugation (optional)"
                     AcceptsReturn="True"
@@ -374,8 +383,13 @@
             <StackPanel
                 Grid.Row="4"
                 Margin="0,12,0,0"
-                Spacing="10"
-                IsVisible="{Binding SelectedTabIndex, Converter={StaticResource EqualityConverter}, ConverterParameter=2}">
+                Spacing="10">
+                <StackPanel.IsVisible>
+                    <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
+                        <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="2" />
+                        <Binding Path="IsWritingPage" />
+                    </MultiBinding>
+                </StackPanel.IsVisible>
                 <Grid RowDefinitions="*,Auto">
                     <StackPanel 
                         Grid.Row="0"
@@ -513,6 +527,7 @@
                     <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
                         <Binding Path="HasCurrentContextualTip" />
                         <Binding Path="IsFlashcardPage" />
+                        <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="0" />
                     </MultiBinding>
                 </Border.IsVisible>
                 <Grid

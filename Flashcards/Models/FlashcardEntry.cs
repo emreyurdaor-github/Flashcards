@@ -6,6 +6,8 @@ public sealed class FlashcardEntry
 
     public required string English { get; init; }
 
+    public string? Type { get; init; }
+
     public string? Conjugation { get; init; }
 
     public string? ExampleDanish { get; init; }

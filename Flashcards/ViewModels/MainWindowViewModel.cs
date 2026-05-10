@@ -30,6 +30,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     private int _selectedTabIndex = 0;
     private string _newDanish = string.Empty;
     private string _newEnglish = string.Empty;
+    private string _newType = string.Empty;
     private string _newConjugation = string.Empty;
     private string _newExampleDanish = string.Empty;
     private string _newExampleEnglish = string.Empty;
@@ -436,6 +437,12 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         set => SetProperty(ref _newEnglish, value);
     }
 
+    public string NewType
+    {
+        get => _newType;
+        set => SetProperty(ref _newType, value);
+    }
+
     public string NewConjugation
     {
         get => _newConjugation;
@@ -549,8 +556,14 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     public bool IsAddWritingPage
     {
         get => _isAddWritingPage;
-        private set => SetProperty(ref _isAddWritingPage, value);
+        private set
+        {
+            if (SetProperty(ref _isAddWritingPage, value))
+                OnPropertyChanged(nameof(IsWritingPage));
+        }
     }
+
+    public bool IsWritingPage => !IsAddWritingPage;
 
     public string NewWritingDanish
     {
@@ -668,6 +681,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         // Populate form with current values and switch to edit mode
         NewDanish = CurrentFlashcard.Danish;
         NewEnglish = CurrentFlashcard.English;
+        NewType = CurrentFlashcard.Type ?? string.Empty;
         NewConjugation = CurrentFlashcard.Conjugation ?? string.Empty;
         NewExampleDanish = CurrentFlashcard.ExampleDanish ?? string.Empty;
         NewExampleEnglish = CurrentFlashcard.ExampleEnglish ?? string.Empty;
@@ -681,6 +695,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     {
         var danish = NewDanish.Trim();
         var english = NewEnglish.Trim();
+        var type = string.IsNullOrWhiteSpace(NewType) ? null : NewType.Trim();
         var conjugation = string.IsNullOrWhiteSpace(NewConjugation) ? null : NewConjugation.Trim();
         var exampleDanish = string.IsNullOrWhiteSpace(NewExampleDanish) ? null : NewExampleDanish.Trim();
         var exampleEnglish = string.IsNullOrWhiteSpace(NewExampleEnglish) ? null : NewExampleEnglish.Trim();
@@ -696,6 +711,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         {
             Danish = danish,
             English = english,
+            Type = type,
             Conjugation = conjugation,
             ExampleDanish = exampleDanish,
             ExampleEnglish = exampleEnglish,
@@ -816,6 +832,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     {
         NewDanish = string.Empty;
         NewEnglish = string.Empty;
+        NewType = string.Empty;
         NewConjugation = string.Empty;
         NewExampleDanish = string.Empty;
         NewExampleEnglish = string.Empty;

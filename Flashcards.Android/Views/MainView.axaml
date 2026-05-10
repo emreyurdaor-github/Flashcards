@@ -116,8 +116,13 @@
             <StackPanel
                 Grid.Row="4"
                 Margin="0,12,0,0"
-                Spacing="10"
-                IsVisible="{Binding SelectedTabIndex, Converter={StaticResource EqualityConverter}, ConverterParameter=0}">
+                Spacing="10">
+                <StackPanel.IsVisible>
+                    <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
+                        <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="0" />
+                        <Binding Path="IsFlashcardPage" />
+                    </MultiBinding>
+                </StackPanel.IsVisible>
                 <Border
                     Margin="0,6,0,0"
                     Padding="12"
@@ -251,6 +256,7 @@
                 <TextBlock Text="Add flashcard" FontSize="24" FontWeight="SemiBold" Foreground="White" />
                 <TextBox Text="{Binding NewDanish}" Watermark="Danish" FontSize="19" />
                 <TextBox Text="{Binding NewEnglish}" Watermark="English" FontSize="19" />
+                <TextBox Text="{Binding NewType}" Watermark="Type (optional)" FontSize="19" />
                 <TextBox Text="{Binding NewConjugation}" Watermark="Conjugation (optional)" AcceptsReturn="True" TextWrapping="Wrap" Height="65" FontSize="19" />
                 <TextBox Text="{Binding NewExampleDanish}" Watermark="Example Danish (optional)" AcceptsReturn="True" TextWrapping="Wrap" Height="65" FontSize="19" />
                 <TextBox Text="{Binding NewExampleEnglish}" Watermark="Example English (optional)" AcceptsReturn="True" TextWrapping="Wrap" Height="65" FontSize="19" />
@@ -285,8 +291,13 @@
             <StackPanel
                 Grid.Row="4"
                 Margin="0,12,0,0"
-                Spacing="10"
-                IsVisible="{Binding SelectedTabIndex, Converter={StaticResource EqualityConverter}, ConverterParameter=2}">
+                Spacing="10">
+                <StackPanel.IsVisible>
+                    <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
+                        <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="2" />
+                        <Binding Path="IsWritingPage" />
+                    </MultiBinding>
+                </StackPanel.IsVisible>
                 <Grid RowDefinitions="*,*">
                     <Border
                         Grid.Row="0"
@@ -332,6 +343,7 @@
                     <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
                         <Binding Path="HasCurrentContextualTip" />
                         <Binding Path="IsFlashcardPage" />
+                        <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="0" />
                     </MultiBinding>
                 </Border.IsVisible>
                 <Grid ColumnDefinitions="Auto,*">
