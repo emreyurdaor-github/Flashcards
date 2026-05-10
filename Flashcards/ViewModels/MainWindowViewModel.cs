@@ -75,6 +75,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
                 OnPropertyChanged(nameof(CurrentEnglish));
                 OnPropertyChanged(nameof(CurrentType));
                 OnPropertyChanged(nameof(HasCurrentType));
+                OnPropertyChanged(nameof(CurrentTypes));
                 OnPropertyChanged(nameof(CurrentConjugation));
                 OnPropertyChanged(nameof(HasCurrentConjugation));
                 OnPropertyChanged(nameof(CurrentExampleDanish));
@@ -103,6 +104,15 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     public string? CurrentType => CurrentFlashcard?.Type;
 
     public bool HasCurrentType => !string.IsNullOrWhiteSpace(CurrentFlashcard?.Type);
+
+    public IReadOnlyList<string> CurrentTypes =>
+        string.IsNullOrWhiteSpace(CurrentFlashcard?.Type)
+            ? []
+            : CurrentFlashcard.Type
+                .Split('/')
+                .Select(t => t.Trim())
+                .Where(t => !string.IsNullOrWhiteSpace(t))
+                .ToList();
 
     public string? CurrentConjugation => CurrentFlashcard?.Conjugation;
 
