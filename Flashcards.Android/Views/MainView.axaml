@@ -133,42 +133,40 @@
                     <StackPanel Spacing="4">
                         <Grid ColumnDefinitions="*,Auto">
                             <StackPanel Grid.Column="0" Spacing="4">
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="8">
-                                    <TextBlock
-                                        Text="{Binding CurrentDanish}"
-                                        FontSize="46"
-                                        FontWeight="SemiBold"
-                                        Foreground="#FFFBBF24"
-                                        VerticalAlignment="Center" />
-                                    <ItemsControl
-                                        ItemsSource="{Binding CurrentTypes}"
-                                        IsVisible="{Binding HasCurrentType}"
-                                        VerticalAlignment="Center">
-                                        <ItemsControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <WrapPanel Orientation="Horizontal" />
-                                            </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <Border
-                                                    Margin="2,2,2,2"
-                                                    Padding="6,2"
-                                                    CornerRadius="10"
-                                                    Background="#442563A0"
-                                                    BorderBrush="#884BA3C7"
-                                                    BorderThickness="1">
-                                                    <TextBlock
-                                                        Text="{Binding}"
-                                                        FontSize="13"
-                                                        FontStyle="Italic"
-                                                        Foreground="#FF94A3B8"
-                                                        VerticalAlignment="Center" />
-                                                </Border>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                </StackPanel>
+                                <TextBlock
+                                    Text="{Binding CurrentDanish}"
+                                    FontSize="46"
+                                    FontWeight="SemiBold"
+                                    Foreground="#FFFBBF24"
+                                    HorizontalAlignment="Center" />
+                                <ItemsControl
+                                    ItemsSource="{Binding CurrentTypes}"
+                                    IsVisible="{Binding HasCurrentType}"
+                                    HorizontalAlignment="Center">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border
+                                                Margin="3,2"
+                                                Padding="8,3"
+                                                CornerRadius="10"
+                                                Background="#442563A0"
+                                                BorderBrush="#884BA3C7"
+                                                BorderThickness="1">
+                                                <TextBlock
+                                                    Text="{Binding}"
+                                                    FontSize="15"
+                                                    FontStyle="Italic"
+                                                    Foreground="#FF94A3B8"
+                                                    VerticalAlignment="Center" />
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
                                 <TextBlock
                                     Text="{Binding CurrentConjugation}"
                                     IsVisible="{Binding HasCurrentConjugation}"
