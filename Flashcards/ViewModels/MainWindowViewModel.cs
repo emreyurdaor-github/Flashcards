@@ -73,6 +73,8 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
             {
                 OnPropertyChanged(nameof(CurrentDanish));
                 OnPropertyChanged(nameof(CurrentEnglish));
+                OnPropertyChanged(nameof(CurrentType));
+                OnPropertyChanged(nameof(HasCurrentType));
                 OnPropertyChanged(nameof(CurrentConjugation));
                 OnPropertyChanged(nameof(HasCurrentConjugation));
                 OnPropertyChanged(nameof(CurrentExampleDanish));
@@ -97,6 +99,10 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     public string CurrentDanish => CurrentFlashcard?.Danish ?? "No flashcards available";
 
     public string CurrentEnglish => CurrentFlashcard?.English ?? string.Empty;
+
+    public string? CurrentType => CurrentFlashcard?.Type;
+
+    public bool HasCurrentType => !string.IsNullOrWhiteSpace(CurrentFlashcard?.Type);
 
     public string? CurrentConjugation => CurrentFlashcard?.Conjugation;
 

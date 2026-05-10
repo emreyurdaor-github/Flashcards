@@ -173,6 +173,13 @@
                                     Foreground="#FFFBBF24"
                                     HorizontalAlignment="Center" />
                                 <TextBlock
+                                    Text="{Binding CurrentType}"
+                                    IsVisible="{Binding HasCurrentType}"
+                                    FontSize="11"
+                                    FontStyle="Italic"
+                                    HorizontalAlignment="Center"
+                                    Foreground="#FF94A3B8" />
+                                <TextBlock
                                     Text="{Binding CurrentConjugation}"
                                     IsVisible="{Binding HasCurrentConjugation}"
                                     FontSize="12"
