@@ -380,6 +380,7 @@
                 </Grid>
             </Border>
 
+            <!-- Add Flashcard -->
             <Button
                 Grid.Row="6"
                 Width="50" Height="50"
@@ -389,10 +390,17 @@
                 FontSize="26" FontWeight="Bold"
                 Content="+"
                 Command="{Binding ShowAddRecordCommand}"
-                IsVisible="{Binding IsFlashcardPage}"
                 HorizontalContentAlignment="Center"
-                VerticalContentAlignment="Center"/>
+                VerticalContentAlignment="Center">
+                <Button.IsVisible>
+                    <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
+                        <Binding Path="IsFlashcardPage" />
+                        <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="0" />
+                    </MultiBinding>
+                </Button.IsVisible>
+            </Button>
 
+            <!-- Edit Flashcard -->
             <Button
                 Grid.Row="6"
                 Width="50" Height="50"
@@ -401,29 +409,48 @@
                 FontSize="19" FontWeight="SemiBold"
                 Content="Ed"
                 Command="{Binding ShowEditRecordCommand}"
-                IsVisible="{Binding HasFlashcards}"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
                 HorizontalContentAlignment="Center"
-                VerticalContentAlignment="Center"/>
+                VerticalContentAlignment="Center">
+                <Button.IsVisible>
+                    <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
+                        <Binding Path="HasFlashcards" />
+                        <Binding Path="IsFlashcardPage" />
+                        <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="0" />
+                    </MultiBinding>
+                </Button.IsVisible>
+            </Button>
 
+            <!-- Previous/Next Flashcard -->
             <StackPanel Grid.Row="6" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="8">
+                <StackPanel.IsVisible>
+                    <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
+                        <Binding Path="IsFlashcardPage" />
+                        <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="0" />
+                    </MultiBinding>
+                </StackPanel.IsVisible>
                 <Button Width="50" Height="50" CornerRadius="25" FontSize="22" FontWeight="SemiBold"
-                        Content="◀" Command="{Binding PreviousCardCommand}" IsVisible="{Binding IsFlashcardPage}"
+                        Content="◀" Command="{Binding PreviousCardCommand}"
                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
                 <Button Width="50" Height="50" CornerRadius="25" FontSize="22" FontWeight="SemiBold"
-                        Content="▶" Command="{Binding NextCardCommand}" IsVisible="{Binding IsFlashcardPage}"
+                        Content="▶" Command="{Binding NextCardCommand}"
                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
             </StackPanel>
 
+            <!-- Auto / Pause Rotate Flashcard -->
             <StackPanel Grid.Row="6" Orientation="Horizontal" HorizontalAlignment="Left" Spacing="8">
+                <StackPanel.IsVisible>
+                    <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
+                        <Binding Path="IsFlashcardPage" />
+                        <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="0" />
+                    </MultiBinding>
+                </StackPanel.IsVisible>
                 <Button Width="50" Height="50" CornerRadius="25" FontSize="18" FontWeight="SemiBold"
                         Content="▶" Command="{Binding PlayCommand}" IsEnabled="{Binding IsRotationPaused}"
-                        IsVisible="{Binding IsFlashcardPage}"
                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
                 <Button Width="50" Height="50" CornerRadius="25" FontSize="18" FontWeight="SemiBold"
                         Content="||" Command="{Binding PauseCommand}" IsEnabled="{Binding IsRotationPlaying}"
-                        IsVisible="{Binding IsFlashcardPage}"
                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
             </StackPanel>
         </Grid>
