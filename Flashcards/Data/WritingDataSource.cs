@@ -7,14 +7,16 @@ namespace Flashcards.Data;
 
 public class WritingEntry
 {
+    public string DanishWritingTitle { get; set; } = string.Empty;
     public string DanishWriting { get; set; } = string.Empty;
+    public string EnglishWritingTitle { get; set; } = string.Empty;
     public string EnglishWriting { get; set; } = string.Empty;
 }
 
 public static class WritingDataSource
 {
     private const string CsvFileName = "writing.csv";
-    private const string CsvHeader = "DanishWriting,EnglishWriting";
+    private const string CsvHeader = "DanishWritingTitle,DanishWriting,EnglishWritingTitle,EnglishWriting";
 
     private static string? _overrideCsvPath;
 
@@ -81,14 +83,26 @@ public static class WritingDataSource
             if (parts.Count < 2) continue;
 
             // Skip header row
-            if (parts[0].Equals("DanishWriting", StringComparison.OrdinalIgnoreCase))
+            if (parts[0].Equals("DanishWriting", StringComparison.OrdinalIgnoreCase) ||
+                parts[0].Equals("DanishWritingTitle", StringComparison.OrdinalIgnoreCase))
                 continue;
 
-            var entry = new WritingEntry
-            {
-                DanishWriting = parts[0],
-                EnglishWriting = parts[1],
-            };
+            // Support both old 2-column format and new 4-column format
+            var entry = parts.Count >= 4
+                ? new WritingEntry
+                {
+                    DanishWritingTitle = parts[0],
+                    DanishWriting = parts[1],
+                    EnglishWritingTitle = parts[2],
+                    EnglishWriting = parts[3],
+                }
+                : new WritingEntry
+                {
+                    DanishWritingTitle = string.Empty,
+                    DanishWriting = parts[0],
+                    EnglishWritingTitle = string.Empty,
+                    EnglishWriting = parts[1],
+                };
 
             if (string.IsNullOrWhiteSpace(entry.DanishWriting))
                 continue;
@@ -189,7 +203,7 @@ public static class WritingDataSource
 
         foreach (var entry in WritingEntries)
         {
-            sb.AppendLine($"{EscapeCsvField(entry.DanishWriting)},{EscapeCsvField(entry.EnglishWriting)}");
+            sb.AppendLine($"{EscapeCsvField(entry.DanishWritingTitle)},{EscapeCsvField(entry.DanishWriting)},{EscapeCsvField(entry.EnglishWritingTitle)},{EscapeCsvField(entry.EnglishWriting)}");
         }
 
         var content = sb.ToString();
@@ -210,8 +224,8 @@ public static class WritingDataSource
                 var sourceDir = Path.GetDirectoryName(sourcePath);
                 if (sourceDir is not null && !Directory.Exists(sourceDir))
                     Directory.CreateDirectory(sourceDir);
-                // Use File.Copy with overwrite to avoid issues with file locks on WriteAllText
-                File.Copy(CsvPath, sourcePath, overwrite: true);
+                // Write the same content string directly — avoids File.Copy lock issues when app is running
+                File.WriteAllText(sourcePath, content, System.Text.Encoding.UTF8);
             }
             catch (Exception ex)
             {

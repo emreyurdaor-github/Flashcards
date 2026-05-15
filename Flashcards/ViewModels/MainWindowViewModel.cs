@@ -37,6 +37,8 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     private string _newContextualTip = string.Empty;
     private string _newWritingDanish = string.Empty;
     private string _newWritingEnglish = string.Empty;
+    private string _newWritingDanishTitle = string.Empty;
+    private string _newWritingEnglishTitle = string.Empty;
     private string _validationMessage = string.Empty;
     private string _searchText = string.Empty;
     private bool _isAudioPlaying = false;
@@ -579,15 +581,18 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         {
             if (SetProperty(ref _currentWritingEntry, value))
             {
+                OnPropertyChanged(nameof(CurrentDanishWritingTitle));
                 OnPropertyChanged(nameof(CurrentDanishWriting));
+                OnPropertyChanged(nameof(CurrentEnglishWritingTitle));
                 OnPropertyChanged(nameof(CurrentEnglishWriting));
                 OnPropertyChanged(nameof(HasWritingEntries));
             }
         }
     }
 
+    public string CurrentDanishWritingTitle => CurrentWritingEntry?.DanishWritingTitle ?? "Danish Writing";
     public string CurrentDanishWriting => CurrentWritingEntry?.DanishWriting ?? "No writing exercises available";
-
+    public string CurrentEnglishWritingTitle => CurrentWritingEntry?.EnglishWritingTitle ?? "English Writing";
     public string CurrentEnglishWriting => CurrentWritingEntry?.EnglishWriting ?? string.Empty;
 
     public bool HasWritingEntries => CurrentWritingEntry is not null;
@@ -614,6 +619,18 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     {
         get => _newWritingEnglish;
         set => SetProperty(ref _newWritingEnglish, value);
+    }
+
+    public string NewWritingDanishTitle
+    {
+        get => _newWritingDanishTitle;
+        set => SetProperty(ref _newWritingDanishTitle, value);
+    }
+
+    public string NewWritingEnglishTitle
+    {
+        get => _newWritingEnglishTitle;
+        set => SetProperty(ref _newWritingEnglishTitle, value);
     }
 
     public MainWindowViewModel()
@@ -805,8 +822,9 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     {
         if (CurrentWritingEntry is null) return;
 
-        // Populate form with current values and switch to edit mode
+        NewWritingDanishTitle = CurrentWritingEntry.DanishWritingTitle;
         NewWritingDanish = CurrentWritingEntry.DanishWriting;
+        NewWritingEnglishTitle = CurrentWritingEntry.EnglishWritingTitle;
         NewWritingEnglish = CurrentWritingEntry.EnglishWriting;
 
         IsEditMode = true;
@@ -815,7 +833,9 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
 
     private void SaveNewWriting()
     {
+        var danishTitle = NewWritingDanishTitle.Trim();
         var danish = NewWritingDanish.Trim();
+        var englishTitle = NewWritingEnglishTitle.Trim();
         var english = NewWritingEnglish.Trim();
 
         if (string.IsNullOrWhiteSpace(danish) || string.IsNullOrWhiteSpace(english))
@@ -826,7 +846,9 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
 
         var writingEntry = new WritingEntry
         {
+            DanishWritingTitle = danishTitle,
             DanishWriting = danish,
+            EnglishWritingTitle = englishTitle,
             EnglishWriting = english,
         };
 
@@ -878,6 +900,8 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         NewContextualTip = string.Empty;
         NewWritingDanish = string.Empty;
         NewWritingEnglish = string.Empty;
+        NewWritingDanishTitle = string.Empty;
+        NewWritingEnglishTitle = string.Empty;
         ValidationMessage = string.Empty;
     }
 
