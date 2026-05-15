@@ -63,7 +63,7 @@ public static class WritingDataSource
 
     // Exposed so callers can verify where data is being written.
     public static string RuntimeCsvPath => CsvPath;
-    public static string SourceCsvPath => BuildInfo.CsvSourcePath;
+    public static string SourceCsvPath => BuildInfo.WritingCsvSourcePath;
 
     private static List<WritingEntry> LoadFromCsv()
     {
@@ -73,17 +73,16 @@ public static class WritingDataSource
         if (!File.Exists(CsvPath))
             return list;
 
-        var lines = File.ReadAllLines(CsvPath);
+        var content = File.ReadAllText(CsvPath);
+        var records = ParseCsvRecords(content);
 
-        foreach (var line in lines)
+        foreach (var parts in records)
         {
-            // Skip header and blank lines
-            if (string.IsNullOrWhiteSpace(line) ||
-                line.StartsWith(CsvHeader, StringComparison.OrdinalIgnoreCase))
-                continue;
+            if (parts.Count < 2) continue;
 
-            var parts = SplitCsvLine(line);
-            if (parts.Length < 2) continue;
+            // Skip header row
+            if (parts[0].Equals("DanishWriting", StringComparison.OrdinalIgnoreCase))
+                continue;
 
             var entry = new WritingEntry
             {
@@ -91,11 +90,12 @@ public static class WritingDataSource
                 EnglishWriting = parts[1],
             };
 
+            if (string.IsNullOrWhiteSpace(entry.DanishWriting))
+                continue;
+
             // Keep first occurrence from CSV if duplicate Danish keys are present.
             if (!seenDanishKeys.Add(NormalizeDanishKey(entry.DanishWriting)))
-            {
                 continue;
-            }
 
             list.Add(entry);
         }
@@ -103,76 +103,39 @@ public static class WritingDataSource
         return list;
     }
 
-    private static void SaveToCsv()
+    // Parses a full CSV text into records (list of field lists), handling quoted multi-line fields.
+    private static List<List<string>> ParseCsvRecords(string content)
     {
-        var lines = new List<string> { CsvHeader };
-
-        foreach (var entry in WritingEntries)
-        {
-            lines.Add($"{EscapeCsvField(entry.DanishWriting)},{EscapeCsvField(entry.EnglishWriting)}");
-        }
-
-        // Write to the runtime output directory (where the app reads from)
-        var runtimeDir = Path.GetDirectoryName(CsvPath);
-        if (runtimeDir is not null && !Directory.Exists(runtimeDir))
-            Directory.CreateDirectory(runtimeDir);
-        File.WriteAllLines(CsvPath, lines);
-
-        // Also write back to the solution source file so the data persists across builds
-        try
-        {
-            var sourceDir = Path.GetDirectoryName(BuildInfo.CsvSourcePath);
-            if (sourceDir is not null && !Directory.Exists(sourceDir))
-                Directory.CreateDirectory(sourceDir);
-            File.WriteAllLines(BuildInfo.CsvSourcePath, lines);
-        }
-        catch
-        {
-            // Non-fatal: source write may fail in environments without solution access
-        }
-    }
-
-    // Simple CSV escaping: wrap field in quotes if it contains commas, quotes or newlines.
-    private static string EscapeCsvField(string value)
-    {
-        if (value.Contains(',') || value.Contains('"') || value.Contains('\n'))
-            return $"\"{value.Replace("\"", "\"\"")}\"";
-        return value;
-    }
-
-    private static string NormalizeDanishKey(string danish)
-    {
-        return danish.Trim().ToUpperInvariant();
-    }
-
-    // Minimal CSV line splitter that handles quoted fields.
-    private static string[] SplitCsvLine(string line)
-    {
+        var records = new List<List<string>>();
         var fields = new List<string>();
         var current = new System.Text.StringBuilder();
         bool inQuotes = false;
+        int i = 0;
 
-        for (int i = 0; i < line.Length; i++)
+        while (i < content.Length)
         {
-            char c = line[i];
+            char c = content[i];
 
             if (inQuotes)
             {
                 if (c == '"')
                 {
-                    if (i + 1 < line.Length && line[i + 1] == '"')
+                    if (i + 1 < content.Length && content[i + 1] == '"')
                     {
+                        // Escaped quote
                         current.Append('"');
-                        i++;
+                        i += 2;
                     }
                     else
                     {
                         inQuotes = false;
+                        i++;
                     }
                 }
                 else
                 {
                     current.Append(c);
+                    i++;
                 }
             }
             else
@@ -180,20 +143,93 @@ public static class WritingDataSource
                 if (c == '"')
                 {
                     inQuotes = true;
+                    i++;
                 }
                 else if (c == ',')
                 {
                     fields.Add(current.ToString());
                     current.Clear();
+                    i++;
+                }
+                else if (c == '\r' || c == '\n')
+                {
+                    // End of record
+                    fields.Add(current.ToString());
+                    current.Clear();
+
+                    if (fields.Count > 0 && !(fields.Count == 1 && string.IsNullOrWhiteSpace(fields[0])))
+                        records.Add(new List<string>(fields));
+                    fields.Clear();
+
+                    // Skip \r\n pair
+                    if (c == '\r' && i + 1 < content.Length && content[i + 1] == '\n')
+                        i++;
+                    i++;
                 }
                 else
                 {
                     current.Append(c);
+                    i++;
                 }
             }
         }
 
+        // Handle last field/record without trailing newline
         fields.Add(current.ToString());
-        return [.. fields];
+        if (fields.Count > 0 && !(fields.Count == 1 && string.IsNullOrWhiteSpace(fields[0])))
+            records.Add(new List<string>(fields));
+
+        return records;
+    }
+
+    private static void SaveToCsv()
+    {
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine(CsvHeader);
+
+        foreach (var entry in WritingEntries)
+        {
+            sb.AppendLine($"{EscapeCsvField(entry.DanishWriting)},{EscapeCsvField(entry.EnglishWriting)}");
+        }
+
+        var content = sb.ToString();
+
+        // Write to the runtime output directory (where the app reads from)
+        var runtimeDir = Path.GetDirectoryName(CsvPath);
+        if (runtimeDir is not null && !Directory.Exists(runtimeDir))
+            Directory.CreateDirectory(runtimeDir);
+        File.WriteAllText(CsvPath, content);
+
+        // Also write back to the solution source file so the data persists across builds
+        var sourcePath = BuildInfo.WritingCsvSourcePath;
+        if (!string.IsNullOrEmpty(sourcePath) &&
+            !string.Equals(Path.GetFullPath(CsvPath), Path.GetFullPath(sourcePath), StringComparison.OrdinalIgnoreCase))
+        {
+            try
+            {
+                var sourceDir = Path.GetDirectoryName(sourcePath);
+                if (sourceDir is not null && !Directory.Exists(sourceDir))
+                    Directory.CreateDirectory(sourceDir);
+                // Use File.Copy with overwrite to avoid issues with file locks on WriteAllText
+                File.Copy(CsvPath, sourcePath, overwrite: true);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[WritingDataSource] Failed to sync source CSV: {ex.Message}");
+            }
+        }
+    }
+
+    // Always wrap every field in quotes, escaping any embedded quotes by doubling them.
+    // Normalize line endings inside the field to \n for clean CSV.
+    private static string EscapeCsvField(string value)
+    {
+        var normalized = value.Replace("\r\n", "\n").Replace("\r", "\n");
+        return $"\"{normalized.Replace("\"", "\"\"")}\"";
+    }
+
+    private static string NormalizeDanishKey(string danish)
+    {
+        return danish.Trim().ToUpperInvariant();
     }
 }

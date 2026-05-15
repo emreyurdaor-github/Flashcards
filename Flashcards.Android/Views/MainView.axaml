@@ -316,50 +316,171 @@
             </StackPanel>
 
             <!-- Writing Page -->
-            <StackPanel
+            <Grid
                 Grid.Row="4"
                 Margin="0,12,0,0"
-                Spacing="10">
+                RowDefinitions="*,*">
+                <Grid.IsVisible>
+                    <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
+                        <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="2" />
+                        <Binding Path="IsWritingPage" />
+                    </MultiBinding>
+                </Grid.IsVisible>
+
+                <!-- Danish Writing -->
+                <Border
+                    Grid.Row="0"
+                    Margin="0,6,0,5"
+                    Padding="12"
+                    CornerRadius="12"
+                    Background="#332E3A4F"
+                    BorderBrush="#334BA3C7"
+                    BorderThickness="1">
+                    <Grid RowDefinitions="Auto,*">
+                        <TextBlock
+                            Grid.Row="0"
+                            Text="Danish Writing"
+                            FontSize="16"
+                            Foreground="#FFFBBF24"
+                            FontWeight="SemiBold"
+                            Margin="0,0,0,4" />
+                        <ScrollViewer
+                            x:Name="DanishWritingScroller"
+                            Grid.Row="1"
+                            VerticalScrollBarVisibility="Auto"
+                            HorizontalScrollBarVisibility="Disabled">
+                            <TextBlock
+                                Text="{Binding CurrentDanishWriting}"
+                                FontSize="20"
+                                Foreground="#FFCBD5E1"
+                                TextWrapping="Wrap" />
+                        </ScrollViewer>
+                    </Grid>
+                </Border>
+
+                <!-- English Writing -->
+                <Border
+                    Grid.Row="1"
+                    Margin="0,5,0,0"
+                    Padding="12"
+                    CornerRadius="12"
+                    Background="#332E3A4F"
+                    BorderBrush="#334BA3C7"
+                    BorderThickness="1">
+                    <Grid RowDefinitions="Auto,*">
+                        <TextBlock
+                            Grid.Row="0"
+                            Text="English Writing"
+                            FontSize="16"
+                            Foreground="#FFFBBF24"
+                            FontWeight="SemiBold"
+                            Margin="0,0,0,4" />
+                        <ScrollViewer
+                            x:Name="EnglishWritingScroller"
+                            Grid.Row="1"
+                            VerticalScrollBarVisibility="Auto"
+                            HorizontalScrollBarVisibility="Disabled">
+                            <TextBlock
+                                Text="{Binding CurrentEnglishWriting}"
+                                FontSize="20"
+                                Foreground="#FFCBD5E1"
+                                TextWrapping="Wrap" />
+                        </ScrollViewer>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!-- Writing Page Bottom Buttons (nav) -->
+            <StackPanel
+                Grid.Row="6"
+                Orientation="Horizontal"
+                HorizontalAlignment="Center"
+                Spacing="8">
                 <StackPanel.IsVisible>
                     <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
                         <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="2" />
                         <Binding Path="IsWritingPage" />
                     </MultiBinding>
                 </StackPanel.IsVisible>
-                <Grid RowDefinitions="*,*">
-                    <Border
-                        Grid.Row="0"
-                        Margin="0,6,0,5"
-                        Padding="12"
-                        CornerRadius="12"
-                        Background="#332E3A4F"
-                        BorderBrush="#334BA3C7"
-                        BorderThickness="1">
-                        <TextBlock
-                            Text="Writing Section 1"
-                            FontSize="20"
-                            Foreground="#FFCBD5E1"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center" />
-                    </Border>
-
-                    <Border
-                        Grid.Row="1"
-                        Margin="0,5,0,0"
-                        Padding="12"
-                        CornerRadius="12"
-                        Background="#332E3A4F"
-                        BorderBrush="#334BA3C7"
-                        BorderThickness="1">
-                        <TextBlock
-                            Text="Writing Section 2"
-                            FontSize="20"
-                            Foreground="#FFCBD5E1"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center" />
-                    </Border>
-                </Grid>
+                <Button Width="50" Height="50" CornerRadius="25" FontSize="22" FontWeight="SemiBold"
+                        Content="◀" Command="{Binding PreviousWritingCommand}"
+                        HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                <Button Width="50" Height="50" CornerRadius="25" FontSize="22" FontWeight="SemiBold"
+                        Content="▶" Command="{Binding NextWritingCommand}"
+                        HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
             </StackPanel>
+
+            <!-- Writing Page Edit/Add Buttons -->
+            <StackPanel
+                Grid.Row="6"
+                Orientation="Horizontal"
+                HorizontalAlignment="Right"
+                Spacing="8">
+                <StackPanel.IsVisible>
+                    <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
+                        <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="2" />
+                        <Binding Path="IsWritingPage" />
+                    </MultiBinding>
+                </StackPanel.IsVisible>
+                <Button Width="50" Height="50" CornerRadius="25" FontSize="20" FontWeight="SemiBold"
+                        Content="✎" Command="{Binding ShowEditWritingCommand}"
+                        HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                <Button Width="50" Height="50" CornerRadius="25" FontSize="26" FontWeight="Bold"
+                        Content="+" Command="{Binding ShowAddWritingCommand}"
+                        HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+            </StackPanel>
+
+            <!-- Add Writing Page -->
+            <Grid
+                Grid.Row="4"
+                Margin="0,12,0,0"
+                RowDefinitions="Auto,*,*,Auto,Auto"
+                IsVisible="{Binding IsAddWritingPage}">
+                <TextBlock
+                    Grid.Row="0"
+                    Text="Add writing exercise"
+                    FontSize="22"
+                    FontWeight="SemiBold"
+                    Foreground="White"
+                    Margin="0,0,0,8" />
+
+                <TextBox
+                    Grid.Row="1"
+                    Text="{Binding NewWritingDanish}"
+                    Watermark="Danish"
+                    AcceptsReturn="True"
+                    TextWrapping="Wrap"
+                    FontSize="19"
+                    Margin="0,0,0,8"
+                    VerticalAlignment="Stretch" />
+
+                <TextBox
+                    Grid.Row="2"
+                    Text="{Binding NewWritingEnglish}"
+                    Watermark="English"
+                    AcceptsReturn="True"
+                    TextWrapping="Wrap"
+                    FontSize="19"
+                    Margin="0,0,0,8"
+                    VerticalAlignment="Stretch" />
+
+                <TextBlock
+                    Grid.Row="3"
+                    Text="{Binding ValidationMessage}"
+                    IsVisible="{Binding HasValidationMessage}"
+                    TextWrapping="Wrap"
+                    Foreground="#FFFCA5A5"
+                    FontSize="18" />
+
+                <StackPanel
+                    Grid.Row="4"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Spacing="8">
+                    <Button Content="Cancel" FontSize="19" Command="{Binding CancelAddWritingCommand}" />
+                    <Button Content="Save" FontSize="19" Command="{Binding SaveNewWritingCommand}" />
+                </StackPanel>
+            </Grid>
 
             <Border
                 Grid.Row="5"
@@ -432,9 +553,11 @@
                 </StackPanel.IsVisible>
                 <Button Width="50" Height="50" CornerRadius="25" FontSize="22" FontWeight="SemiBold"
                         Content="◀" Command="{Binding PreviousCardCommand}"
+                        IsEnabled="{Binding CanNavigateFlashcards}"
                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
                 <Button Width="50" Height="50" CornerRadius="25" FontSize="22" FontWeight="SemiBold"
                         Content="▶" Command="{Binding NextCardCommand}"
+                        IsEnabled="{Binding CanNavigateFlashcards}"
                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
             </StackPanel>
 

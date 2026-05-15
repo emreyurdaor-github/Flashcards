@@ -39,6 +39,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     private string _newWritingEnglish = string.Empty;
     private string _validationMessage = string.Empty;
     private string _searchText = string.Empty;
+    private bool _isAudioPlaying = false;
     
     // Search autocomplete collection
     private ObservableCollection<FlashcardEntry> _searchResults = new();
@@ -422,6 +423,20 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
 
     public bool HasFlashcards => CurrentFlashcard is not null;
 
+    public bool IsAudioPlaying
+    {
+        get => _isAudioPlaying;
+        private set
+        {
+            if (SetProperty(ref _isAudioPlaying, value))
+            {
+                OnPropertyChanged(nameof(CanNavigateFlashcards));
+            }
+        }
+    }
+
+    public bool CanNavigateFlashcards => !_isAudioPlaying;
+
     public string RotationMessage { get; } = "Randomly rotates every 15 seconds";
 
     public bool IsAddRecordPage
@@ -560,7 +575,15 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     public WritingEntry? CurrentWritingEntry
     {
         get => _currentWritingEntry;
-        private set => SetProperty(ref _currentWritingEntry, value);
+        private set
+        {
+            if (SetProperty(ref _currentWritingEntry, value))
+            {
+                OnPropertyChanged(nameof(CurrentDanishWriting));
+                OnPropertyChanged(nameof(CurrentEnglishWriting));
+                OnPropertyChanged(nameof(HasWritingEntries));
+            }
+        }
     }
 
     public string CurrentDanishWriting => CurrentWritingEntry?.DanishWriting ?? "No writing exercises available";
@@ -947,15 +970,18 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
             return;
         }
 
-        WritingEntry nextWritingEntry;
-
-        do
+        var currentIndex = -1;
+        for (int i = 0; i < _writingEntries.Count; i++)
         {
-            nextWritingEntry = _writingEntries[_random.Next(_writingEntries.Count)];
+            if (ReferenceEquals(_writingEntries[i], CurrentWritingEntry))
+            {
+                currentIndex = i;
+                break;
+            }
         }
-        while (ReferenceEquals(nextWritingEntry, CurrentWritingEntry));
 
-        CurrentWritingEntry = nextWritingEntry;
+        var nextIndex = currentIndex >= _writingEntries.Count - 1 ? 0 : currentIndex + 1;
+        CurrentWritingEntry = _writingEntries[nextIndex];
     }
 
     private void SelectPreviousWritingEntry()
@@ -1006,8 +1032,16 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
             return;
         }
 
-        System.Diagnostics.Debug.WriteLine($"[ViewModel] PlayCurrentDanishWord: Playing '{CurrentFlashcard.Danish}'");
-        await _audioService.PlayDanishPronunciation(CurrentFlashcard.Danish);
+        try
+        {
+            IsAudioPlaying = true;
+            System.Diagnostics.Debug.WriteLine($"[ViewModel] PlayCurrentDanishWord: Playing '{CurrentFlashcard.Danish}'");
+            await _audioService.PlayDanishPronunciation(CurrentFlashcard.Danish);
+        }
+        finally
+        {
+            IsAudioPlaying = false;
+        }
     }
 
     private async Task PlayCurrentDanishExample()
@@ -1018,8 +1052,16 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
             return;
         }
 
-        System.Diagnostics.Debug.WriteLine($"[ViewModel] PlayCurrentDanishExample: Playing '{CurrentFlashcard.ExampleDanish}'");
-        await _audioService.PlayDanishPronunciation(CurrentFlashcard.ExampleDanish);
+        try
+        {
+            IsAudioPlaying = true;
+            System.Diagnostics.Debug.WriteLine($"[ViewModel] PlayCurrentDanishExample: Playing '{CurrentFlashcard.ExampleDanish}'");
+            await _audioService.PlayDanishPronunciation(CurrentFlashcard.ExampleDanish);
+        }
+        finally
+        {
+            IsAudioPlaying = false;
+        }
     }
 
     /// <summary>
@@ -1043,6 +1085,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
 
         try
         {
+            IsAudioPlaying = true;
             System.Diagnostics.Debug.WriteLine($"[ViewModel] PlayDanishWordTwiceAsync: Starting playback sequence");
             
             // Play Danish word first time
@@ -1084,6 +1127,10 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[ViewModel] PlayDanishWordTwiceAsync: Error - {ex.Message}");
+        }
+        finally
+        {
+            IsAudioPlaying = false;
         }
     }
 

@@ -8,6 +8,8 @@ namespace Flashcards.Views;
 
 public partial class MainView : UserControl
 {
+    private bool _syncingScroll;
+
     public MainView()
     {
         InitializeComponent();
@@ -26,5 +28,29 @@ public partial class MainView : UserControl
                 }
             };
         }
+
+        Loaded += (_, _) =>
+        {
+            var danish = this.FindControl<ScrollViewer>("DanishWritingScroller");
+            var english = this.FindControl<ScrollViewer>("EnglishWritingScroller");
+
+            if (danish == null || english == null) return;
+
+            danish.ScrollChanged += (_, _) =>
+            {
+                if (_syncingScroll) return;
+                _syncingScroll = true;
+                english.Offset = danish.Offset;
+                _syncingScroll = false;
+            };
+
+            english.ScrollChanged += (_, _) =>
+            {
+                if (_syncingScroll) return;
+                _syncingScroll = true;
+                danish.Offset = english.Offset;
+                _syncingScroll = false;
+            };
+        };
     }
 }
