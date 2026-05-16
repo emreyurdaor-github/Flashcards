@@ -66,6 +66,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     public IRelayCommand MinimizeToTrayCommand { get; set; }
     public IRelayCommand<FlashcardEntry?> SelectSearchResultCommand { get; }
     public IRelayCommand ToggleMuteCommand { get; }
+    public IRelayCommand<string> SelectTabCommand { get; }
 
     public FlashcardEntry? CurrentFlashcard
     {
@@ -696,6 +697,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         MinimizeToTrayCommand = new RelayCommand(MinimizeToTray);
         SelectSearchResultCommand = new RelayCommand<FlashcardEntry?>(SelectSearchResult);
         ToggleMuteCommand = new RelayCommand(ToggleMute);
+        SelectTabCommand = new RelayCommand<string>(tab => { if (int.TryParse(tab, out var idx)) SelectedTabIndex = idx; });
 
         _rotationTimer = new DispatcherTimer
         {

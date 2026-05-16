@@ -32,7 +32,34 @@
     <Window.Resources>
         <converters:MultiBooleanAndConverter x:Key="MultiBooleanAndConverter" />
         <converters:EqualityConverter x:Key="EqualityConverter" />
+        <SolidColorBrush x:Key="TabSelectedBg" Color="#CC3B82F6" />
+        <SolidColorBrush x:Key="TabUnselectedBg" Color="#33475569" />
     </Window.Resources>
+
+    <Window.Styles>
+        <Style Selector="Button.tab-btn">
+            <Setter Property="Padding" Value="12,6" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="#FFE2E8F0" />
+            <Setter Property="Background" Value="{StaticResource TabUnselectedBg}" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+        <Style Selector="Button.tab-btn:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#44475569" />
+        </Style>
+        <Style Selector="Button.tab-btn.selected">
+            <Setter Property="Background" Value="{StaticResource TabSelectedBg}" />
+            <Setter Property="Foreground" Value="White" />
+        </Style>
+        <Style Selector="Button.tab-btn.selected:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#DD3B82F6" />
+        </Style>
+    </Window.Styles>
 
     <Border
         Margin="12"
@@ -43,28 +70,36 @@
         BorderThickness="1">
         <Grid RowDefinitions="Auto,Auto,Auto,Auto,*,Auto,Auto">
             <!-- Tab Control -->
-            <TabControl
+            <Border
                 Grid.Row="1"
-                SelectedIndex="{Binding SelectedTabIndex}"
                 Margin="0,0,0,12"
-                HorizontalAlignment="Center"
-                Height="28">
-                <TabItem Padding="6,2" BorderBrush="Gray" BorderThickness="1">
-                    <TabItem.Header>
-                        <TextBlock Text="Flashcards" FontSize="14" VerticalAlignment="Center" />
-                    </TabItem.Header>
-                </TabItem>
-                <TabItem Padding="6,2" BorderBrush="Gray" BorderThickness="1">
-                    <TabItem.Header>
-                        <TextBlock Text="Quiz" FontSize="14" VerticalAlignment="Center" />
-                    </TabItem.Header>
-                </TabItem>
-                <TabItem Padding="6,2" BorderBrush="Gray" BorderThickness="1">
-                    <TabItem.Header>
-                        <TextBlock Text="Writing" FontSize="14" VerticalAlignment="Center" />
-                    </TabItem.Header>
-                </TabItem>
-            </TabControl>
+                Padding="4"
+                CornerRadius="10"
+                Background="#22334155"
+                BorderBrush="#33475569"
+                BorderThickness="1"
+                HorizontalAlignment="Center">
+                <StackPanel Orientation="Horizontal" Spacing="4">
+                    <Button
+                        Classes="tab-btn"
+                        Classes.selected="{Binding SelectedTabIndex, Converter={StaticResource EqualityConverter}, ConverterParameter=0}"
+                        Content="Flashcards"
+                        Command="{Binding SelectTabCommand}"
+                        CommandParameter="0" />
+                    <Button
+                        Classes="tab-btn"
+                        Classes.selected="{Binding SelectedTabIndex, Converter={StaticResource EqualityConverter}, ConverterParameter=1}"
+                        Content="Quiz"
+                        Command="{Binding SelectTabCommand}"
+                        CommandParameter="1" />
+                    <Button
+                        Classes="tab-btn"
+                        Classes.selected="{Binding SelectedTabIndex, Converter={StaticResource EqualityConverter}, ConverterParameter=2}"
+                        Content="Writing"
+                        Command="{Binding SelectTabCommand}"
+                        CommandParameter="2" />
+                </StackPanel>
+            </Border>
 
             <!-- Top row with search and close button -->
             <Grid
