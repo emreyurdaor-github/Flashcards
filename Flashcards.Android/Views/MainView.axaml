@@ -350,7 +350,7 @@
                             VerticalScrollBarVisibility="Auto"
                             HorizontalScrollBarVisibility="Disabled">
                             <TextBlock
-                                Text="{Binding CurrentDanishWriting}"
+                                x:Name="DanishWritingTextBlock"
                                 FontSize="20"
                                 Foreground="#FFCBD5E1"
                                 TextWrapping="Wrap" />

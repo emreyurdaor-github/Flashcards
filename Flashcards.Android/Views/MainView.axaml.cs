@@ -1,5 +1,8 @@
-﻿using Avalonia.Controls;
+﻿using System.ComponentModel;
+using Avalonia.Controls;
+using Avalonia.Controls.Documents;
 using Avalonia.Input;
+using Avalonia.Media;
 using CommunityToolkit.Mvvm.Input;
 using Flashcards.Models;
 using Flashcards.ViewModels;
@@ -13,6 +16,15 @@ public partial class MainView : UserControl
     public MainView()
     {
         InitializeComponent();
+
+        DataContextChanged += (_, _) =>
+        {
+            if (DataContext is MainWindowViewModel vm)
+            {
+                vm.PropertyChanged += OnViewModelPropertyChanged;
+                RefreshDanishWritingInlines(vm);
+            }
+        };
 
         // Find and configure the AutoCompleteBox
         var autoCompleteBox = this.FindControl<AutoCompleteBox>("SearchBox");
@@ -51,6 +63,38 @@ public partial class MainView : UserControl
                 danish.Offset = english.Offset;
                 _syncingScroll = false;
             };
+
+            if (DataContext is MainWindowViewModel vm)
+                RefreshDanishWritingInlines(vm);
         };
+    }
+
+    private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(MainWindowViewModel.CurrentDanishWritingSegments) &&
+            sender is MainWindowViewModel vm)
+        {
+            RefreshDanishWritingInlines(vm);
+        }
+    }
+
+    private void RefreshDanishWritingInlines(MainWindowViewModel vm)
+    {
+        var tb = this.FindControl<TextBlock>("DanishWritingTextBlock");
+        if (tb == null) return;
+
+        tb.Inlines ??= new InlineCollection();
+        tb.Inlines.Clear();
+
+        var greenBrush = new SolidColorBrush(Color.FromRgb(0x4A, 0xDE, 0x80));
+        var whiteBrush = new SolidColorBrush(Color.FromArgb(0xFF, 0xCB, 0xD5, 0xE1));
+        foreach (var seg in vm.CurrentDanishWritingSegments)
+        {
+            tb.Inlines.Add(new Run
+            {
+                Text = seg.Text,
+                Foreground = seg.IsHighlighted ? greenBrush : whiteBrush
+            });
+        }
     }
 }

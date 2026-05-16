@@ -583,6 +583,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
             {
                 OnPropertyChanged(nameof(CurrentDanishWritingTitle));
                 OnPropertyChanged(nameof(CurrentDanishWriting));
+                OnPropertyChanged(nameof(CurrentDanishWritingSegments));
                 OnPropertyChanged(nameof(CurrentEnglishWritingTitle));
                 OnPropertyChanged(nameof(CurrentEnglishWriting));
                 OnPropertyChanged(nameof(HasWritingEntries));
@@ -590,8 +591,49 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         }
     }
 
+    private static readonly string[] GreenPhrases =
+    {
+        "Diagrammet viser", "andelen af", "Det fremgår tydeligt", "Herefter følger",
+        "Der kan være flere årsager til disse markante forskelle", "For det første",
+        "For det andet", "Spørgsmålet om", "På den ene side", "På den anden side",
+        "Desuden", " er det vigtigt at understrege", "Sammenfattende mener jeg"
+    };
+
     public string CurrentDanishWritingTitle => CurrentWritingEntry?.DanishWritingTitle ?? "Danish Writing";
     public string CurrentDanishWriting => CurrentWritingEntry?.DanishWriting ?? "No writing exercises available";
+
+    public IReadOnlyList<WritingSegment> CurrentDanishWritingSegments =>
+        BuildSegments(CurrentDanishWriting, GreenPhrases);
+
+    private static IReadOnlyList<WritingSegment> BuildSegments(string text, string[] phrases)
+    {
+        var segments = new List<WritingSegment>();
+        int pos = 0;
+        while (pos < text.Length)
+        {
+            int earliest = -1;
+            string? match = null;
+            foreach (var phrase in phrases)
+            {
+                int idx = text.IndexOf(phrase, pos, StringComparison.Ordinal);
+                if (idx >= 0 && (earliest < 0 || idx < earliest))
+                {
+                    earliest = idx;
+                    match = phrase;
+                }
+            }
+            if (match == null)
+            {
+                segments.Add(new WritingSegment { Text = text[pos..] });
+                break;
+            }
+            if (earliest > pos)
+                segments.Add(new WritingSegment { Text = text[pos..earliest] });
+            segments.Add(new WritingSegment { Text = match, IsHighlighted = true });
+            pos = earliest + match.Length;
+        }
+        return segments;
+    }
     public string CurrentEnglishWritingTitle => CurrentWritingEntry?.EnglishWritingTitle ?? "English Writing";
     public string CurrentEnglishWriting => CurrentWritingEntry?.EnglishWriting ?? string.Empty;
 
