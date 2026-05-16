@@ -13,8 +13,8 @@
     x:DataType="vm:MainWindowViewModel"
     Title="Flashcards"
     Icon="/Assets/app.ico"
-    Width="440"
-    Height="670"
+    Width="520"
+    Height="680"
     CanResize="False"
     ShowInTaskbar="False"
     SystemDecorations="None"
@@ -327,16 +327,16 @@
                                 Foreground="#FFCBD5E1">
                                 <Run
                                     Text="{Binding HighlightedExampleDanish.BeforeWord}"
-                                    FontSize="14" />
+                                    FontSize="16" />
                                 <Run
                                     Text="{Binding HighlightedExampleDanish.HighlightedWord}"
                                     TextDecorations="Underline"
                                     FontWeight="SemiBold"
                                     Foreground="#FFFBBF24"
-                                    FontSize="14" />
+                                    FontSize="16" />
                                 <Run
                                     Text="{Binding HighlightedExampleDanish.AfterWord}"
-                                    FontSize="14" />
+                                    FontSize="16" />
                             </TextBlock>
                             <Button
                                 Grid.Column="1"
@@ -375,15 +375,15 @@
                             IsVisible="{Binding HasCurrentExampleEnglish}">
                             <Run
                                 Text="{Binding HighlightedExampleEnglish.BeforeWord}"
-                                FontSize="14" />
+                                FontSize="16" />
                             <Run
                                 Text="{Binding HighlightedExampleEnglish.HighlightedWord}"
                                 TextDecorations="Underline"
                                 FontWeight="SemiBold"
-                                FontSize="14" />
+                                FontSize="16" />
                             <Run
                                 Text="{Binding HighlightedExampleEnglish.AfterWord}"
-                                FontSize="14" />
+                                FontSize="16" />
                         </TextBlock>
                         <!-- Fallback: Show full text if highlighting failed -->
                         <TextBlock
@@ -726,7 +726,7 @@
                     <TextBlock
                         Grid.Column="1"
                         Text="{Binding CurrentContextualTip}"
-                        FontSize="12"
+                        FontSize="14"
                         TextWrapping="Wrap"
                         Foreground="#FFFBBF24" />
                 </Grid>

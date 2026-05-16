@@ -187,6 +187,18 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         if (string.IsNullOrEmpty(text) || string.IsNullOrEmpty(word))
             return new FormattedExampleText { FullText = text };
 
+        // First, try to match multi-word phrases directly (e.g. "at gå ud over" -> try "gå ud over" first)
+        var phrases = ExtractPhrases(word);
+        foreach (var phrase in phrases)
+        {
+            var result = FindAndHighlightPhrase(text, phrase);
+            if (!string.IsNullOrEmpty(result.HighlightedWord))
+            {
+                System.Diagnostics.Debug.WriteLine($"[HighlightWord] Found phrase highlight: '{result.HighlightedWord}' in text");
+                return result;
+            }
+        }
+
         // Handle multi-word expressions like "to destroy / to ruin / to break"
         var keywords = ExtractKeywords(word);
         
@@ -206,6 +218,53 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         // If no keywords found, return the full text without highlighting
         // This ensures the text is still visible even if highlighting fails
         System.Diagnostics.Debug.WriteLine($"[HighlightWord] No highlight found for keywords: {string.Join(", ", keywords)}");
+        return new FormattedExampleText { FullText = text };
+    }
+
+    /// <summary>
+    /// Extracts multi-word phrases from a word expression, removing leading articles/prefixes.
+    /// E.g. "at gå ud over" -> ["gå ud over"], "to give up / to surrender" -> ["give up", "surrender"]
+    /// Only returns phrases with more than one word (single words handled by ExtractKeywords).
+    /// </summary>
+    private List<string> ExtractPhrases(string word)
+    {
+        var phrases = new List<string>();
+        var prefixesToSkip = new[] { "to", "at", "de", "for", "en", "et" };
+
+        var parts = word.Split(new[] { '/', '|' }, StringSplitOptions.RemoveEmptyEntries);
+        foreach (var part in parts)
+        {
+            var words = part.Trim().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            // Strip leading prefix if any
+            int start = 0;
+            if (words.Length > 0 && Array.Exists(prefixesToSkip, p => p.Equals(words[0], StringComparison.OrdinalIgnoreCase)))
+                start = 1;
+
+            if (words.Length - start > 1)
+            {
+                var phrase = string.Join(" ", words.Skip(start));
+                if (!phrases.Contains(phrase, StringComparer.OrdinalIgnoreCase))
+                    phrases.Add(phrase);
+            }
+        }
+
+        return phrases;
+    }
+
+    /// <summary>
+    /// Finds and highlights a multi-word phrase in text using case-insensitive search.
+    /// </summary>
+    private FormattedExampleText FindAndHighlightPhrase(string text, string phrase)
+    {
+        if (string.IsNullOrEmpty(text) || string.IsNullOrEmpty(phrase))
+            return new FormattedExampleText { FullText = text };
+
+        int index = text.IndexOf(phrase, StringComparison.OrdinalIgnoreCase);
+        if (index >= 0)
+        {
+            return ExtractHighlightedText(text, index, phrase.Length);
+        }
+
         return new FormattedExampleText { FullText = text };
     }
 
