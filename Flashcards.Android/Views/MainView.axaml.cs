@@ -4,6 +4,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
 using Avalonia.Input;
+using Avalonia.Layout;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.Input;
 using Flashcards.Models;
@@ -74,12 +75,64 @@ public partial class MainView : UserControl
 
             if (DataContext is MainWindowViewModel vm)
                 RefreshDanishWritingInlines(vm);
+
+            // Apply initial layout based on current size
+            ApplyWritingLayout(Bounds.Width, Bounds.Height);
         };
+
+        // React to size/orientation changes
+        SizeChanged += (_, e) => ApplyWritingLayout(e.NewSize.Width, e.NewSize.Height);
 
         // Swipe gesture support
         PointerPressed += OnPointerPressed;
         PointerReleased += OnPointerReleased;
     }
+
+    /// <summary>
+    /// Switches the writing grid between side-by-side (landscape) and stacked (portrait).
+    /// </summary>
+    private void ApplyWritingLayout(double width, double height)
+    {
+        var grid = this.FindControl<Grid>("WritingGrid");
+        var danishBorder = this.FindControl<Border>("DanishWritingBorder");
+        var englishBorder = this.FindControl<Border>("EnglishWritingBorder");
+
+        if (grid == null || danishBorder == null || englishBorder == null) return;
+
+        bool isLandscape = width > height;
+
+        if (isLandscape)
+        {
+            // Side-by-side: two equal columns, one row
+            grid.ColumnDefinitions = new ColumnDefinitions("*,*");
+            grid.RowDefinitions = new RowDefinitions("*");
+
+            Grid.SetRow(danishBorder, 0);
+            Grid.SetColumn(danishBorder, 0);
+            danishBorder.Margin = new Thickness(0, 6, 4, 0);
+
+            Grid.SetRow(englishBorder, 0);
+            Grid.SetColumn(englishBorder, 1);
+            englishBorder.Margin = new Thickness(4, 6, 0, 0);
+        }
+        else
+        {
+            // Stacked: one column, two equal rows
+            grid.ColumnDefinitions = new ColumnDefinitions("*");
+            grid.RowDefinitions = new RowDefinitions("*,*");
+
+            Grid.SetRow(danishBorder, 0);
+            Grid.SetColumn(danishBorder, 0);
+            danishBorder.Margin = new Thickness(0, 6, 0, 5);
+
+            Grid.SetRow(englishBorder, 1);
+            Grid.SetColumn(englishBorder, 0);
+            englishBorder.Margin = new Thickness(0, 5, 0, 0);
+        }
+    }
+
+    // ...existing code...
+
 
     private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
     {
