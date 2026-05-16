@@ -32,6 +32,7 @@
     <Window.Resources>
         <converters:MultiBooleanAndConverter x:Key="MultiBooleanAndConverter" />
         <converters:EqualityConverter x:Key="EqualityConverter" />
+        <converters:BoolNegationConverter x:Key="BoolNegationConverter" />
         <SolidColorBrush x:Key="TabSelectedBg" Color="#CC3B82F6" />
         <SolidColorBrush x:Key="TabUnselectedBg" Color="#33475569" />
     </Window.Resources>
@@ -58,6 +59,24 @@
         </Style>
         <Style Selector="Button.tab-btn.selected:pointerover /template/ ContentPresenter">
             <Setter Property="Background" Value="#DD3B82F6" />
+        </Style>
+        <!-- Icon button base style -->
+        <Style Selector="Button.icon-btn">
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+        <Style Selector="Button.icon-btn:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#33FFFFFF" />
+        </Style>
+        <Style Selector="Button.icon-btn:pressed /template/ ContentPresenter">
+            <Setter Property="Background" Value="#55FFFFFF" />
+        </Style>
+        <Style Selector="Button.icon-btn:disabled /template/ ContentPresenter">
+            <Setter Property="Opacity" Value="0.35" />
         </Style>
     </Window.Styles>
 
@@ -109,21 +128,39 @@
                 <!-- Mute button -->
                 <Button
                     Grid.Column="0"
-                    Width="22"
-                    Height="22"
-                    Padding="0"
+                    Width="28"
+                    Height="28"
+                    Classes="icon-btn"
                     CornerRadius="6"
-                    FontSize="14"
-                    FontWeight="Bold"
-                    Content="{Binding MuteIcon}"
                     ToolTip.Tip="{Binding MuteTooltip}"
                     Command="{Binding ToggleMuteCommand}"
                     VerticalAlignment="Center"
-                    HorizontalContentAlignment="Center"
-                    VerticalContentAlignment="Center"
-                    Background="Transparent"
-                    BorderThickness="0"
-                    Margin="0,0,8,0" />
+                    Margin="0,0,8,0">
+                    <Panel Width="18" Height="18">
+                        <!-- Speaker icon (always shown) -->
+                        <Path
+                            Fill="#FFE2E8F0"
+                            Stretch="Uniform"
+                            Data="M6,4 L6,14 L2,11 L2,7 Z M6,4 L12,1 L12,17 L6,14 Z M14,7 Q16,9 14,11" />
+                        <!-- Muted X overlay -->
+                        <Path
+                            IsVisible="{Binding IsMuted}"
+                            Stroke="#FFEF4444"
+                            StrokeThickness="2"
+                            StrokeLineCap="Round"
+                            Stretch="Uniform"
+                            Data="M14,6 L18,12 M18,6 L14,12" />
+                        <!-- Sound waves (visible when unmuted) -->
+                        <Path
+                            IsVisible="{Binding IsMuted, Converter={StaticResource BoolNegationConverter}}"
+                            Stroke="#FF86EFAC"
+                            StrokeThickness="1.5"
+                            StrokeLineCap="Round"
+                            Fill="Transparent"
+                            Stretch="Uniform"
+                            Data="M14,7 Q16,9 14,11 M15.5,5.5 Q19,9 15.5,12.5" />
+                    </Panel>
+                </Button>
 
                 <!-- Search box at top center -->
                 <AutoCompleteBox
@@ -247,18 +284,18 @@
                             </StackPanel>
                             <Button
                                 Grid.Column="1"
-                                Width="28"
-                                Height="28"
-                                Padding="0"
+                                Width="30"
+                                Height="30"
+                                Classes="icon-btn"
                                 CornerRadius="6"
-                                FontSize="14"
-                                Content="🔊"
                                 VerticalAlignment="Top"
-                                HorizontalContentAlignment="Center"
-                                VerticalContentAlignment="Center"
-                                Background="Transparent"
-                                BorderThickness="0"
-                                Command="{Binding PlayDanishWordCommand}" />
+                                Command="{Binding PlayDanishWordCommand}">
+                                <Path
+                                    Width="16" Height="16"
+                                    Fill="#FF94D9FF"
+                                    Stretch="Uniform"
+                                    Data="M4,5 L4,13 L1,11 L1,7 Z M4,5 L10,2 L10,16 L4,13 Z M11,7 Q13,9 11,11 M12,5.5 Q15,9 12,12.5" />
+                            </Button>
                         </Grid>
 
                         <TextBlock
@@ -303,18 +340,18 @@
                             </TextBlock>
                             <Button
                                 Grid.Column="1"
-                                Width="24"
-                                Height="24"
-                                Padding="0"
+                                Width="26"
+                                Height="26"
+                                Classes="icon-btn"
                                 CornerRadius="4"
-                                FontSize="12"
-                                Content="🔊"
                                 VerticalAlignment="Top"
-                                HorizontalContentAlignment="Center"
-                                VerticalContentAlignment="Center"
-                                Background="Transparent"
-                                BorderThickness="0"
-                                Command="{Binding PlayDanishExampleCommand}" />
+                                Command="{Binding PlayDanishExampleCommand}">
+                                <Path
+                                    Width="14" Height="14"
+                                    Fill="#FF94D9FF"
+                                    Stretch="Uniform"
+                                    Data="M4,5 L4,13 L1,11 L1,7 Z M4,5 L10,2 L10,16 L4,13 Z M11,7 Q13,9 11,11 M12,5.5 Q15,9 12,12.5" />
+                            </Button>
                         </Grid>
                         <!-- Fallback: Show full text if highlighting failed -->
                         <TextBlock
@@ -575,13 +612,15 @@
                 <Button
                     Width="32"
                     Height="32"
+                    Classes="icon-btn"
                     CornerRadius="16"
-                    FontSize="14"
-                    FontWeight="SemiBold"
-                    Content="✎"
-                    Command="{Binding ShowEditWritingCommand}"
-                    HorizontalContentAlignment="Center"
-                    VerticalContentAlignment="Center"/>
+                    Command="{Binding ShowEditWritingCommand}">
+                    <Path
+                        Width="15" Height="15"
+                        Fill="#FFFBBF24"
+                        Stretch="Uniform"
+                        Data="M12,2 L14,4 L5,13 L2,14 L3,11 Z M13,3 L15,5" />
+                </Button>
                 <Button
                     Width="32"
                     Height="32"
@@ -721,15 +760,16 @@
                 Width="32"
                 Height="32"
                 Margin="0,0,44,0"
+                Classes="icon-btn"
                 CornerRadius="16"
-                FontSize="14"
-                FontWeight="SemiBold"
-                Content="✎"
                 Command="{Binding ShowEditRecordCommand}"
                 HorizontalAlignment="Right"
-                VerticalAlignment="Bottom"
-                HorizontalContentAlignment="Center"
-                VerticalContentAlignment="Center">
+                VerticalAlignment="Bottom">
+                <Path
+                    Width="15" Height="15"
+                    Fill="#FFFBBF24"
+                    Stretch="Uniform"
+                    Data="M12,2 L14,4 L5,13 L2,14 L3,11 Z M13,3 L15,5" />
                 <Button.IsVisible>
                     <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
                         <Binding Path="HasFlashcards" />
