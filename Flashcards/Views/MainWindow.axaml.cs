@@ -13,6 +13,9 @@ namespace Flashcards.Views;
 public partial class MainWindow : Window
 {
     private bool _syncingScroll;
+    private bool _isDoubledSize;
+    private const double BaseWidth = 520;
+    private const double BaseHeight = 680;
 
     public MainWindow()
     {
@@ -130,5 +133,14 @@ public partial class MainWindow : Window
         {
             viewModel.Dispose();
         }
+    }
+
+    private void OnResizeButtonClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        _isDoubledSize = !_isDoubledSize;
+        Width = _isDoubledSize ? BaseWidth * 2 : BaseWidth;
+        Height = _isDoubledSize ? BaseHeight * 2 : BaseHeight;
+        if (sender is Button btn)
+            btn.Content = _isDoubledSize ? "⤡" : "⤢";
     }
 }

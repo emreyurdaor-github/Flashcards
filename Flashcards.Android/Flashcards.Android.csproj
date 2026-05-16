@@ -43,6 +43,28 @@
         <AndroidAsset Include="..\Flashcards\Data\writing.csv" />
     </ItemGroup>
 
+    <!-- Mipmap icons for all densities -->
+    <ItemGroup>
+        <AndroidResource Include="Resources\mipmap-mdpi\ic_launcher.png" />
+        <AndroidResource Include="Resources\mipmap-mdpi\ic_launcher_round.png" />
+        <AndroidResource Include="Resources\mipmap-mdpi\ic_launcher_foreground.png" />
+        <AndroidResource Include="Resources\mipmap-hdpi\ic_launcher.png" />
+        <AndroidResource Include="Resources\mipmap-hdpi\ic_launcher_round.png" />
+        <AndroidResource Include="Resources\mipmap-hdpi\ic_launcher_foreground.png" />
+        <AndroidResource Include="Resources\mipmap-xhdpi\ic_launcher.png" />
+        <AndroidResource Include="Resources\mipmap-xhdpi\ic_launcher_round.png" />
+        <AndroidResource Include="Resources\mipmap-xhdpi\ic_launcher_foreground.png" />
+        <AndroidResource Include="Resources\mipmap-xxhdpi\ic_launcher.png" />
+        <AndroidResource Include="Resources\mipmap-xxhdpi\ic_launcher_round.png" />
+        <AndroidResource Include="Resources\mipmap-xxhdpi\ic_launcher_foreground.png" />
+        <AndroidResource Include="Resources\mipmap-xxxhdpi\ic_launcher.png" />
+        <AndroidResource Include="Resources\mipmap-xxxhdpi\ic_launcher_round.png" />
+        <AndroidResource Include="Resources\mipmap-xxxhdpi\ic_launcher_foreground.png" />
+        <AndroidResource Include="Resources\mipmap-anydpi-v26\ic_launcher.xml" />
+        <AndroidResource Include="Resources\mipmap-anydpi-v26\ic_launcher_round.xml" />
+        <AndroidResource Include="Resources\values\colors.xml" />
+    </ItemGroup>
+
     <ItemGroup>
         <PackageReference Include="Avalonia" Version="11.3.8" />
         <PackageReference Include="Avalonia.Android" Version="11.3.8" />

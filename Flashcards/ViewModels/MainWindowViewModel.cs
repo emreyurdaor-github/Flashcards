@@ -656,7 +656,8 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         "Diagrammet viser", "andelen af", "Det fremgår tydeligt", "Herefter følger",
         "Der kan være flere årsager til disse markante forskelle", "For det første",
         "For det andet", "Spørgsmålet om", "På den ene side", "På den anden side",
-        "Desuden", " er det vigtigt at understrege", "Sammenfattende mener jeg"
+        "Desuden", " er det vigtigt at understrege", "Sammenfattende mener jeg",
+        "Tak for din mail", "Tusind tak for din mail", "Det var rigtig hyggeligt at høre fra dig"
     };
 
     public string CurrentDanishWritingTitle => CurrentWritingEntry?.DanishWritingTitle ?? "Danish Writing";

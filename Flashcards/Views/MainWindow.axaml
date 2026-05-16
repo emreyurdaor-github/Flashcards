@@ -195,22 +195,44 @@
 
 
 
-                <!-- Close button at top right -->
-                <Button
+                <!-- Buttons at top right -->
+                <StackPanel
                     Grid.Column="2"
-                    Width="22"
-                    Height="22"
-                    Padding="0"
-                    CornerRadius="6"
-                    FontSize="14"
-                    FontWeight="Bold"
-                    Content="✕"
-                    Command="{Binding MinimizeToTrayCommand}"
-                    VerticalAlignment="Center"
-                    HorizontalContentAlignment="Center"
-                    VerticalContentAlignment="Center"
-                    Background="Transparent"
-                    BorderThickness="0" />
+                    Orientation="Horizontal"
+                    Spacing="4"
+                    VerticalAlignment="Center">
+                    <!-- Resize button -->
+                    <Button
+                        x:Name="ResizeButton"
+                        Width="22"
+                        Height="22"
+                        Padding="0"
+                        CornerRadius="6"
+                        FontSize="12"
+                        FontWeight="Bold"
+                        Content="⤢"
+                        VerticalAlignment="Center"
+                        HorizontalContentAlignment="Center"
+                        VerticalContentAlignment="Center"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Click="OnResizeButtonClick" />
+                    <!-- Close button -->
+                    <Button
+                        Width="22"
+                        Height="22"
+                        Padding="0"
+                        CornerRadius="6"
+                        FontSize="14"
+                        FontWeight="Bold"
+                        Content="✕"
+                        Command="{Binding MinimizeToTrayCommand}"
+                        VerticalAlignment="Center"
+                        HorizontalContentAlignment="Center"
+                        VerticalContentAlignment="Center"
+                        Background="Transparent"
+                        BorderThickness="0" />
+                </StackPanel>
             </Grid>
 
             <StackPanel
