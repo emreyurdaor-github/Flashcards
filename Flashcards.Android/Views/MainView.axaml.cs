@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
 using Avalonia.Input;
@@ -12,6 +14,12 @@ namespace Flashcards.Views;
 public partial class MainView : UserControl
 {
     private bool _syncingScroll;
+
+    // Swipe gesture tracking
+    private Point _swipeStart;
+    private bool _isSwiping;
+    private const double SwipeThreshold = 60.0;   // minimum horizontal distance (dp)
+    private const double SwipeMaxVertical = 80.0;  // maximum vertical drift allowed
 
     public MainView()
     {
@@ -67,6 +75,50 @@ public partial class MainView : UserControl
             if (DataContext is MainWindowViewModel vm)
                 RefreshDanishWritingInlines(vm);
         };
+
+        // Swipe gesture support
+        PointerPressed += OnPointerPressed;
+        PointerReleased += OnPointerReleased;
+    }
+
+    private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        _swipeStart = e.GetPosition(this);
+        _isSwiping = true;
+    }
+
+    private void OnPointerReleased(object? sender, PointerReleasedEventArgs e)
+    {
+        if (!_isSwiping) return;
+        _isSwiping = false;
+
+        if (DataContext is not MainWindowViewModel vm) return;
+
+        var end = e.GetPosition(this);
+        var deltaX = end.X - _swipeStart.X;
+        var deltaY = end.Y - _swipeStart.Y;
+
+        // Only trigger if horizontal movement exceeds threshold and vertical drift is small
+        if (Math.Abs(deltaX) < SwipeThreshold || Math.Abs(deltaY) > SwipeMaxVertical)
+            return;
+
+        bool swipedLeft = deltaX < 0;   // swipe left → go to next
+        bool swipedRight = deltaX > 0;  // swipe right → go to previous
+
+        if (vm.SelectedTabIndex == 0 && vm.IsFlashcardPage && vm.CanNavigateFlashcards)
+        {
+            if (swipedLeft)
+                vm.NextCardCommand.Execute(null);
+            else if (swipedRight)
+                vm.PreviousCardCommand.Execute(null);
+        }
+        else if (vm.SelectedTabIndex == 2 && vm.IsWritingPage)
+        {
+            if (swipedLeft)
+                vm.NextWritingCommand.Execute(null);
+            else if (swipedRight)
+                vm.PreviousWritingCommand.Execute(null);
+        }
     }
 
     private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
