@@ -42,6 +42,19 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     private string _validationMessage = string.Empty;
     private string _searchText = string.Empty;
     private bool _isAudioPlaying = false;
+
+    // MBSP
+    private readonly IReadOnlyList<MbspQuestion> _mbspQuestions = MbspDataSource.GetQuestions();
+    private MbspQuestion? _currentMbspQuestion;
+    private int _currentMbspIndex = -1;
+    private bool _isAddMbspPage;
+    private bool _mbspAnswerRevealed;
+    private string? _mbspSelectedChoice;
+    private string _newMbspQuestion = string.Empty;
+    private string _newMbspChoiceA = string.Empty;
+    private string _newMbspChoiceB = string.Empty;
+    private string _newMbspChoiceC = string.Empty;
+    private string _newMbspCorrectChoice = "A";
     
     // Search autocomplete collection
     private ObservableCollection<FlashcardEntry> _searchResults = new();
@@ -67,6 +80,16 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     public IRelayCommand<FlashcardEntry?> SelectSearchResultCommand { get; }
     public IRelayCommand ToggleMuteCommand { get; }
     public IRelayCommand<string> SelectTabCommand { get; }
+
+    // MBSP commands
+    public IRelayCommand NextMbspCommand { get; }
+    public IRelayCommand PreviousMbspCommand { get; }
+    public IRelayCommand<string> SelectMbspChoiceCommand { get; }
+    public IRelayCommand RevealMbspAnswerCommand { get; }
+    public IRelayCommand ShowAddMbspCommand { get; }
+    public IRelayCommand ShowEditMbspCommand { get; }
+    public IRelayCommand SaveMbspCommand { get; }
+    public IRelayCommand CancelMbspCommand { get; }
 
     public FlashcardEntry? CurrentFlashcard
     {
@@ -715,6 +738,153 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
 
     public bool IsWritingPage => !IsAddWritingPage;
 
+    // ─── MBSP Properties ───────────────────────────────────────────────────────
+
+    public MbspQuestion? CurrentMbspQuestion
+    {
+        get => _currentMbspQuestion;
+        private set
+        {
+            if (SetProperty(ref _currentMbspQuestion, value))
+            {
+                OnPropertyChanged(nameof(CurrentMbspQuestionText));
+                OnPropertyChanged(nameof(CurrentMbspChoiceA));
+                OnPropertyChanged(nameof(CurrentMbspChoiceB));
+                OnPropertyChanged(nameof(CurrentMbspChoiceC));
+                OnPropertyChanged(nameof(HasMbspQuestions));
+                MbspAnswerRevealed = false;
+                MbspSelectedChoice = null;
+            }
+        }
+    }
+
+    public string CurrentMbspQuestionText => _currentMbspQuestion?.Question ?? "No questions available";
+    public string CurrentMbspChoiceA => _currentMbspQuestion?.ChoiceA ?? string.Empty;
+    public string CurrentMbspChoiceB => _currentMbspQuestion?.ChoiceB ?? string.Empty;
+    public string CurrentMbspChoiceC => _currentMbspQuestion?.ChoiceC ?? string.Empty;
+    public bool HasMbspQuestions => _currentMbspQuestion is not null;
+
+    public bool MbspAnswerRevealed
+    {
+        get => _mbspAnswerRevealed;
+        private set
+        {
+            if (SetProperty(ref _mbspAnswerRevealed, value))
+            {
+                OnPropertyChanged(nameof(MbspChoiceAResult));
+                OnPropertyChanged(nameof(MbspChoiceBResult));
+                OnPropertyChanged(nameof(MbspChoiceCResult));
+            }
+        }
+    }
+
+    public string? MbspSelectedChoice
+    {
+        get => _mbspSelectedChoice;
+        private set
+        {
+            if (SetProperty(ref _mbspSelectedChoice, value))
+            {
+                OnPropertyChanged(nameof(MbspChoiceASelected));
+                OnPropertyChanged(nameof(MbspChoiceBSelected));
+                OnPropertyChanged(nameof(MbspChoiceCSelected));
+                OnPropertyChanged(nameof(MbspAnswerFeedback));
+                OnPropertyChanged(nameof(MbspHasFeedback));
+            }
+        }
+    }
+
+    public bool MbspChoiceASelected => MbspSelectedChoice == "A";
+    public bool MbspChoiceBSelected => MbspSelectedChoice == "B";
+    public bool MbspChoiceCSelected => MbspSelectedChoice == "C";
+
+    /// <summary>null = not revealed, "correct", "wrong", "highlight" (correct answer when wrong was chosen)</summary>
+    public string? MbspChoiceAResult => GetChoiceResult("A");
+    public string? MbspChoiceBResult => GetChoiceResult("B");
+    public string? MbspChoiceCResult => GetChoiceResult("C");
+
+    public string MbspAnswerFeedback
+    {
+        get
+        {
+            if (MbspSelectedChoice is null) return string.Empty;
+            return MbspSelectedChoice == _currentMbspQuestion?.CorrectChoice
+                ? "✓ Correct!"
+                : $"✗ Wrong! The correct answer is: {GetChoiceText(_currentMbspQuestion?.CorrectChoice)}";
+        }
+    }
+
+    public bool MbspHasFeedback => !string.IsNullOrEmpty(MbspAnswerFeedback);
+
+    public bool IsAddMbspPage
+    {
+        get => _isAddMbspPage;
+        private set
+        {
+            if (SetProperty(ref _isAddMbspPage, value))
+                OnPropertyChanged(nameof(IsMbspPage));
+        }
+    }
+
+    public bool IsMbspPage => !IsAddMbspPage;
+
+    public string NewMbspQuestion
+    {
+        get => _newMbspQuestion;
+        set => SetProperty(ref _newMbspQuestion, value);
+    }
+
+    public string NewMbspChoiceA
+    {
+        get => _newMbspChoiceA;
+        set => SetProperty(ref _newMbspChoiceA, value);
+    }
+
+    public string NewMbspChoiceB
+    {
+        get => _newMbspChoiceB;
+        set => SetProperty(ref _newMbspChoiceB, value);
+    }
+
+    public string NewMbspChoiceC
+    {
+        get => _newMbspChoiceC;
+        set => SetProperty(ref _newMbspChoiceC, value);
+    }
+
+    public string NewMbspCorrectChoice
+    {
+        get => _newMbspCorrectChoice;
+        set => SetProperty(ref _newMbspCorrectChoice, value);
+    }
+
+    private string? GetChoiceResult(string choice)
+    {
+        if (!MbspAnswerRevealed && MbspSelectedChoice is null) return null;
+        if (_currentMbspQuestion is null) return null;
+
+        bool isCorrect = _currentMbspQuestion.CorrectChoice == choice;
+        bool isSelected = MbspSelectedChoice == choice;
+
+        if (MbspAnswerRevealed)
+            return isCorrect ? "correct" : null;
+
+        if (isSelected)
+            return isCorrect ? "correct" : "wrong";
+
+        if (!isCorrect) return null;
+        // Show the correct answer if a wrong one was selected
+        return "highlight";
+    }
+
+    private string GetChoiceText(string? choice) => choice switch
+    {
+        "A" => _currentMbspQuestion?.ChoiceA ?? string.Empty,
+        "B" => _currentMbspQuestion?.ChoiceB ?? string.Empty,
+        "C" => _currentMbspQuestion?.ChoiceC ?? string.Empty,
+        _ => string.Empty,
+    };
+
     public string NewWritingDanish
     {
         get => _newWritingDanish;
@@ -762,6 +932,16 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         ToggleMuteCommand = new RelayCommand(ToggleMute);
         SelectTabCommand = new RelayCommand<string>(tab => { if (int.TryParse(tab, out var idx)) SelectedTabIndex = idx; });
 
+        // MBSP
+        NextMbspCommand = new RelayCommand(SelectNextMbspQuestion);
+        PreviousMbspCommand = new RelayCommand(SelectPreviousMbspQuestion);
+        SelectMbspChoiceCommand = new RelayCommand<string>(SelectMbspChoice);
+        RevealMbspAnswerCommand = new RelayCommand(() => MbspAnswerRevealed = true);
+        ShowAddMbspCommand = new RelayCommand(ShowAddMbspPage);
+        ShowEditMbspCommand = new RelayCommand(ShowEditMbsp);
+        SaveMbspCommand = new RelayCommand(SaveMbsp);
+        CancelMbspCommand = new RelayCommand(CancelAddMbsp);
+
         _rotationTimer = new DispatcherTimer
         {
             Interval = RotationInterval,
@@ -771,6 +951,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         SelectNextFlashcard();
         UpdateRotationState();
         SelectFirstWritingEntry();
+        SelectFirstMbspQuestion();
     }
 
     public void Dispose()
@@ -1263,6 +1444,129 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         {
             IsAudioPlaying = false;
         }
+    }
+
+    // ─── MBSP Methods ──────────────────────────────────────────────────────────
+
+    private void SelectFirstMbspQuestion()
+    {
+        if (_mbspQuestions.Count > 0)
+        {
+            _currentMbspIndex = 0;
+            CurrentMbspQuestion = _mbspQuestions[0];
+        }
+    }
+
+    private void SelectNextMbspQuestion()
+    {
+        if (_mbspQuestions.Count == 0) return;
+        _currentMbspIndex = (_currentMbspIndex + 1) % _mbspQuestions.Count;
+        CurrentMbspQuestion = _mbspQuestions[_currentMbspIndex];
+    }
+
+    private void SelectPreviousMbspQuestion()
+    {
+        if (_mbspQuestions.Count == 0) return;
+        _currentMbspIndex = (_currentMbspIndex - 1 + _mbspQuestions.Count) % _mbspQuestions.Count;
+        CurrentMbspQuestion = _mbspQuestions[_currentMbspIndex];
+    }
+
+    private void SelectMbspChoice(string? choice)
+    {
+        if (choice is null || MbspSelectedChoice is not null) return;
+        MbspSelectedChoice = choice;
+    }
+
+    private void ShowAddMbspPage()
+    {
+        ResetMbspForm();
+        IsAddMbspPage = true;
+        IsEditMode = false;
+    }
+
+    private void ShowEditMbsp()
+    {
+        if (_currentMbspQuestion is null) return;
+        NewMbspQuestion = _currentMbspQuestion.Question;
+        NewMbspChoiceA = _currentMbspQuestion.ChoiceA;
+        NewMbspChoiceB = _currentMbspQuestion.ChoiceB;
+        NewMbspChoiceC = _currentMbspQuestion.ChoiceC;
+        NewMbspCorrectChoice = _currentMbspQuestion.CorrectChoice;
+        IsEditMode = true;
+        IsAddMbspPage = true;
+    }
+
+    private void SaveMbsp()
+    {
+        var question = NewMbspQuestion.Trim();
+        var choiceA = NewMbspChoiceA.Trim();
+        var choiceB = NewMbspChoiceB.Trim();
+        var choiceC = NewMbspChoiceC.Trim();
+        var correct = NewMbspCorrectChoice.Trim().ToUpperInvariant();
+
+        if (string.IsNullOrWhiteSpace(question) || string.IsNullOrWhiteSpace(choiceA) ||
+            string.IsNullOrWhiteSpace(choiceB) || string.IsNullOrWhiteSpace(choiceC))
+        {
+            ValidationMessage = "Question and all three choices are required.";
+            return;
+        }
+
+        if (correct != "A" && correct != "B" && correct != "C")
+        {
+            ValidationMessage = "Correct choice must be A, B, or C.";
+            return;
+        }
+
+        var entry = new MbspQuestion
+        {
+            Question = question,
+            ChoiceA = choiceA,
+            ChoiceB = choiceB,
+            ChoiceC = choiceC,
+            CorrectChoice = correct,
+        };
+
+        if (IsEditMode)
+        {
+            var original = _currentMbspQuestion?.Question ?? string.Empty;
+            if (!MbspDataSource.TryUpdateQuestion(original, entry))
+            {
+                ValidationMessage = "Unable to update: conflicts with an existing record.";
+                return;
+            }
+            CurrentMbspQuestion = entry;
+            IsEditMode = false;
+        }
+        else
+        {
+            if (!MbspDataSource.TryAddQuestion(entry))
+            {
+                ValidationMessage = "A question with that text already exists.";
+                return;
+            }
+            _currentMbspIndex = _mbspQuestions.Count - 1;
+            CurrentMbspQuestion = entry;
+        }
+
+        ResetMbspForm();
+        IsAddMbspPage = false;
+    }
+
+    private void CancelAddMbsp()
+    {
+        ResetMbspForm();
+        IsAddMbspPage = false;
+        IsEditMode = false;
+    }
+
+    private void ResetMbspForm()
+    {
+        NewMbspQuestion = string.Empty;
+        NewMbspChoiceA = string.Empty;
+        NewMbspChoiceB = string.Empty;
+        NewMbspChoiceC = string.Empty;
+        NewMbspCorrectChoice = "A";
+        ValidationMessage = string.Empty;
     }
 
     private void MinimizeToTray()

@@ -117,6 +117,12 @@
                         Content="Writing"
                         Command="{Binding SelectTabCommand}"
                         CommandParameter="2" />
+                    <Button
+                        Classes="tab-btn"
+                        Classes.selected="{Binding SelectedTabIndex, Converter={StaticResource EqualityConverter}, ConverterParameter=3}"
+                        Content="MBSP"
+                        Command="{Binding SelectTabCommand}"
+                        CommandParameter="3" />
                 </StackPanel>
             </Border>
 
@@ -720,8 +726,259 @@
                     <Button
                         Content="Save"
                         Command="{Binding SaveNewWritingCommand}" />
+                 </StackPanel>
+            </Grid>
+
+            <!-- MBSP Quiz Page -->
+            <StackPanel
+                Grid.Row="4"
+                Margin="0,12,0,0"
+                Spacing="10">
+                <StackPanel.IsVisible>
+                    <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
+                        <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="3" />
+                        <Binding Path="IsMbspPage" />
+                    </MultiBinding>
+                </StackPanel.IsVisible>
+
+                <!-- Question -->
+                <Border
+                    Padding="14"
+                    CornerRadius="12"
+                    Background="#332E3A4F"
+                    BorderBrush="#334BA3C7"
+                    BorderThickness="1">
+                    <TextBlock
+                        Text="{Binding CurrentMbspQuestionText}"
+                        FontSize="16"
+                        FontWeight="SemiBold"
+                        Foreground="#FFE2E8F0"
+                        TextWrapping="Wrap"
+                        HorizontalAlignment="Center"
+                        TextAlignment="Center" />
+                </Border>
+
+                <!-- Choice A -->
+                <Button
+                    HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Left"
+                    Padding="12,10"
+                    CornerRadius="10"
+                    Command="{Binding SelectMbspChoiceCommand}"
+                    CommandParameter="A"
+                    IsEnabled="{Binding MbspSelectedChoice, Converter={x:Static ObjectConverters.IsNull}}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Border
+                            Width="24" Height="24"
+                            CornerRadius="12"
+                            Background="#443B82F6"
+                            BorderBrush="#664BA3C7"
+                            BorderThickness="1">
+                            <TextBlock Text="A" FontSize="12" FontWeight="Bold" Foreground="#FFE2E8F0" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <TextBlock Text="{Binding CurrentMbspChoiceA}" FontSize="14" Foreground="#FFE2E8F0" VerticalAlignment="Center" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Button>
+
+                <!-- Choice B -->
+                <Button
+                    HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Left"
+                    Padding="12,10"
+                    CornerRadius="10"
+                    Command="{Binding SelectMbspChoiceCommand}"
+                    CommandParameter="B"
+                    IsEnabled="{Binding MbspSelectedChoice, Converter={x:Static ObjectConverters.IsNull}}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Border
+                            Width="24" Height="24"
+                            CornerRadius="12"
+                            Background="#443B82F6"
+                            BorderBrush="#664BA3C7"
+                            BorderThickness="1">
+                            <TextBlock Text="B" FontSize="12" FontWeight="Bold" Foreground="#FFE2E8F0" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <TextBlock Text="{Binding CurrentMbspChoiceB}" FontSize="14" Foreground="#FFE2E8F0" VerticalAlignment="Center" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Button>
+
+                <!-- Choice C -->
+                <Button
+                    HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Left"
+                    Padding="12,10"
+                    CornerRadius="10"
+                    Command="{Binding SelectMbspChoiceCommand}"
+                    CommandParameter="C"
+                    IsEnabled="{Binding MbspSelectedChoice, Converter={x:Static ObjectConverters.IsNull}}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Border
+                            Width="24" Height="24"
+                            CornerRadius="12"
+                            Background="#443B82F6"
+                            BorderBrush="#664BA3C7"
+                            BorderThickness="1">
+                            <TextBlock Text="C" FontSize="12" FontWeight="Bold" Foreground="#FFE2E8F0" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <TextBlock Text="{Binding CurrentMbspChoiceC}" FontSize="14" Foreground="#FFE2E8F0" VerticalAlignment="Center" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Button>
+
+                <!-- Feedback -->
+                <TextBlock
+                    Text="{Binding MbspAnswerFeedback}"
+                    IsVisible="{Binding MbspHasFeedback}"
+                    FontSize="14"
+                    FontWeight="SemiBold"
+                    TextWrapping="Wrap"
+                    HorizontalAlignment="Center"
+                    Foreground="#FF86EFAC" />
+            </StackPanel>
+
+            <!-- MBSP Add/Edit Page -->
+            <Grid
+                Grid.Row="4"
+                Margin="0,12,0,0"
+                RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+                <Grid.IsVisible>
+                    <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
+                        <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="3" />
+                        <Binding Path="IsAddMbspPage" />
+                    </MultiBinding>
+                </Grid.IsVisible>
+
+                <TextBlock
+                    Grid.Row="0"
+                    Text="Add / Edit Question"
+                    FontSize="16"
+                    FontWeight="SemiBold"
+                    Foreground="White"
+                    Margin="0,0,0,8" />
+
+                <TextBox
+                    Grid.Row="1"
+                    Text="{Binding NewMbspQuestion}"
+                    Watermark="Question"
+                    AcceptsReturn="True"
+                    TextWrapping="Wrap"
+                    Height="60"
+                    Margin="0,0,0,6"
+                    HorizontalAlignment="Stretch" />
+
+                <TextBox
+                    Grid.Row="2"
+                    Text="{Binding NewMbspChoiceA}"
+                    Watermark="Choice A"
+                    Margin="0,0,0,4"
+                    HorizontalAlignment="Stretch" />
+
+                <TextBox
+                    Grid.Row="3"
+                    Text="{Binding NewMbspChoiceB}"
+                    Watermark="Choice B"
+                    Margin="0,0,0,4"
+                    HorizontalAlignment="Stretch" />
+
+                <TextBox
+                    Grid.Row="4"
+                    Text="{Binding NewMbspChoiceC}"
+                    Watermark="Choice C"
+                    Margin="0,0,0,6"
+                    HorizontalAlignment="Stretch" />
+
+                <StackPanel
+                    Grid.Row="5"
+                    Orientation="Horizontal"
+                    Spacing="8"
+                    Margin="0,0,0,6">
+                    <TextBlock Text="Correct answer (A/B/C):" Foreground="#FFCBD5E1" VerticalAlignment="Center" FontSize="13" />
+                    <TextBox
+                        Text="{Binding NewMbspCorrectChoice}"
+                        Watermark="A"
+                        Width="50" />
+                </StackPanel>
+
+                <StackPanel
+                    Grid.Row="6"
+                    Spacing="4">
+                    <TextBlock
+                        Text="{Binding ValidationMessage}"
+                        IsVisible="{Binding HasValidationMessage}"
+                        TextWrapping="Wrap"
+                        Foreground="#FFFCA5A5"
+                        FontSize="12" />
+                    <StackPanel
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        Spacing="8">
+                        <Button Content="Cancel" Command="{Binding CancelMbspCommand}" />
+                        <Button Content="Save" Command="{Binding SaveMbspCommand}" />
+                    </StackPanel>
                 </StackPanel>
             </Grid>
+
+            <!-- MBSP Bottom Nav Buttons -->
+            <StackPanel
+                Grid.Row="6"
+                Orientation="Horizontal"
+                HorizontalAlignment="Center"
+                Spacing="8">
+                <StackPanel.IsVisible>
+                    <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
+                        <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="3" />
+                        <Binding Path="IsMbspPage" />
+                    </MultiBinding>
+                </StackPanel.IsVisible>
+                <Button
+                    Width="32" Height="32"
+                    CornerRadius="16"
+                    FontSize="14" FontWeight="SemiBold"
+                    Content="◀"
+                    Command="{Binding PreviousMbspCommand}"
+                    HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center" />
+                <Button
+                    Width="32" Height="32"
+                    CornerRadius="16"
+                    FontSize="14" FontWeight="SemiBold"
+                    Content="▶"
+                    Command="{Binding NextMbspCommand}"
+                    HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center" />
+            </StackPanel>
+
+            <!-- MBSP Edit/Add Buttons -->
+            <StackPanel
+                Grid.Row="6"
+                Orientation="Horizontal"
+                HorizontalAlignment="Right"
+                Spacing="8">
+                <StackPanel.IsVisible>
+                    <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
+                        <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="3" />
+                        <Binding Path="IsMbspPage" />
+                    </MultiBinding>
+                </StackPanel.IsVisible>
+                <Button
+                    Width="32" Height="32"
+                    Classes="icon-btn"
+                    CornerRadius="16"
+                    Command="{Binding ShowEditMbspCommand}">
+                    <Path
+                        Width="15" Height="15"
+                        Fill="#FFFBBF24"
+                        Stretch="Uniform"
+                        Data="M12,2 L14,4 L5,13 L2,14 L3,11 Z M13,3 L15,5" />
+                </Button>
+                <Button
+                    Width="32" Height="32"
+                    CornerRadius="16"
+                    FontSize="18" FontWeight="Bold"
+                    Content="+"
+                    Command="{Binding ShowAddMbspCommand}"
+                    HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center" />
+            </StackPanel>
 
             <!-- Contextual Tip -->
             <Border
