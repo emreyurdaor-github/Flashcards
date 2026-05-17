@@ -84,7 +84,7 @@
         Margin="12"
         Padding="16"
         CornerRadius="10"
-        Background="#CC1E293B"
+        Background="#1E293B"
         BorderBrush="#668ECAE6"
         BorderThickness="1">
         <Grid RowDefinitions="Auto,Auto,Auto,Auto,*,Auto,Auto">
