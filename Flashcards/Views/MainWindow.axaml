@@ -78,6 +78,28 @@
         <Style Selector="Button.icon-btn:disabled /template/ ContentPresenter">
             <Setter Property="Opacity" Value="0.35" />
         </Style>
+        <!-- MBSP choice result styles -->
+        <Style Selector="Button.choice-correct /template/ ContentPresenter">
+            <Setter Property="Background" Value="#4422C55F" />
+        </Style>
+        <Style Selector="Button.choice-correct">
+            <Setter Property="BorderBrush" Value="#AA22C55F" />
+            <Setter Property="BorderThickness" Value="2" />
+        </Style>
+        <Style Selector="Button.choice-wrong /template/ ContentPresenter">
+            <Setter Property="Background" Value="#44EF4444" />
+        </Style>
+        <Style Selector="Button.choice-wrong">
+            <Setter Property="BorderBrush" Value="#AAEF4444" />
+            <Setter Property="BorderThickness" Value="2" />
+        </Style>
+        <Style Selector="Button.choice-highlight /template/ ContentPresenter">
+            <Setter Property="Background" Value="#3322C55F" />
+        </Style>
+        <Style Selector="Button.choice-highlight">
+            <Setter Property="BorderBrush" Value="#8822C55F" />
+            <Setter Property="BorderThickness" Value="2" />
+        </Style>
     </Window.Styles>
 
     <Border
@@ -748,18 +770,32 @@
                     Background="#332E3A4F"
                     BorderBrush="#334BA3C7"
                     BorderThickness="1">
-                    <TextBlock
-                        Text="{Binding CurrentMbspQuestionText}"
-                        FontSize="16"
-                        FontWeight="SemiBold"
-                        Foreground="#FFE2E8F0"
-                        TextWrapping="Wrap"
-                        HorizontalAlignment="Center"
-                        TextAlignment="Center" />
+                    <StackPanel Spacing="4">
+                        <TextBlock
+                            Text="{Binding CurrentMbspQuestionText}"
+                            FontSize="16"
+                            FontWeight="SemiBold"
+                            Foreground="#FFE2E8F0"
+                            TextWrapping="Wrap"
+                            HorizontalAlignment="Center"
+                            TextAlignment="Center" />
+                        <TextBlock
+                            Text="{Binding CurrentMbspQuestionEnglish}"
+                            IsVisible="{Binding HasCurrentMbspQuestionEnglish}"
+                            FontSize="13"
+                            FontStyle="Italic"
+                            Foreground="#FF94A3B8"
+                            TextWrapping="Wrap"
+                            HorizontalAlignment="Center"
+                            TextAlignment="Center" />
+                    </StackPanel>
                 </Border>
 
                 <!-- Choice A -->
                 <Button
+                    Classes.choice-correct="{Binding MbspChoiceAResult, Converter={StaticResource EqualityConverter}, ConverterParameter=correct}"
+                    Classes.choice-wrong="{Binding MbspChoiceAResult, Converter={StaticResource EqualityConverter}, ConverterParameter=wrong}"
+                    Classes.choice-highlight="{Binding MbspChoiceAResult, Converter={StaticResource EqualityConverter}, ConverterParameter=highlight}"
                     HorizontalAlignment="Stretch"
                     HorizontalContentAlignment="Left"
                     Padding="12,10"
@@ -782,6 +818,9 @@
 
                 <!-- Choice B -->
                 <Button
+                    Classes.choice-correct="{Binding MbspChoiceBResult, Converter={StaticResource EqualityConverter}, ConverterParameter=correct}"
+                    Classes.choice-wrong="{Binding MbspChoiceBResult, Converter={StaticResource EqualityConverter}, ConverterParameter=wrong}"
+                    Classes.choice-highlight="{Binding MbspChoiceBResult, Converter={StaticResource EqualityConverter}, ConverterParameter=highlight}"
                     HorizontalAlignment="Stretch"
                     HorizontalContentAlignment="Left"
                     Padding="12,10"
@@ -802,8 +841,12 @@
                     </StackPanel>
                 </Button>
 
-                <!-- Choice C -->
+                <!-- Choice C (only shown when present) -->
                 <Button
+                    Classes.choice-correct="{Binding MbspChoiceCResult, Converter={StaticResource EqualityConverter}, ConverterParameter=correct}"
+                    Classes.choice-wrong="{Binding MbspChoiceCResult, Converter={StaticResource EqualityConverter}, ConverterParameter=wrong}"
+                    Classes.choice-highlight="{Binding MbspChoiceCResult, Converter={StaticResource EqualityConverter}, ConverterParameter=highlight}"
+                    IsVisible="{Binding CurrentMbspHasChoiceC}"
                     HorizontalAlignment="Stretch"
                     HorizontalContentAlignment="Left"
                     Padding="12,10"
@@ -858,45 +901,70 @@
                 <TextBox
                     Grid.Row="1"
                     Text="{Binding NewMbspQuestion}"
-                    Watermark="Question"
+                    Watermark="Question (Danish)"
                     AcceptsReturn="True"
                     TextWrapping="Wrap"
                     Height="60"
-                    Margin="0,0,0,6"
+                    Margin="0,0,0,4"
                     HorizontalAlignment="Stretch" />
 
                 <TextBox
                     Grid.Row="2"
-                    Text="{Binding NewMbspChoiceA}"
-                    Watermark="Choice A"
-                    Margin="0,0,0,4"
-                    HorizontalAlignment="Stretch" />
-
-                <TextBox
-                    Grid.Row="3"
-                    Text="{Binding NewMbspChoiceB}"
-                    Watermark="Choice B"
-                    Margin="0,0,0,4"
-                    HorizontalAlignment="Stretch" />
-
-                <TextBox
-                    Grid.Row="4"
-                    Text="{Binding NewMbspChoiceC}"
-                    Watermark="Choice C"
+                    Text="{Binding NewMbspQuestionEnglish}"
+                    Watermark="Question English (optional)"
+                    AcceptsReturn="True"
+                    TextWrapping="Wrap"
+                    Height="50"
                     Margin="0,0,0,6"
                     HorizontalAlignment="Stretch" />
 
-                <StackPanel
-                    Grid.Row="5"
-                    Orientation="Horizontal"
-                    Spacing="8"
-                    Margin="0,0,0,6">
-                    <TextBlock Text="Correct answer (A/B/C):" Foreground="#FFCBD5E1" VerticalAlignment="Center" FontSize="13" />
+                <!-- Choice A with radio button -->
+                <Grid Grid.Row="3" ColumnDefinitions="Auto,*" Margin="0,0,0,4">
+                    <RadioButton
+                        Grid.Column="0"
+                        GroupName="MbspCorrect"
+                        IsChecked="{Binding NewMbspCorrectChoiceIsA, Mode=TwoWay}"
+                        ToolTip.Tip="Mark as correct answer"
+                        VerticalAlignment="Center"
+                        Margin="0,0,6,0" />
                     <TextBox
-                        Text="{Binding NewMbspCorrectChoice}"
-                        Watermark="A"
-                        Width="50" />
-                </StackPanel>
+                        Grid.Column="1"
+                        Text="{Binding NewMbspChoiceA}"
+                        Watermark="Choice A"
+                        HorizontalAlignment="Stretch" />
+                </Grid>
+
+                <!-- Choice B with radio button -->
+                <Grid Grid.Row="4" ColumnDefinitions="Auto,*" Margin="0,0,0,4">
+                    <RadioButton
+                        Grid.Column="0"
+                        GroupName="MbspCorrect"
+                        IsChecked="{Binding NewMbspCorrectChoiceIsB, Mode=TwoWay}"
+                        ToolTip.Tip="Mark as correct answer"
+                        VerticalAlignment="Center"
+                        Margin="0,0,6,0" />
+                    <TextBox
+                        Grid.Column="1"
+                        Text="{Binding NewMbspChoiceB}"
+                        Watermark="Choice B"
+                        HorizontalAlignment="Stretch" />
+                </Grid>
+
+                <!-- Choice C with radio button (optional) -->
+                <Grid Grid.Row="5" ColumnDefinitions="Auto,*" Margin="0,0,0,6">
+                    <RadioButton
+                        Grid.Column="0"
+                        GroupName="MbspCorrect"
+                        IsChecked="{Binding NewMbspCorrectChoiceIsC, Mode=TwoWay}"
+                        ToolTip.Tip="Mark as correct answer"
+                        VerticalAlignment="Center"
+                        Margin="0,0,6,0" />
+                    <TextBox
+                        Grid.Column="1"
+                        Text="{Binding NewMbspChoiceC}"
+                        Watermark="Choice C (optional)"
+                        HorizontalAlignment="Stretch" />
+                </Grid>
 
                 <StackPanel
                     Grid.Row="6"

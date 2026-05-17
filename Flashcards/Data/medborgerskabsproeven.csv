@@ -1,26 +1,43 @@
-Question,ChoiceA,ChoiceB,ChoiceC,CorrectChoice
-På hvilke klassetrin kan man gå på efterskole?,"0., 1. og 2. klasse","4., 5. og 6. klasse","8., 9. og 10. klasse",C
-Hvor gammel skal man mindst være for at få kørekort til almindelig bil?,17 år,19 år,21 år,A
-Hvor mange borgere i Danmark mellem 15 og 64 år har et arbejde?,Cirka to ud af fem,Cirka to ud af tre,Cirka tre ud af fire,C
-Hvem var Danmarks første kvindelige statsminister?,Pia Kjærsgaard,Helle Thorning-Schmidt,Mette Frederiksen,B
-"Skal der være en folkeafstemning, hvis den danske grundlov skal ændres?",Ja,Nej,x,A
-Hvor mange kommuner er der i Danmark?,19,41,98,C
-Hvilken popgruppe udgav nummeret Barbie Girl i 1990’erne?,Gasolin,Me & My,Aqua,C
-Hvad var Yahya Hassan (1995-2020) særligt kendt for?,Han var musiker,Han var digter,Han var fodboldspiller,B
-Hvilket land er ikke med i det danske rigsfællesskab?,Island,Færøerne,Grønland,A
-Hvilket af følgende lande var i union med Danmark over 400 år frem til 1814?,Sverige,Norge,Finland,B
-Hvilket år blev Danmark besat af tyske tropper?,1932,1940,1944,B
-Hvad var middel-levetiden for mænd i 2024?,Cirka 70 år,Cirka 75 år,Cirka 80 år,C
-Hvad er moms?,En skat man betaler af sin indkomst,En afgift på blandt andet varer man køber i butikkerne,Et gebyr man betaler for at bruge DR's tv- og radiokanaler,B
-"Hvilken slags daginstitution går børn normalt i, når de er to år?",Vuggestue,Børnehave,x,A
-Hvordan blev grænsen for fri abort ændret i 2025?,Den blev sat op fra 12 til 18 uger,Den blev sat ned fra 12 til 9 uger,x,A
-Hvilket farvand ligger mellem Sjælland og Sverige?,Storebælt,Lillebælt,Øresund,C
-Hvor meget af Danmarks areal er landbrug?,Cirka 10 procent,Cirka 35 procent,Cirka 60 procent,C
-Skal man være dansk statsborger for at stemme til folketingsvalg?,Ja,Nej,x,A
-Hvilket parti er ældst?,Dansk Folkeparti,Det Konservative Folkeparti,x,B
-"Kan regeringen bestemme, hvordan en dommer skal dømme i en konkret retssag?",Ja,Nej,x,B
-Hvor mange stemmer normalt ved valg til Folketinget?,Cirka 40-50 procent,Cirka 60-70 procent,Cirka 80-90 procent,C
-Hvor blev danske soldater udsendt til i 1990’erne som en del af FN’s styrker?,Syrien,Bosnien,Libyen,B
-Hvilken verdensdel modtager størstedelen af den danske udviklingsbistand?,Afrika,Asien,Sydamerika,A
-Hvad hedder Danmarks kronprins?,Christian,Nikolaj,Frederik,A
-På hvilken dato er det grundlovsdag?,5. april,5. maj,5. juni,C
+Question,QuestionEnglish,ChoiceA,ChoiceB,ChoiceC,CorrectAnswer
+På hvilke klassetrin kan man gå på efterskole?,Which school years can one attend efterskole?,"0., 1. og 2. klasse","4., 5. og 6. klasse","8., 9. og 10. klasse","8., 9. og 10. klasse"
+Hvor gammel skal man mindst være for at få kørekort til almindelig bil?,What is the minimum age to get a driving licence for a regular car?,17 år,19 år,21 år,17 år
+Hvor mange borgere i Danmark mellem 15 og 64 år har et arbejde?,How many citizens in Denmark between 15 and 64 years have a job?,Cirka to ud af fem,Cirka to ud af tre,Cirka tre ud af fire,Cirka tre ud af fire
+Hvem var Danmarks første kvindelige statsminister?,Who was Denmark's first female prime minister?,Pia Kjærsgaard,Helle Thorning-Schmidt,Mette Frederiksen,Helle Thorning-Schmidt
+"Skal der være en folkeafstemning, hvis den danske grundlov skal ændres?",Must there be a referendum if the Danish constitution is to be changed?,Ja,Nej,,Ja
+Hvor mange kommuner er der i Danmark?,How many municipalities are there in Denmark?,19,41,98,98
+Hvilken popgruppe udgav nummeret Barbie Girl i 1990'erne?,Which pop group released the song Barbie Girl in the 1990s?,Gasolin,Me & My,Aqua,Aqua
+Hvad var Yahya Hassan (1995-2020) særligt kendt for?,What was Yahya Hassan (1995-2020) particularly known for?,Han var musiker,Han var digter,Han var fodboldspiller,Han var digter
+Hvilket land er ikke med i det danske rigsfællesskab?,Which country is not part of the Danish realm?,Island,Færøerne,Grønland,Island
+Hvilket af følgende lande var i union med Danmark over 400 år frem til 1814?,Which of the following countries was in union with Denmark for over 400 years until 1814?,Sverige,Norge,Finland,Norge
+Hvilket år blev Danmark besat af tyske tropper?,In which year was Denmark occupied by German forces?,1932,1940,1944,1940
+Hvad var middel-levetiden for mænd i 2024?,What was the average life expectancy for men in 2024?,Cirka 70 år,Cirka 75 år,Cirka 80 år,Cirka 80 år
+Hvad er moms?,What is VAT (moms)?,En skat man betaler af sin indkomst,En afgift på blandt andet varer man køber i butikkerne,Et gebyr man betaler for at bruge DR's tv- og radiokanaler,En afgift på blandt andet varer man køber i butikkerne
+"Hvilken slags daginstitution går børn normalt i, når de er to år?",What type of daycare do children normally attend when they are two years old?,Vuggestue,Børnehave,,Vuggestue
+Hvordan blev grænsen for fri abort ændret i 2025?,How was the free abortion limit changed in 2025?,Den blev sat op fra 12 til 18 uger,Den blev sat ned fra 12 til 9 uger,,Den blev sat op fra 12 til 18 uger
+Hvilket farvand ligger mellem Sjælland og Sverige?,Which body of water lies between Zealand and Sweden?,Storebælt,Lillebælt,Øresund,Øresund
+Hvor meget af Danmarks areal er landbrug?,What percentage of Denmark's area is farmland?,Cirka 10 procent,Cirka 35 procent,Cirka 60 procent,Cirka 60 procent
+Skal man være dansk statsborger for at stemme til folketingsvalg?,Must you be a Danish citizen to vote in general elections?,Ja,Nej,,Ja
+Hvilket parti er ældst?,Which party is the oldest?,Dansk Folkeparti,Det Konservative Folkeparti,,Det Konservative Folkeparti
+"Kan regeringen bestemme, hvordan en dommer skal dømme i en konkret retssag?",Can the government decide how a judge should rule in a specific case?,Ja,Nej,,Nej
+Hvor mange stemmer normalt ved valg til Folketinget?,How many normally vote in elections to the Folketing?,Cirka 40-50 procent,Cirka 60-70 procent,Cirka 80-90 procent,Cirka 80-90 procent
+Hvor blev danske soldater udsendt til i 1990'erne som en del af FN's styrker?,Where were Danish soldiers deployed in the 1990s as part of UN forces?,Syrien,Bosnien,Libyen,Bosnien
+Hvilken verdensdel modtager størstedelen af den danske udviklingsbistand?,Which continent receives the largest share of Danish development aid?,Afrika,Asien,Sydamerika,Afrika
+Hvad hedder Danmarks kronprins?,What is the name of Denmark's crown prince?,Christian,Nikolaj,Frederik,Christian
+På hvilken dato er det grundlovsdag?,On which date is Constitution Day?,5. april,5. maj,5. juni,5. juni
+Hvad bestemmer overenskomster på arbejdsmarkedet blandt andet?,,Skatter,Arbejdstid,,Arbejdstid
+Hvor mange ugers ferie har man normalt ret til som lønmodtager?,,1-2 uger om året,3-4 uger om året,5-6 uger om året,5-6 uger om året
+Hvad skal man være medlem af en a-kasse for at kunne få?,,Arbejdsløshedsdagpenge,Kontanthjælp,Førtidspension,Arbejdsløshedsdagpenge
+Hvordan bliver de fleste udgifter til sundhedsvæsenet betalt?,,Skatter og afgifter,Direkte egenbetaling,Private forsikringer,Skatter og afgifter
+Fik alle mænd og kvinder over 18 år stemmeret til Folketinget med Grundloven i 1849?,,Ja,Nej,,Nej
+Hvad har der været flest folkeafstemninger om i Danmark siden 1953?,,Danmarks forhold til EU,Valgretsalderen,Grundloven,Danmarks forhold til EU
+Hvilket år blev Danmark befriet fra den tyske besættelse?,,1940,1943,1945,1945
+Hvornår blev Danmark medlem af NATO?,,1949,1969,1989,1949
+Hvad producerer virksomheden Novo Nordisk primært?,,Vindmøller,Legetøj,Medicin,Medicin
+Hvordan har antallet af landmænd i Danmark udviklet sig siden 1960?,,Antallet er steget,Antallet er faldet,,Antallet er faldet
+"Betyder en betinget fængselsstraf, at man skal direkte i fængsel?",,Ja,Nej,,Nej
+Hvortil kan man normalt anke (appellere) en afgørelse fra byretten?,,Landsretten,Højesteret,,Landsretten
+Fra hvilket land kom der særligt mange indvandrere til Danmark i slutningen af 1960’erne?,,Syrien,Tyrkiet,Rumænien,Tyrkiet
+"Hvilken daginstitution går børn normalt i, når de er fire år?",,Vuggestue,Børnehave,,Børnehave
+"Hvad er Grenen, som ligger ved byen Skagen?",,Danmarks sydligste punkt,Danmarks østligste punkt,Danmarks nordligste punkt,Danmarks nordligste punkt
+Hvad hedder farvandet mellem Sjælland og Fyn?,,Storebælt,Lillebælt,Øresund,Storebælt
+Hvilken af følgende byer har flest indbyggere?,,Esbjerg,Randers,Aalborg,Aalborg

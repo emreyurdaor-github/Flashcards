@@ -9,7 +9,7 @@ namespace Flashcards.Data;
 public static class MbspDataSource
 {
     private const string CsvFileName = "medborgerskabsproeven.csv";
-    private const string CsvHeader = "Question,ChoiceA,ChoiceB,ChoiceC,CorrectChoice";
+    private const string CsvHeader = "Question,QuestionEnglish,ChoiceA,ChoiceB,ChoiceC,CorrectAnswer";
 
     private static string? _overrideCsvPath;
 
@@ -70,16 +70,64 @@ public static class MbspDataSource
                 continue;
 
             var parts = SplitCsvLine(line);
-            if (parts.Length < 5) continue;
 
-            var entry = new MbspQuestion
+            MbspQuestion entry;
+            if (parts.Length >= 6)
             {
-                Question = parts[0],
-                ChoiceA = parts[1],
-                ChoiceB = parts[2],
-                ChoiceC = parts[3],
-                CorrectChoice = parts[4].Trim().ToUpperInvariant(),
-            };
+                // Detect new format (CorrectAnswer = text) vs old format (CorrectChoice = A/B/C letter)
+                // New: Question, QuestionEnglish, ChoiceA, ChoiceB, ChoiceC, CorrectAnswer
+                var lastField = parts[5].Trim();
+                bool isLegacyLetter = lastField.Length == 1 &&
+                    (lastField == "A" || lastField == "B" || lastField == "C");
+
+                string correctAnswer;
+                if (isLegacyLetter)
+                {
+                    correctAnswer = lastField switch
+                    {
+                        "A" => parts[2],
+                        "B" => parts[3],
+                        "C" => parts[4],
+                        _ => parts[2],
+                    };
+                }
+                else
+                {
+                    correctAnswer = lastField;
+                }
+
+                entry = new MbspQuestion
+                {
+                    Question = parts[0],
+                    QuestionEnglish = string.IsNullOrWhiteSpace(parts[1]) ? null : parts[1],
+                    ChoiceA = parts[2],
+                    ChoiceB = parts[3],
+                    ChoiceC = string.IsNullOrWhiteSpace(parts[4]) ? null : parts[4],
+                    CorrectAnswer = correctAnswer,
+                };
+            }
+            else if (parts.Length >= 5)
+            {
+                // Old 5-column format: Question, ChoiceA, ChoiceB, ChoiceC, CorrectChoice(letter)
+                var letter = parts[4].Trim().ToUpperInvariant();
+                var choiceC = parts[3].Trim();
+                entry = new MbspQuestion
+                {
+                    Question = parts[0],
+                    QuestionEnglish = null,
+                    ChoiceA = parts[1],
+                    ChoiceB = parts[2],
+                    ChoiceC = (choiceC == "x" || string.IsNullOrWhiteSpace(choiceC)) ? null : choiceC,
+                    CorrectAnswer = letter switch
+                    {
+                        "A" => parts[1],
+                        "B" => parts[2],
+                        "C" => parts[3],
+                        _ => parts[1],
+                    },
+                };
+            }
+            else continue;
 
             if (!seen.Add(NormalizeKey(entry.Question)))
                 continue;
@@ -96,7 +144,7 @@ public static class MbspDataSource
 
         foreach (var q in Questions)
         {
-            lines.Add($"{Escape(q.Question)},{Escape(q.ChoiceA)},{Escape(q.ChoiceB)},{Escape(q.ChoiceC)},{Escape(q.CorrectChoice)}");
+            lines.Add($"{Escape(q.Question)},{Escape(q.QuestionEnglish ?? string.Empty)},{Escape(q.ChoiceA)},{Escape(q.ChoiceB)},{Escape(q.ChoiceC ?? string.Empty)},{Escape(q.CorrectAnswer)}");
         }
 
         var runtimeDir = Path.GetDirectoryName(CsvPath);
