@@ -657,7 +657,8 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         "Der kan være flere årsager til disse markante forskelle", "For det første",
         "For det andet", "Spørgsmålet om", "På den ene side", "På den anden side",
         "Desuden", " er det vigtigt at understrege", "Sammenfattende mener jeg",
-        "Tak for din mail", "Tusind tak for din mail", "Det var rigtig hyggeligt at høre fra dig"
+        "Tak for din mail", "Tusind tak for din mail", "Det var rigtig hyggeligt at", "høre fra dig",
+        "Hvad angår", "Med hensyn til", "når det kommer til"
     };
 
     public string CurrentDanishWritingTitle => CurrentWritingEntry?.DanishWritingTitle ?? "Danish Writing";
@@ -676,7 +677,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
             string? match = null;
             foreach (var phrase in phrases)
             {
-                int idx = text.IndexOf(phrase, pos, StringComparison.Ordinal);
+                int idx = text.IndexOf(phrase, pos, StringComparison.OrdinalIgnoreCase);
                 if (idx >= 0 && (earliest < 0 || idx < earliest))
                 {
                     earliest = idx;
@@ -690,7 +691,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
             }
             if (earliest > pos)
                 segments.Add(new WritingSegment { Text = text[pos..earliest] });
-            segments.Add(new WritingSegment { Text = match, IsHighlighted = true });
+            segments.Add(new WritingSegment { Text = text[earliest..(earliest + match.Length)], IsHighlighted = true });
             pos = earliest + match.Length;
         }
         return segments;
