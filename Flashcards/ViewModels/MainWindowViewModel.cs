@@ -685,7 +685,9 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         "Tak for din mail", "Tusind tak for din mail", "Det var rigtig hyggeligt at", "høre fra dig",
         "Hvad angår", "Med hensyn til", "når det kommer til", "jeg vil meget gerne","svare på dine spørgsmål",
         "dele mine tanker med dig", "først og fremmest", "det kunne være superhyggeligt", "hvis vi mødtes snart",
-        "så vi kan vende det hele over en kop kaffe", "Lad mig vide","hvornår det passer dig bedst"
+        "så vi kan vende det hele over en kop kaffe", "Lad mig vide","hvornår det passer dig bedst",
+        "Hvor er det dejligt at høre, at", "Hvor er det spændende med", "Hvor lyder det spændende med", "derimod",
+        "er komplekst", "hvorvidt", "hvilke"
     };
 
     public string CurrentDanishWritingTitle => CurrentWritingEntry?.DanishWritingTitle ?? "Danish Writing";
