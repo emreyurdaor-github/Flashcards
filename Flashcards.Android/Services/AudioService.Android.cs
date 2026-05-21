@@ -2,6 +2,7 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using Android.Media;
+using Avalonia.Platform;
 
 namespace Flashcards.Services;
 
@@ -28,6 +29,48 @@ public class AudioService : IDisposable
     public Task PlayDanishPronunciation(string word) => PlayTts(word, "da");
 
     public Task PlayEnglishPronunciation(string word) => PlayTts(word, "en");
+
+    /// <summary>
+    /// Plays the correct answer sound from embedded assets
+    /// </summary>
+    public async Task PlayCorrectSoundAsync()
+    {
+        await PlayLocalSoundAsync("avares://Flashcards.Android/Assets/Sounds/correct.mp3");
+    }
+
+    /// <summary>
+    /// Plays the wrong answer sound from embedded assets
+    /// </summary>
+    public async Task PlayWrongSoundAsync()
+    {
+        await PlayLocalSoundAsync("avares://Flashcards.Android/Assets/Sounds/wrong.mp3");
+    }
+
+    private async Task PlayLocalSoundAsync(string avaloniaResourceUri)
+    {
+        try
+        {
+            var uri = new Uri(avaloniaResourceUri);
+            await using var stream = AssetLoader.Open(uri);
+
+            var tempFile = System.IO.Path.Combine(
+                System.IO.Path.GetTempPath(),
+                $"sound_{Guid.NewGuid()}.mp3");
+
+            await using (var fileStream = System.IO.File.Create(tempFile))
+            {
+                await stream.CopyToAsync(fileStream);
+            }
+
+            await PlayFileAsync(tempFile);
+
+            try { System.IO.File.Delete(tempFile); } catch { /* ignore cleanup errors */ }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AudioService.Android] PlayLocalSound error: {ex.Message}");
+        }
+    }
 
     private async Task PlayTts(string word, string lang)
     {

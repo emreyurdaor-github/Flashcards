@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Avalonia.Platform;
 using NAudio.Wave;
 
 namespace Flashcards.Services;
@@ -204,6 +205,48 @@ public class AudioService : IDisposable
         {
             System.Diagnostics.Debug.WriteLine($"[AudioService] PlayAudioFile error: {ex.Message}");
             System.Diagnostics.Debug.WriteLine($"[AudioService] Stack trace: {ex.StackTrace}");
+        }
+    }
+
+    /// <summary>
+    /// Plays the correct answer sound from embedded assets
+    /// </summary>
+    public async Task PlayCorrectSoundAsync()
+    {
+        await PlayLocalSoundAsync("avares://Flashcards/Assets/Sounds/correct.mp3");
+    }
+
+    /// <summary>
+    /// Plays the wrong answer sound from embedded assets
+    /// </summary>
+    public async Task PlayWrongSoundAsync()
+    {
+        await PlayLocalSoundAsync("avares://Flashcards/Assets/Sounds/wrong.mp3");
+    }
+
+    private async Task PlayLocalSoundAsync(string avaloniaResourceUri)
+    {
+        try
+        {
+            var uri = new Uri(avaloniaResourceUri);
+            await using var stream = AssetLoader.Open(uri);
+
+            var tempFile = System.IO.Path.Combine(
+                System.IO.Path.GetTempPath(),
+                $"sound_{Guid.NewGuid()}.mp3");
+
+            await using (var fileStream = System.IO.File.Create(tempFile))
+            {
+                await stream.CopyToAsync(fileStream);
+            }
+
+            await PlayAudioFileAsync(tempFile);
+
+            try { if (System.IO.File.Exists(tempFile)) System.IO.File.Delete(tempFile); } catch { /* ignore cleanup errors */ }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AudioService] PlayLocalSound error: {ex.Message}");
         }
     }
 

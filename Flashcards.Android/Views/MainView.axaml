@@ -633,13 +633,19 @@
                             TextAlignment="Center" />
                         <TextBlock
                             Text="{Binding CurrentMbspQuestionEnglish}"
-                            IsVisible="{Binding HasCurrentMbspQuestionEnglish}"
                             FontSize="18"
                             FontStyle="Italic"
                             Foreground="#FF94A3B8"
                             TextWrapping="Wrap"
                             HorizontalAlignment="Center"
-                            TextAlignment="Center" />
+                            TextAlignment="Center">
+                            <TextBlock.IsVisible>
+                                <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
+                                    <Binding Path="HasCurrentMbspQuestionEnglish" />
+                                    <Binding Path="MbspShowEnglish" />
+                                </MultiBinding>
+                            </TextBlock.IsVisible>
+                        </TextBlock>
                     </StackPanel>
                 </Border>
 
@@ -814,6 +820,7 @@
                 Grid.Row="6"
                 Orientation="Horizontal"
                 HorizontalAlignment="Right"
+                Margin="0,0,0,0"
                 Spacing="8">
                 <StackPanel.IsVisible>
                     <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
@@ -830,6 +837,32 @@
                 <Button Width="50" Height="50" CornerRadius="25" FontSize="26" FontWeight="Bold"
                         Content="+" Command="{Binding ShowAddMbspCommand}"
                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
+            </StackPanel>
+
+            <!-- MBSP Eng Toggle Switch (bottom-left corner) -->
+            <StackPanel
+                Grid.Row="6"
+                Orientation="Horizontal"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                Spacing="4">
+                <StackPanel.IsVisible>
+                    <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
+                        <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="3" />
+                        <Binding Path="IsMbspPage" />
+                    </MultiBinding>
+                </StackPanel.IsVisible>
+                <TextBlock
+                    Text="Eng"
+                    FontSize="18"
+                    FontWeight="SemiBold"
+                    VerticalAlignment="Center"
+                    Foreground="#FFE2E8F0" />
+                <ToggleSwitch
+                    IsChecked="{Binding MbspShowEnglish, Mode=TwoWay}"
+                    OnContent=""
+                    OffContent=""
+                    VerticalAlignment="Center" />
             </StackPanel>
 
             <Border

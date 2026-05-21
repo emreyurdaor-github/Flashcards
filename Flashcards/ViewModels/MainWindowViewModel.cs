@@ -47,6 +47,8 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     private readonly IReadOnlyList<MbspQuestion> _mbspQuestions = MbspDataSource.GetQuestions();
     private MbspQuestion? _currentMbspQuestion;
     private int _currentMbspIndex = -1;
+    private List<int> _shuffledMbspIndices = new();
+    private int _shuffledMbspPosition = -1;
     private bool _isAddMbspPage;
     private bool _mbspAnswerRevealed;
     private string? _mbspSelectedChoice;
@@ -56,6 +58,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     private string _newMbspChoiceB = string.Empty;
     private string _newMbspChoiceC = string.Empty;
     private string _newMbspCorrectChoice = string.Empty; // stores the actual answer text
+    private bool _mbspShowEnglish = false;
     
     // Search autocomplete collection
     private ObservableCollection<FlashcardEntry> _searchResults = new();
@@ -774,6 +777,12 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     public bool CurrentMbspHasChoiceC => _currentMbspQuestion?.HasChoiceC == true;
     public bool HasMbspQuestions => _currentMbspQuestion is not null;
 
+    public bool MbspShowEnglish
+    {
+        get => _mbspShowEnglish;
+        set => SetProperty(ref _mbspShowEnglish, value);
+    }
+
     public bool MbspAnswerRevealed
     {
         get => _mbspAnswerRevealed;
@@ -823,8 +832,8 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
             if (MbspSelectedChoice is null) return string.Empty;
             bool isCorrect = string.Equals(MbspSelectedChoice, _currentMbspQuestion?.CorrectAnswer, StringComparison.OrdinalIgnoreCase);
             return isCorrect
-                ? "✓ Correct!"
-                : $"✗ Wrong! The correct answer is: {_currentMbspQuestion?.CorrectAnswer}";
+                ? "✓ KORREKT!"
+                : $"✗ FORKERT! Det rigtige svar er: {_currentMbspQuestion?.CorrectAnswer}";
         }
     }
 
@@ -1523,26 +1532,53 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
 
     // ─── MBSP Methods ──────────────────────────────────────────────────────────
 
+    /// <summary>
+    /// Builds and shuffles a list of all MBSP question indices using Fisher-Yates.
+    /// </summary>
+    private void ReshuffleMbspIndices()
+    {
+        _shuffledMbspIndices = Enumerable.Range(0, _mbspQuestions.Count).ToList();
+        for (int i = _shuffledMbspIndices.Count - 1; i > 0; i--)
+        {
+            int j = _random.Next(i + 1);
+            (_shuffledMbspIndices[i], _shuffledMbspIndices[j]) = (_shuffledMbspIndices[j], _shuffledMbspIndices[i]);
+        }
+    }
+
     private void SelectFirstMbspQuestion()
     {
-        if (_mbspQuestions.Count > 0)
-        {
-            _currentMbspIndex = 0;
-            CurrentMbspQuestion = _mbspQuestions[0];
-        }
+        if (_mbspQuestions.Count == 0) return;
+        ReshuffleMbspIndices();
+        _shuffledMbspPosition = 0;
+        _currentMbspIndex = _shuffledMbspIndices[0];
+        CurrentMbspQuestion = _mbspQuestions[_currentMbspIndex];
     }
 
     private void SelectNextMbspQuestion()
     {
         if (_mbspQuestions.Count == 0) return;
-        _currentMbspIndex = (_currentMbspIndex + 1) % _mbspQuestions.Count;
+
+        _shuffledMbspPosition++;
+        // Reshuffle when we've gone through all questions
+        if (_shuffledMbspPosition >= _shuffledMbspIndices.Count)
+        {
+            ReshuffleMbspIndices();
+            _shuffledMbspPosition = 0;
+        }
+
+        _currentMbspIndex = _shuffledMbspIndices[_shuffledMbspPosition];
         CurrentMbspQuestion = _mbspQuestions[_currentMbspIndex];
     }
 
     private void SelectPreviousMbspQuestion()
     {
         if (_mbspQuestions.Count == 0) return;
-        _currentMbspIndex = (_currentMbspIndex - 1 + _mbspQuestions.Count) % _mbspQuestions.Count;
+
+        _shuffledMbspPosition--;
+        if (_shuffledMbspPosition < 0)
+            _shuffledMbspPosition = _shuffledMbspIndices.Count - 1;
+
+        _currentMbspIndex = _shuffledMbspIndices[_shuffledMbspPosition];
         CurrentMbspQuestion = _mbspQuestions[_currentMbspIndex];
     }
 
@@ -1552,7 +1588,19 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         // Store the actual text of the chosen option
         var text = GetChoiceText(choiceLabel);
         if (!string.IsNullOrEmpty(text))
+        {
             MbspSelectedChoice = text;
+
+            // Play correct/wrong sound if not muted
+            if (!IsMuted)
+            {
+                bool isCorrect = string.Equals(text, _currentMbspQuestion?.CorrectAnswer,
+                    StringComparison.OrdinalIgnoreCase);
+                _ = isCorrect
+                    ? _audioService.PlayCorrectSoundAsync()
+                    : _audioService.PlayWrongSoundAsync();
+            }
+        }
     }
 
     private string GetChoiceTextForNew(string? label) => label switch
