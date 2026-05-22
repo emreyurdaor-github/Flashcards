@@ -818,7 +818,17 @@
                             BorderThickness="1">
                             <TextBlock Text="A" FontSize="12" FontWeight="Bold" Foreground="#FFE2E8F0" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
-                        <TextBlock Text="{Binding CurrentMbspChoiceA}" FontSize="14" Foreground="#FFE2E8F0" VerticalAlignment="Center" TextWrapping="Wrap" />
+                        <StackPanel Spacing="1" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding CurrentMbspChoiceA}" FontSize="14" Foreground="#FFE2E8F0" TextWrapping="Wrap" />
+                            <TextBlock Text="{Binding CurrentMbspChoiceAEnglish}" FontSize="12" FontStyle="Italic" Foreground="#FF94A3B8" TextWrapping="Wrap">
+                                <TextBlock.IsVisible>
+                                    <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
+                                        <Binding Path="HasCurrentMbspChoiceAEnglish" />
+                                        <Binding Path="MbspShowEnglish" />
+                                    </MultiBinding>
+                                </TextBlock.IsVisible>
+                            </TextBlock>
+                        </StackPanel>
                     </StackPanel>
                 </Button>
 
@@ -843,7 +853,17 @@
                             BorderThickness="1">
                             <TextBlock Text="B" FontSize="12" FontWeight="Bold" Foreground="#FFE2E8F0" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
-                        <TextBlock Text="{Binding CurrentMbspChoiceB}" FontSize="14" Foreground="#FFE2E8F0" VerticalAlignment="Center" TextWrapping="Wrap" />
+                        <StackPanel Spacing="1" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding CurrentMbspChoiceB}" FontSize="14" Foreground="#FFE2E8F0" TextWrapping="Wrap" />
+                            <TextBlock Text="{Binding CurrentMbspChoiceBEnglish}" FontSize="12" FontStyle="Italic" Foreground="#FF94A3B8" TextWrapping="Wrap">
+                                <TextBlock.IsVisible>
+                                    <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
+                                        <Binding Path="HasCurrentMbspChoiceBEnglish" />
+                                        <Binding Path="MbspShowEnglish" />
+                                    </MultiBinding>
+                                </TextBlock.IsVisible>
+                            </TextBlock>
+                        </StackPanel>
                     </StackPanel>
                 </Button>
 
@@ -869,7 +889,17 @@
                             BorderThickness="1">
                             <TextBlock Text="C" FontSize="12" FontWeight="Bold" Foreground="#FFE2E8F0" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
-                        <TextBlock Text="{Binding CurrentMbspChoiceC}" FontSize="14" Foreground="#FFE2E8F0" VerticalAlignment="Center" TextWrapping="Wrap" />
+                        <StackPanel Spacing="1" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding CurrentMbspChoiceC}" FontSize="14" Foreground="#FFE2E8F0" TextWrapping="Wrap" />
+                            <TextBlock Text="{Binding CurrentMbspChoiceCEnglish}" FontSize="12" FontStyle="Italic" Foreground="#FF94A3B8" TextWrapping="Wrap">
+                                <TextBlock.IsVisible>
+                                    <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
+                                        <Binding Path="HasCurrentMbspChoiceCEnglish" />
+                                        <Binding Path="MbspShowEnglish" />
+                                    </MultiBinding>
+                                </TextBlock.IsVisible>
+                            </TextBlock>
+                        </StackPanel>
                     </StackPanel>
                 </Button>
 
@@ -888,7 +918,7 @@
             <Grid
                 Grid.Row="4"
                 Margin="0,12,0,0"
-                RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+                RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
                 <Grid.IsVisible>
                     <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
                         <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="3" />
@@ -925,7 +955,7 @@
                     HorizontalAlignment="Stretch" />
 
                 <!-- Choice A with radio button -->
-                <Grid Grid.Row="3" ColumnDefinitions="Auto,*" Margin="0,0,0,4">
+                <Grid Grid.Row="3" ColumnDefinitions="Auto,*" Margin="0,0,0,2">
                     <RadioButton
                         Grid.Column="0"
                         GroupName="MbspCorrect"
@@ -933,15 +963,14 @@
                         ToolTip.Tip="Mark as correct answer"
                         VerticalAlignment="Center"
                         Margin="0,0,6,0" />
-                    <TextBox
-                        Grid.Column="1"
-                        Text="{Binding NewMbspChoiceA}"
-                        Watermark="Choice A"
-                        HorizontalAlignment="Stretch" />
+                    <StackPanel Grid.Column="1" Spacing="2">
+                        <TextBox Text="{Binding NewMbspChoiceA}" Watermark="Choice A" HorizontalAlignment="Stretch" />
+                        <TextBox Text="{Binding NewMbspChoiceAEnglish}" Watermark="Choice A English (optional)" HorizontalAlignment="Stretch" />
+                    </StackPanel>
                 </Grid>
 
                 <!-- Choice B with radio button -->
-                <Grid Grid.Row="4" ColumnDefinitions="Auto,*" Margin="0,0,0,4">
+                <Grid Grid.Row="4" ColumnDefinitions="Auto,*" Margin="0,4,0,2">
                     <RadioButton
                         Grid.Column="0"
                         GroupName="MbspCorrect"
@@ -949,15 +978,14 @@
                         ToolTip.Tip="Mark as correct answer"
                         VerticalAlignment="Center"
                         Margin="0,0,6,0" />
-                    <TextBox
-                        Grid.Column="1"
-                        Text="{Binding NewMbspChoiceB}"
-                        Watermark="Choice B"
-                        HorizontalAlignment="Stretch" />
+                    <StackPanel Grid.Column="1" Spacing="2">
+                        <TextBox Text="{Binding NewMbspChoiceB}" Watermark="Choice B" HorizontalAlignment="Stretch" />
+                        <TextBox Text="{Binding NewMbspChoiceBEnglish}" Watermark="Choice B English (optional)" HorizontalAlignment="Stretch" />
+                    </StackPanel>
                 </Grid>
 
                 <!-- Choice C with radio button (optional) -->
-                <Grid Grid.Row="5" ColumnDefinitions="Auto,*" Margin="0,0,0,6">
+                <Grid Grid.Row="5" ColumnDefinitions="Auto,*" Margin="0,4,0,6">
                     <RadioButton
                         Grid.Column="0"
                         GroupName="MbspCorrect"
@@ -965,11 +993,10 @@
                         ToolTip.Tip="Mark as correct answer"
                         VerticalAlignment="Center"
                         Margin="0,0,6,0" />
-                    <TextBox
-                        Grid.Column="1"
-                        Text="{Binding NewMbspChoiceC}"
-                        Watermark="Choice C (optional)"
-                        HorizontalAlignment="Stretch" />
+                    <StackPanel Grid.Column="1" Spacing="2">
+                        <TextBox Text="{Binding NewMbspChoiceC}" Watermark="Choice C (optional)" HorizontalAlignment="Stretch" />
+                        <TextBox Text="{Binding NewMbspChoiceCEnglish}" Watermark="Choice C English (optional)" HorizontalAlignment="Stretch" />
+                    </StackPanel>
                 </Grid>
 
                 <StackPanel

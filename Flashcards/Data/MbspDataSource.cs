@@ -9,7 +9,8 @@ namespace Flashcards.Data;
 public static class MbspDataSource
 {
     private const string CsvFileName = "medborgerskabsproeven.csv";
-    private const string CsvHeader = "Question,QuestionEnglish,ChoiceA,ChoiceB,ChoiceC,CorrectAnswer";
+    // New 9-column format: Question,QuestionEnglish,ChoiceA,ChoiceAEnglish,ChoiceB,ChoiceBEnglish,ChoiceC,ChoiceCEnglish,CorrectAnswer
+    private const string CsvHeader = "Question,QuestionEnglish,ChoiceA,ChoiceAEnglish,ChoiceB,ChoiceBEnglish,ChoiceC,ChoiceCEnglish,CorrectAnswer";
 
     private static string? _overrideCsvPath;
 
@@ -72,10 +73,26 @@ public static class MbspDataSource
             var parts = SplitCsvLine(line);
 
             MbspQuestion entry;
-            if (parts.Length >= 6)
+
+            if (parts.Length >= 9)
             {
-                // Detect new format (CorrectAnswer = text) vs old format (CorrectChoice = A/B/C letter)
-                // New: Question, QuestionEnglish, ChoiceA, ChoiceB, ChoiceC, CorrectAnswer
+                // New 9-column format: Question,QuestionEnglish,ChoiceA,ChoiceAEnglish,ChoiceB,ChoiceBEnglish,ChoiceC,ChoiceCEnglish,CorrectAnswer
+                entry = new MbspQuestion
+                {
+                    Question = parts[0],
+                    QuestionEnglish = string.IsNullOrWhiteSpace(parts[1]) ? null : parts[1],
+                    ChoiceA = parts[2],
+                    ChoiceAEnglish = string.IsNullOrWhiteSpace(parts[3]) ? null : parts[3],
+                    ChoiceB = parts[4],
+                    ChoiceBEnglish = string.IsNullOrWhiteSpace(parts[5]) ? null : parts[5],
+                    ChoiceC = string.IsNullOrWhiteSpace(parts[6]) ? null : parts[6],
+                    ChoiceCEnglish = string.IsNullOrWhiteSpace(parts[7]) ? null : parts[7],
+                    CorrectAnswer = parts[8],
+                };
+            }
+            else if (parts.Length >= 6)
+            {
+                // Old 6-column format: Question,QuestionEnglish,ChoiceA,ChoiceB,ChoiceC,CorrectAnswer
                 var lastField = parts[5].Trim();
                 bool isLegacyLetter = lastField.Length == 1 &&
                     (lastField == "A" || lastField == "B" || lastField == "C");
@@ -101,8 +118,11 @@ public static class MbspDataSource
                     Question = parts[0],
                     QuestionEnglish = string.IsNullOrWhiteSpace(parts[1]) ? null : parts[1],
                     ChoiceA = parts[2],
+                    ChoiceAEnglish = null,
                     ChoiceB = parts[3],
+                    ChoiceBEnglish = null,
                     ChoiceC = string.IsNullOrWhiteSpace(parts[4]) ? null : parts[4],
+                    ChoiceCEnglish = null,
                     CorrectAnswer = correctAnswer,
                 };
             }
@@ -116,8 +136,11 @@ public static class MbspDataSource
                     Question = parts[0],
                     QuestionEnglish = null,
                     ChoiceA = parts[1],
+                    ChoiceAEnglish = null,
                     ChoiceB = parts[2],
+                    ChoiceBEnglish = null,
                     ChoiceC = (choiceC == "x" || string.IsNullOrWhiteSpace(choiceC)) ? null : choiceC,
+                    ChoiceCEnglish = null,
                     CorrectAnswer = letter switch
                     {
                         "A" => parts[1],
@@ -144,7 +167,18 @@ public static class MbspDataSource
 
         foreach (var q in Questions)
         {
-            lines.Add($"{Escape(q.Question)},{Escape(q.QuestionEnglish ?? string.Empty)},{Escape(q.ChoiceA)},{Escape(q.ChoiceB)},{Escape(q.ChoiceC ?? string.Empty)},{Escape(q.CorrectAnswer)}");
+            lines.Add(string.Join(",", new[]
+            {
+                Escape(q.Question),
+                Escape(q.QuestionEnglish ?? string.Empty),
+                Escape(q.ChoiceA),
+                Escape(q.ChoiceAEnglish ?? string.Empty),
+                Escape(q.ChoiceB),
+                Escape(q.ChoiceBEnglish ?? string.Empty),
+                Escape(q.ChoiceC ?? string.Empty),
+                Escape(q.ChoiceCEnglish ?? string.Empty),
+                Escape(q.CorrectAnswer),
+            }));
         }
 
         var runtimeDir = Path.GetDirectoryName(CsvPath);

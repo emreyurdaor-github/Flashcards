@@ -55,8 +55,11 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     private string _newMbspQuestion = string.Empty;
     private string _newMbspQuestionEnglish = string.Empty;
     private string _newMbspChoiceA = string.Empty;
+    private string _newMbspChoiceAEnglish = string.Empty;
     private string _newMbspChoiceB = string.Empty;
+    private string _newMbspChoiceBEnglish = string.Empty;
     private string _newMbspChoiceC = string.Empty;
+    private string _newMbspChoiceCEnglish = string.Empty;
     private string _newMbspCorrectChoice = string.Empty; // stores the actual answer text
     private bool _mbspShowEnglish = false;
     
@@ -758,8 +761,14 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
                 OnPropertyChanged(nameof(CurrentMbspQuestionEnglish));
                 OnPropertyChanged(nameof(HasCurrentMbspQuestionEnglish));
                 OnPropertyChanged(nameof(CurrentMbspChoiceA));
+                OnPropertyChanged(nameof(CurrentMbspChoiceAEnglish));
+                OnPropertyChanged(nameof(HasCurrentMbspChoiceAEnglish));
                 OnPropertyChanged(nameof(CurrentMbspChoiceB));
+                OnPropertyChanged(nameof(CurrentMbspChoiceBEnglish));
+                OnPropertyChanged(nameof(HasCurrentMbspChoiceBEnglish));
                 OnPropertyChanged(nameof(CurrentMbspChoiceC));
+                OnPropertyChanged(nameof(CurrentMbspChoiceCEnglish));
+                OnPropertyChanged(nameof(HasCurrentMbspChoiceCEnglish));
                 OnPropertyChanged(nameof(CurrentMbspHasChoiceC));
                 OnPropertyChanged(nameof(HasMbspQuestions));
                 MbspAnswerRevealed = false;
@@ -772,8 +781,14 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     public string? CurrentMbspQuestionEnglish => _currentMbspQuestion?.QuestionEnglish;
     public bool HasCurrentMbspQuestionEnglish => _currentMbspQuestion?.HasQuestionEnglish == true;
     public string CurrentMbspChoiceA => _currentMbspQuestion?.ChoiceA ?? string.Empty;
+    public string? CurrentMbspChoiceAEnglish => _currentMbspQuestion?.ChoiceAEnglish;
+    public bool HasCurrentMbspChoiceAEnglish => _currentMbspQuestion?.HasChoiceAEnglish == true;
     public string CurrentMbspChoiceB => _currentMbspQuestion?.ChoiceB ?? string.Empty;
+    public string? CurrentMbspChoiceBEnglish => _currentMbspQuestion?.ChoiceBEnglish;
+    public bool HasCurrentMbspChoiceBEnglish => _currentMbspQuestion?.HasChoiceBEnglish == true;
     public string? CurrentMbspChoiceC => _currentMbspQuestion?.ChoiceC;
+    public string? CurrentMbspChoiceCEnglish => _currentMbspQuestion?.ChoiceCEnglish;
+    public bool HasCurrentMbspChoiceCEnglish => _currentMbspQuestion?.HasChoiceCEnglish == true;
     public bool CurrentMbspHasChoiceC => _currentMbspQuestion?.HasChoiceC == true;
     public bool HasMbspQuestions => _currentMbspQuestion is not null;
 
@@ -873,6 +888,12 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         }
     }
 
+    public string NewMbspChoiceAEnglish
+    {
+        get => _newMbspChoiceAEnglish;
+        set => SetProperty(ref _newMbspChoiceAEnglish, value);
+    }
+
     public string NewMbspChoiceB
     {
         get => _newMbspChoiceB;
@@ -883,6 +904,12 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         }
     }
 
+    public string NewMbspChoiceBEnglish
+    {
+        get => _newMbspChoiceBEnglish;
+        set => SetProperty(ref _newMbspChoiceBEnglish, value);
+    }
+
     public string NewMbspChoiceC
     {
         get => _newMbspChoiceC;
@@ -891,6 +918,12 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
             if (SetProperty(ref _newMbspChoiceC, value))
                 OnPropertyChanged(nameof(NewMbspCorrectChoiceIsC));
         }
+    }
+
+    public string NewMbspChoiceCEnglish
+    {
+        get => _newMbspChoiceCEnglish;
+        set => SetProperty(ref _newMbspChoiceCEnglish, value);
     }
 
     public string NewMbspCorrectChoice
@@ -1624,8 +1657,11 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         NewMbspQuestion = _currentMbspQuestion.Question;
         NewMbspQuestionEnglish = _currentMbspQuestion.QuestionEnglish ?? string.Empty;
         NewMbspChoiceA = _currentMbspQuestion.ChoiceA;
+        NewMbspChoiceAEnglish = _currentMbspQuestion.ChoiceAEnglish ?? string.Empty;
         NewMbspChoiceB = _currentMbspQuestion.ChoiceB;
+        NewMbspChoiceBEnglish = _currentMbspQuestion.ChoiceBEnglish ?? string.Empty;
         NewMbspChoiceC = _currentMbspQuestion.ChoiceC ?? string.Empty;
+        NewMbspChoiceCEnglish = _currentMbspQuestion.ChoiceCEnglish ?? string.Empty;
         NewMbspCorrectChoice = _currentMbspQuestion.CorrectAnswer;
         IsEditMode = true;
         IsAddMbspPage = true;
@@ -1636,8 +1672,11 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         var question = NewMbspQuestion.Trim();
         var questionEnglish = string.IsNullOrWhiteSpace(NewMbspQuestionEnglish) ? null : NewMbspQuestionEnglish.Trim();
         var choiceA = NewMbspChoiceA.Trim();
+        var choiceAEnglish = string.IsNullOrWhiteSpace(NewMbspChoiceAEnglish) ? null : NewMbspChoiceAEnglish.Trim();
         var choiceB = NewMbspChoiceB.Trim();
+        var choiceBEnglish = string.IsNullOrWhiteSpace(NewMbspChoiceBEnglish) ? null : NewMbspChoiceBEnglish.Trim();
         var choiceC = string.IsNullOrWhiteSpace(NewMbspChoiceC) ? null : NewMbspChoiceC.Trim();
+        var choiceCEnglish = string.IsNullOrWhiteSpace(NewMbspChoiceCEnglish) ? null : NewMbspChoiceCEnglish.Trim();
         var correctAnswer = NewMbspCorrectChoice.Trim();
 
         if (string.IsNullOrWhiteSpace(question) || string.IsNullOrWhiteSpace(choiceA) ||
@@ -1662,8 +1701,11 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
             Question = question,
             QuestionEnglish = questionEnglish,
             ChoiceA = choiceA,
+            ChoiceAEnglish = choiceAEnglish,
             ChoiceB = choiceB,
+            ChoiceBEnglish = choiceBEnglish,
             ChoiceC = choiceC,
+            ChoiceCEnglish = choiceCEnglish,
             CorrectAnswer = correctAnswer,
         };
 
@@ -1705,8 +1747,11 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         NewMbspQuestion = string.Empty;
         NewMbspQuestionEnglish = string.Empty;
         NewMbspChoiceA = string.Empty;
+        NewMbspChoiceAEnglish = string.Empty;
         NewMbspChoiceB = string.Empty;
+        NewMbspChoiceBEnglish = string.Empty;
         NewMbspChoiceC = string.Empty;
+        NewMbspChoiceCEnglish = string.Empty;
         NewMbspCorrectChoice = string.Empty;
         ValidationMessage = string.Empty;
     }
