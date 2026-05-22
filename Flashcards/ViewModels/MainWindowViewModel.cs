@@ -1624,15 +1624,12 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         {
             MbspSelectedChoice = text;
 
-            // Play correct/wrong sound if not muted
-            if (!IsMuted)
-            {
-                bool isCorrect = string.Equals(text, _currentMbspQuestion?.CorrectAnswer,
-                    StringComparison.OrdinalIgnoreCase);
-                _ = isCorrect
-                    ? _audioService.PlayCorrectSoundAsync()
-                    : _audioService.PlayWrongSoundAsync();
-            }
+            // Always play correct/wrong feedback sound (mute only affects TTS pronunciation)
+            bool isCorrect = string.Equals(text, _currentMbspQuestion?.CorrectAnswer,
+                StringComparison.OrdinalIgnoreCase);
+            _ = isCorrect
+                ? _audioService.PlayCorrectSoundAsync()
+                : _audioService.PlayWrongSoundAsync();
         }
     }
 

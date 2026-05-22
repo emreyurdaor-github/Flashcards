@@ -2,7 +2,6 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using Android.Media;
-using Avalonia.Platform;
 
 namespace Flashcards.Services;
 
@@ -31,44 +30,48 @@ public class AudioService : IDisposable
     public Task PlayEnglishPronunciation(string word) => PlayTts(word, "en");
 
     /// <summary>
-    /// Plays the correct answer sound from embedded assets
+    /// Plays the correct answer sound from Android assets
     /// </summary>
     public async Task PlayCorrectSoundAsync()
     {
-        await PlayLocalSoundAsync("avares://Flashcards.Android/Assets/Sounds/correct.mp3");
+        await PlayAndroidAssetSoundAsync("correct.mp3");
     }
 
-    /// <summary>
-    /// Plays the wrong answer sound from embedded assets
-    /// </summary>
     public async Task PlayWrongSoundAsync()
     {
-        await PlayLocalSoundAsync("avares://Flashcards.Android/Assets/Sounds/wrong.mp3");
+        await PlayAndroidAssetSoundAsync("wrong.mp3");
     }
 
-    private async Task PlayLocalSoundAsync(string avaloniaResourceUri)
+    private static async Task PlayAndroidAssetSoundAsync(string assetPath)
     {
+        var tcs = new TaskCompletionSource<bool>();
+        var context = global::Android.App.Application.Context;
+        var player = new MediaPlayer();
         try
         {
-            var uri = new Uri(avaloniaResourceUri);
-            await using var stream = AssetLoader.Open(uri);
+            System.Diagnostics.Debug.WriteLine($"[AudioService.Android] Playing asset sound: {assetPath}");
+            using var afd = context.Assets!.OpenFd(assetPath);
+            player.SetDataSource(afd.FileDescriptor, afd.StartOffset, afd.Length);
+            player.Prepare();
 
-            var tempFile = System.IO.Path.Combine(
-                System.IO.Path.GetTempPath(),
-                $"sound_{Guid.NewGuid()}.mp3");
-
-            await using (var fileStream = System.IO.File.Create(tempFile))
+            player.Completion += (_, _) => tcs.TrySetResult(true);
+            player.Error += (_, args) =>
             {
-                await stream.CopyToAsync(fileStream);
-            }
+                System.Diagnostics.Debug.WriteLine($"[AudioService.Android] MediaPlayer error: {args.What}");
+                tcs.TrySetResult(false);
+            };
 
-            await PlayFileAsync(tempFile);
-
-            try { System.IO.File.Delete(tempFile); } catch { /* ignore cleanup errors */ }
+            player.Start();
+            await tcs.Task;
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[AudioService.Android] PlayLocalSound error: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[AudioService.Android] PlayAndroidAssetSound error: {ex.Message}");
+        }
+        finally
+        {
+            player.Release();
+            player.Dispose();
         }
     }
 

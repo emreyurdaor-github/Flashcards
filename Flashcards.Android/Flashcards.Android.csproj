@@ -38,11 +38,13 @@
         <AvaloniaResource Include="..\Flashcards\Assets\**" />
     </ItemGroup>
 
-    <!-- Link the CSV data files -->
+    <!-- Link the CSV data files and sound assets -->
     <ItemGroup>
         <AndroidAsset Include="..\Flashcards\Data\flashcards.csv" />
         <AndroidAsset Include="..\Flashcards\Data\writing.csv" />
         <AndroidAsset Include="..\Flashcards\Data\medborgerskabsproeven.csv" />
+        <AndroidAsset Include="..\Flashcards\Assets\Sounds\correct.mp3" />
+        <AndroidAsset Include="..\Flashcards\Assets\Sounds\wrong.mp3" />
     </ItemGroup>
 
     <!-- Mipmap icons for all densities -->
