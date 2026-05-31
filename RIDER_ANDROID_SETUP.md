@@ -119,7 +119,7 @@ If your device is not listed:
 
 **Key Files:**
 - `AndroidManifest.xml` - Application manifest
-- `Platforms/Android/AndroidManifest.xml` - Source manifest
+- `Properties/AndroidManifest.xml` - Source manifest
 - `Flashcards.Android.csproj` - Project configuration
 - `MainActivity.cs` - Main activity entry point
 

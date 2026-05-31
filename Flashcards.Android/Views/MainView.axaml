@@ -29,7 +29,7 @@
             <Setter Property="Padding" Value="18,10" />
             <Setter Property="CornerRadius" Value="12" />
             <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="FontSize" Value="18" />
+            <Setter Property="FontSize" Value="22" />
             <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="Foreground" Value="#FFE2E8F0" />
             <Setter Property="Background" Value="{StaticResource TabUnselectedBg}" />
@@ -184,19 +184,19 @@
                     Padding="8,6"
                     Margin="0,0,0,0"
                     Width="200"
-                    FontSize="19"
+                    FontSize="23"
                     Background="Transparent">
                     <AutoCompleteBox.ItemTemplate>
                         <DataTemplate DataType="models:FlashcardEntry">
                             <StackPanel>
                                 <TextBlock
                                     Text="{Binding Danish}"
-                                    FontSize="22"
+                                    FontSize="26"
                                     FontWeight="SemiBold"
                                     Foreground="#FFFBBF24" />
                                 <TextBlock
                                     Text="{Binding English}"
-                                    FontSize="18"
+                                    FontSize="22"
                                     Foreground="#FFCBD5E1" />
                             </StackPanel>
                         </DataTemplate>
@@ -229,7 +229,7 @@
                             <StackPanel Grid.Column="0" Spacing="4">
                                 <TextBlock
                                     Text="{Binding CurrentDanish}"
-                                    FontSize="46"
+                                    FontSize="54"
                                     FontWeight="SemiBold"
                                     Foreground="#FFFBBF24"
                                     HorizontalAlignment="Center" />
@@ -253,7 +253,7 @@
                                                 BorderThickness="1">
                                                 <TextBlock
                                                     Text="{Binding}"
-                                                    FontSize="15"
+                                                    FontSize="19"
                                                     FontStyle="Italic"
                                                     Foreground="#FF94A3B8"
                                                     VerticalAlignment="Center" />
@@ -264,7 +264,7 @@
                                 <TextBlock
                                     Text="{Binding CurrentConjugation}"
                                     IsVisible="{Binding HasCurrentConjugation}"
-                                    FontSize="20"
+                                    FontSize="24"
                                     FontStyle="Italic"
                                     HorizontalAlignment="Center"
                                     Foreground="#FFCBD5E1" />
@@ -288,7 +288,7 @@
                         <TextBlock
                             Text="{Binding CurrentEnglish}"
                             IsVisible="{Binding HasFlashcards}"
-                            FontSize="32"
+                            FontSize="38"
                             Foreground="#FFE2E8F0"
                             HorizontalAlignment="Center" />
                     </StackPanel>
@@ -306,17 +306,17 @@
                         <Grid ColumnDefinitions="*,Auto">
                             <TextBlock
                                 Grid.Column="0"
-                                FontSize="22"
+                                FontSize="26"
                                 TextWrapping="Wrap"
                                 Foreground="#FFCBD5E1">
-                                <Run Text="{Binding HighlightedExampleDanish.BeforeWord}" FontSize="22" />
+                                <Run Text="{Binding HighlightedExampleDanish.BeforeWord}" FontSize="26" />
                                 <Run
                                     Text="{Binding HighlightedExampleDanish.HighlightedWord}"
                                     TextDecorations="Underline"
                                     FontWeight="SemiBold"
                                     Foreground="#FFFBBF24"
-                                    FontSize="22" />
-                                <Run Text="{Binding HighlightedExampleDanish.AfterWord}" FontSize="22" />
+                                    FontSize="26" />
+                                <Run Text="{Binding HighlightedExampleDanish.AfterWord}" FontSize="26" />
                             </TextBlock>
                             <Button
                                 Grid.Column="1"
@@ -334,7 +334,7 @@
                             </Button>
                         </Grid>
                         <TextBlock
-                            FontSize="22"
+                            FontSize="26"
                             TextWrapping="Wrap"
                             Foreground="#FFCBD5E1"
                             Text="{Binding HighlightedExampleDanish.FullText}"
@@ -348,20 +348,20 @@
                             Margin="0,8,0,8"
                             Fill="#66888888" />
                         <TextBlock
-                            FontSize="22"
+                            FontSize="26"
                             TextWrapping="Wrap"
                             Foreground="#FFCBD5E1"
                             IsVisible="{Binding HasCurrentExampleEnglish}">
-                            <Run Text="{Binding HighlightedExampleEnglish.BeforeWord}" FontSize="22" />
+                            <Run Text="{Binding HighlightedExampleEnglish.BeforeWord}" FontSize="26" />
                             <Run
                                 Text="{Binding HighlightedExampleEnglish.HighlightedWord}"
                                 TextDecorations="Underline"
                                 FontWeight="SemiBold"
-                                FontSize="22" />
-                            <Run Text="{Binding HighlightedExampleEnglish.AfterWord}" FontSize="22" />
+                                FontSize="26" />
+                            <Run Text="{Binding HighlightedExampleEnglish.AfterWord}" FontSize="26" />
                         </TextBlock>
                         <TextBlock
-                            FontSize="22"
+                            FontSize="26"
                             TextWrapping="Wrap"
                             Foreground="#FFCBD5E1"
                             Text="{Binding HighlightedExampleEnglish.FullText}"
@@ -375,23 +375,23 @@
                 Margin="0,12,0,0"
                 Spacing="8"
                 IsVisible="{Binding IsAddRecordPage}">
-                <TextBlock Text="Add flashcard" FontSize="24" FontWeight="SemiBold" Foreground="White" />
-                <TextBox Text="{Binding NewDanish}" Watermark="Danish" FontSize="19" />
-                <TextBox Text="{Binding NewEnglish}" Watermark="English" FontSize="19" />
-                <TextBox Text="{Binding NewType}" Watermark="Type (optional)" FontSize="19" />
-                <TextBox Text="{Binding NewConjugation}" Watermark="Conjugation (optional)" AcceptsReturn="True" TextWrapping="Wrap" Height="65" FontSize="19" />
-                <TextBox Text="{Binding NewExampleDanish}" Watermark="Example Danish (optional)" AcceptsReturn="True" TextWrapping="Wrap" Height="65" FontSize="19" />
-                <TextBox Text="{Binding NewExampleEnglish}" Watermark="Example English (optional)" AcceptsReturn="True" TextWrapping="Wrap" Height="65" FontSize="19" />
-                <TextBox Text="{Binding NewContextualTip}" Watermark="Contextual tip (optional)" AcceptsReturn="True" TextWrapping="Wrap" Height="65" FontSize="19" />
+                <TextBlock Text="Add flashcard" FontSize="28" FontWeight="SemiBold" Foreground="White" />
+                <TextBox Text="{Binding NewDanish}" Watermark="Danish" FontSize="23" />
+                <TextBox Text="{Binding NewEnglish}" Watermark="English" FontSize="23" />
+                <TextBox Text="{Binding NewType}" Watermark="Type (optional)" FontSize="23" />
+                <TextBox Text="{Binding NewConjugation}" Watermark="Conjugation (optional)" AcceptsReturn="True" TextWrapping="Wrap" Height="65" FontSize="23" />
+                <TextBox Text="{Binding NewExampleDanish}" Watermark="Example Danish (optional)" AcceptsReturn="True" TextWrapping="Wrap" Height="65" FontSize="23" />
+                <TextBox Text="{Binding NewExampleEnglish}" Watermark="Example English (optional)" AcceptsReturn="True" TextWrapping="Wrap" Height="65" FontSize="23" />
+                <TextBox Text="{Binding NewContextualTip}" Watermark="Contextual tip (optional)" AcceptsReturn="True" TextWrapping="Wrap" Height="65" FontSize="23" />
                 <TextBlock
                     Text="{Binding ValidationMessage}"
                     IsVisible="{Binding HasValidationMessage}"
                     TextWrapping="Wrap"
                     Foreground="#FFFCA5A5"
-                    FontSize="18" />
+                    FontSize="22" />
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
-                    <Button Content="Cancel" FontSize="19" Command="{Binding CancelAddRecordCommand}" />
-                    <Button Content="Save" FontSize="19" Command="{Binding SaveNewRecordCommand}" />
+                    <Button Content="Cancel" FontSize="23" Command="{Binding CancelAddRecordCommand}" />
+                    <Button Content="Save" FontSize="23" Command="{Binding SaveNewRecordCommand}" />
                 </StackPanel>
             </StackPanel>
 
@@ -403,7 +403,7 @@
                 IsVisible="{Binding SelectedTabIndex, Converter={StaticResource EqualityConverter}, ConverterParameter=1}">
                 <TextBlock
                     Text="Quiz Page"
-                    FontSize="22"
+                    FontSize="26"
                     FontWeight="SemiBold"
                     Foreground="White"
                     HorizontalAlignment="Center" />
@@ -437,7 +437,7 @@
                         <TextBlock
                             Grid.Row="0"
                             Text="{Binding CurrentDanishWritingTitle}"
-                            FontSize="16"
+                            FontSize="20"
                             Foreground="#FFFBBF24"
                             FontWeight="SemiBold"
                             Margin="0,0,0,4" />
@@ -448,7 +448,7 @@
                             HorizontalScrollBarVisibility="Disabled">
                             <TextBlock
                                 x:Name="DanishWritingTextBlock"
-                                FontSize="20"
+                                FontSize="24"
                                 Foreground="#FFCBD5E1"
                                 TextWrapping="Wrap" />
                         </ScrollViewer>
@@ -470,7 +470,7 @@
                         <TextBlock
                             Grid.Row="0"
                             Text="{Binding CurrentEnglishWritingTitle}"
-                            FontSize="16"
+                            FontSize="20"
                             Foreground="#FFFBBF24"
                             FontWeight="SemiBold"
                             Margin="0,0,0,4" />
@@ -481,7 +481,7 @@
                             HorizontalScrollBarVisibility="Disabled">
                             <TextBlock
                                 Text="{Binding CurrentEnglishWriting}"
-                                FontSize="20"
+                                FontSize="24"
                                 Foreground="#FFCBD5E1"
                                 TextWrapping="Wrap" />
                         </ScrollViewer>
@@ -501,10 +501,10 @@
                         <Binding Path="IsWritingPage" />
                     </MultiBinding>
                 </StackPanel.IsVisible>
-                <Button Width="50" Height="50" CornerRadius="25" FontSize="22" FontWeight="SemiBold"
+                <Button Width="65" Height="65" CornerRadius="33" FontSize="32" FontWeight="SemiBold"
                         Content="◀" Command="{Binding PreviousWritingCommand}"
                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-                <Button Width="50" Height="50" CornerRadius="25" FontSize="22" FontWeight="SemiBold"
+                <Button Width="65" Height="65" CornerRadius="33" FontSize="32" FontWeight="SemiBold"
                         Content="▶" Command="{Binding NextWritingCommand}"
                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
             </StackPanel>
@@ -521,16 +521,16 @@
                         <Binding Path="IsWritingPage" />
                     </MultiBinding>
                 </StackPanel.IsVisible>
-                <Button Width="50" Height="50" CornerRadius="25"
+                <Button Width="65" Height="65" CornerRadius="33"
                         Classes="icon-btn"
                         Command="{Binding ShowEditWritingCommand}">
                     <Path
-                        Width="22" Height="22"
+                        Width="28" Height="28"
                         Fill="#FFFBBF24"
                         Stretch="Uniform"
                         Data="M12,2 L14,4 L5,13 L2,14 L3,11 Z M13,3 L15,5" />
                 </Button>
-                <Button Width="50" Height="50" CornerRadius="25" FontSize="26" FontWeight="Bold"
+                <Button Width="65" Height="65" CornerRadius="33" FontSize="38" FontWeight="Bold"
                         Content="+" Command="{Binding ShowAddWritingCommand}"
                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
             </StackPanel>
@@ -544,7 +544,7 @@
                 <TextBlock
                     Grid.Row="0"
                     Text="Add writing exercise"
-                    FontSize="22"
+                    FontSize="26"
                     FontWeight="SemiBold"
                     Foreground="White"
                     Margin="0,0,0,8" />
@@ -553,7 +553,7 @@
                     Grid.Row="1"
                     Text="{Binding NewWritingDanishTitle}"
                     Watermark="Danish title (optional)"
-                    FontSize="19"
+                    FontSize="23"
                     Margin="0,0,0,4"
                     HorizontalAlignment="Stretch" />
 
@@ -563,7 +563,7 @@
                     Watermark="Danish text"
                     AcceptsReturn="True"
                     TextWrapping="Wrap"
-                    FontSize="19"
+                    FontSize="23"
                     Margin="0,0,0,8"
                     VerticalAlignment="Stretch" />
 
@@ -571,7 +571,7 @@
                     Grid.Row="3"
                     Text="{Binding NewWritingEnglishTitle}"
                     Watermark="English title (optional)"
-                    FontSize="19"
+                    FontSize="23"
                     Margin="0,0,0,4"
                     HorizontalAlignment="Stretch" />
 
@@ -581,7 +581,7 @@
                     Watermark="English text"
                     AcceptsReturn="True"
                     TextWrapping="Wrap"
-                    FontSize="19"
+                    FontSize="23"
                     Margin="0,0,0,8"
                     VerticalAlignment="Stretch" />
 
@@ -591,15 +591,15 @@
                     IsVisible="{Binding HasValidationMessage}"
                     TextWrapping="Wrap"
                     Foreground="#FFFCA5A5"
-                    FontSize="18" />
+                    FontSize="22" />
 
                 <StackPanel
                     Grid.Row="6"
                     Orientation="Horizontal"
                     HorizontalAlignment="Right"
                     Spacing="8">
-                    <Button Content="Cancel" FontSize="19" Command="{Binding CancelAddWritingCommand}" />
-                    <Button Content="Save" FontSize="19" Command="{Binding SaveNewWritingCommand}" />
+                    <Button Content="Cancel" FontSize="23" Command="{Binding CancelAddWritingCommand}" />
+                    <Button Content="Save" FontSize="23" Command="{Binding SaveNewWritingCommand}" />
                 </StackPanel>
             </Grid>
 
@@ -625,7 +625,7 @@
                     <StackPanel Spacing="6">
                         <TextBlock
                             Text="{Binding CurrentMbspQuestionText}"
-                            FontSize="22"
+                            FontSize="26"
                             FontWeight="SemiBold"
                             Foreground="#FFE2E8F0"
                             TextWrapping="Wrap"
@@ -633,7 +633,7 @@
                             TextAlignment="Center" />
                         <TextBlock
                             Text="{Binding CurrentMbspQuestionEnglish}"
-                            FontSize="18"
+                            FontSize="22"
                             FontStyle="Italic"
                             Foreground="#FF94A3B8"
                             TextWrapping="Wrap"
@@ -663,11 +663,11 @@
                     IsEnabled="{Binding MbspSelectedChoice, Converter={x:Static ObjectConverters.IsNull}}">
                     <StackPanel Orientation="Horizontal" Spacing="10">
                         <Border Width="34" Height="34" CornerRadius="17" Background="#443B82F6" BorderBrush="#664BA3C7" BorderThickness="1">
-                            <TextBlock Text="A" FontSize="16" FontWeight="Bold" Foreground="#FFE2E8F0" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            <TextBlock Text="A" FontSize="20" FontWeight="Bold" Foreground="#FFE2E8F0" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding CurrentMbspChoiceA}" FontSize="20" Foreground="#FFE2E8F0" TextWrapping="Wrap" />
-                            <TextBlock Text="{Binding CurrentMbspChoiceAEnglish}" FontSize="16" FontStyle="Italic" Foreground="#FF94A3B8" TextWrapping="Wrap">
+                            <TextBlock Text="{Binding CurrentMbspChoiceA}" FontSize="24" Foreground="#FFE2E8F0" TextWrapping="Wrap" />
+                            <TextBlock Text="{Binding CurrentMbspChoiceAEnglish}" FontSize="20" FontStyle="Italic" Foreground="#FF94A3B8" TextWrapping="Wrap">
                                 <TextBlock.IsVisible>
                                     <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
                                         <Binding Path="HasCurrentMbspChoiceAEnglish" />
@@ -693,11 +693,11 @@
                     IsEnabled="{Binding MbspSelectedChoice, Converter={x:Static ObjectConverters.IsNull}}">
                     <StackPanel Orientation="Horizontal" Spacing="10">
                         <Border Width="34" Height="34" CornerRadius="17" Background="#443B82F6" BorderBrush="#664BA3C7" BorderThickness="1">
-                            <TextBlock Text="B" FontSize="16" FontWeight="Bold" Foreground="#FFE2E8F0" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            <TextBlock Text="B" FontSize="20" FontWeight="Bold" Foreground="#FFE2E8F0" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding CurrentMbspChoiceB}" FontSize="20" Foreground="#FFE2E8F0" TextWrapping="Wrap" />
-                            <TextBlock Text="{Binding CurrentMbspChoiceBEnglish}" FontSize="16" FontStyle="Italic" Foreground="#FF94A3B8" TextWrapping="Wrap">
+                            <TextBlock Text="{Binding CurrentMbspChoiceB}" FontSize="24" Foreground="#FFE2E8F0" TextWrapping="Wrap" />
+                            <TextBlock Text="{Binding CurrentMbspChoiceBEnglish}" FontSize="20" FontStyle="Italic" Foreground="#FF94A3B8" TextWrapping="Wrap">
                                 <TextBlock.IsVisible>
                                     <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
                                         <Binding Path="HasCurrentMbspChoiceBEnglish" />
@@ -724,11 +724,11 @@
                     IsEnabled="{Binding MbspSelectedChoice, Converter={x:Static ObjectConverters.IsNull}}">
                     <StackPanel Orientation="Horizontal" Spacing="10">
                         <Border Width="34" Height="34" CornerRadius="17" Background="#443B82F6" BorderBrush="#664BA3C7" BorderThickness="1">
-                            <TextBlock Text="C" FontSize="16" FontWeight="Bold" Foreground="#FFE2E8F0" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            <TextBlock Text="C" FontSize="20" FontWeight="Bold" Foreground="#FFE2E8F0" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding CurrentMbspChoiceC}" FontSize="20" Foreground="#FFE2E8F0" TextWrapping="Wrap" />
-                            <TextBlock Text="{Binding CurrentMbspChoiceCEnglish}" FontSize="16" FontStyle="Italic" Foreground="#FF94A3B8" TextWrapping="Wrap">
+                            <TextBlock Text="{Binding CurrentMbspChoiceC}" FontSize="24" Foreground="#FFE2E8F0" TextWrapping="Wrap" />
+                            <TextBlock Text="{Binding CurrentMbspChoiceCEnglish}" FontSize="20" FontStyle="Italic" Foreground="#FF94A3B8" TextWrapping="Wrap">
                                 <TextBlock.IsVisible>
                                     <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
                                         <Binding Path="HasCurrentMbspChoiceCEnglish" />
@@ -744,7 +744,7 @@
                 <TextBlock
                     Text="{Binding MbspAnswerFeedback}"
                     IsVisible="{Binding MbspHasFeedback}"
-                    FontSize="20"
+                    FontSize="24"
                     FontWeight="SemiBold"
                     TextWrapping="Wrap"
                     HorizontalAlignment="Center"
@@ -763,7 +763,7 @@
                     </MultiBinding>
                 </Grid.IsVisible>
 
-                <TextBlock Grid.Row="0" Text="Add / Edit Question" FontSize="22" FontWeight="SemiBold" Foreground="White" Margin="0,0,0,8" />
+                <TextBlock Grid.Row="0" Text="Add / Edit Question" FontSize="26" FontWeight="SemiBold" Foreground="White" Margin="0,0,0,8" />
 
                 <TextBox
                     Grid.Row="1"
@@ -771,7 +771,7 @@
                     Watermark="Question (Danish)"
                     AcceptsReturn="True"
                     TextWrapping="Wrap"
-                    FontSize="19"
+                    FontSize="23"
                     Height="80"
                     Margin="0,0,0,4"
                     HorizontalAlignment="Stretch" />
@@ -782,7 +782,7 @@
                     Watermark="Question English (optional)"
                     AcceptsReturn="True"
                     TextWrapping="Wrap"
-                    FontSize="19"
+                    FontSize="23"
                     Height="65"
                     Margin="0,0,0,8"
                     HorizontalAlignment="Stretch" />
@@ -793,8 +793,8 @@
                                  IsChecked="{Binding NewMbspCorrectChoiceIsA, Mode=TwoWay}"
                                  VerticalAlignment="Center" Margin="0,0,8,0" />
                     <StackPanel Grid.Column="1" Spacing="4">
-                        <TextBox Text="{Binding NewMbspChoiceA}" Watermark="Choice A" FontSize="19" HorizontalAlignment="Stretch" />
-                        <TextBox Text="{Binding NewMbspChoiceAEnglish}" Watermark="Choice A English (optional)" FontSize="19" HorizontalAlignment="Stretch" />
+                        <TextBox Text="{Binding NewMbspChoiceA}" Watermark="Choice A" FontSize="23" HorizontalAlignment="Stretch" />
+                        <TextBox Text="{Binding NewMbspChoiceAEnglish}" Watermark="Choice A English (optional)" FontSize="23" HorizontalAlignment="Stretch" />
                     </StackPanel>
                 </Grid>
 
@@ -804,8 +804,8 @@
                                  IsChecked="{Binding NewMbspCorrectChoiceIsB, Mode=TwoWay}"
                                  VerticalAlignment="Center" Margin="0,0,8,0" />
                     <StackPanel Grid.Column="1" Spacing="4">
-                        <TextBox Text="{Binding NewMbspChoiceB}" Watermark="Choice B" FontSize="19" HorizontalAlignment="Stretch" />
-                        <TextBox Text="{Binding NewMbspChoiceBEnglish}" Watermark="Choice B English (optional)" FontSize="19" HorizontalAlignment="Stretch" />
+                        <TextBox Text="{Binding NewMbspChoiceB}" Watermark="Choice B" FontSize="23" HorizontalAlignment="Stretch" />
+                        <TextBox Text="{Binding NewMbspChoiceBEnglish}" Watermark="Choice B English (optional)" FontSize="23" HorizontalAlignment="Stretch" />
                     </StackPanel>
                 </Grid>
 
@@ -815,8 +815,8 @@
                                  IsChecked="{Binding NewMbspCorrectChoiceIsC, Mode=TwoWay}"
                                  VerticalAlignment="Center" Margin="0,0,8,0" />
                     <StackPanel Grid.Column="1" Spacing="4">
-                        <TextBox Text="{Binding NewMbspChoiceC}" Watermark="Choice C (optional)" FontSize="19" HorizontalAlignment="Stretch" />
-                        <TextBox Text="{Binding NewMbspChoiceCEnglish}" Watermark="Choice C English (optional)" FontSize="19" HorizontalAlignment="Stretch" />
+                        <TextBox Text="{Binding NewMbspChoiceC}" Watermark="Choice C (optional)" FontSize="23" HorizontalAlignment="Stretch" />
+                        <TextBox Text="{Binding NewMbspChoiceCEnglish}" Watermark="Choice C English (optional)" FontSize="23" HorizontalAlignment="Stretch" />
                     </StackPanel>
                 </Grid>
 
@@ -826,10 +826,10 @@
                         IsVisible="{Binding HasValidationMessage}"
                         TextWrapping="Wrap"
                         Foreground="#FFFCA5A5"
-                        FontSize="18" />
+                        FontSize="22" />
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
-                        <Button Content="Cancel" FontSize="19" Command="{Binding CancelMbspCommand}" />
-                        <Button Content="Save" FontSize="19" Command="{Binding SaveMbspCommand}" />
+                        <Button Content="Cancel" FontSize="23" Command="{Binding CancelMbspCommand}" />
+                        <Button Content="Save" FontSize="23" Command="{Binding SaveMbspCommand}" />
                     </StackPanel>
                 </StackPanel>
             </Grid>
@@ -846,10 +846,10 @@
                         <Binding Path="IsMbspPage" />
                     </MultiBinding>
                 </StackPanel.IsVisible>
-                <Button Width="50" Height="50" CornerRadius="25" FontSize="22" FontWeight="SemiBold"
+                <Button Width="65" Height="65" CornerRadius="33" FontSize="32" FontWeight="SemiBold"
                         Content="◀" Command="{Binding PreviousMbspCommand}"
                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
-                <Button Width="50" Height="50" CornerRadius="25" FontSize="22" FontWeight="SemiBold"
+                <Button Width="65" Height="65" CornerRadius="33" FontSize="32" FontWeight="SemiBold"
                         Content="▶" Command="{Binding NextMbspCommand}"
                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
             </StackPanel>
@@ -867,13 +867,13 @@
                         <Binding Path="IsMbspPage" />
                     </MultiBinding>
                 </StackPanel.IsVisible>
-                <Button Width="50" Height="50" CornerRadius="25"
+                <Button Width="65" Height="65" CornerRadius="33"
                         Classes="icon-btn"
                         Command="{Binding ShowEditMbspCommand}">
-                    <Path Width="22" Height="22" Fill="#FFFBBF24" Stretch="Uniform"
+                    <Path Width="28" Height="28" Fill="#FFFBBF24" Stretch="Uniform"
                           Data="M12,2 L14,4 L5,13 L2,14 L3,11 Z M13,3 L15,5" />
                 </Button>
-                <Button Width="50" Height="50" CornerRadius="25" FontSize="26" FontWeight="Bold"
+                <Button Width="65" Height="65" CornerRadius="33" FontSize="38" FontWeight="Bold"
                         Content="+" Command="{Binding ShowAddMbspCommand}"
                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
             </StackPanel>
@@ -893,7 +893,7 @@
                 </StackPanel.IsVisible>
                 <TextBlock
                     Text="Eng"
-                    FontSize="18"
+                    FontSize="22"
                     FontWeight="SemiBold"
                     VerticalAlignment="Center"
                     Foreground="#FFE2E8F0" />
@@ -918,19 +918,19 @@
                     </MultiBinding>
                 </Border.IsVisible>
                 <Grid ColumnDefinitions="Auto,*">
-                    <TextBlock Grid.Column="0" Text="*" FontSize="18" VerticalAlignment="Top" Margin="0,0,6,0" />
-                    <TextBlock Grid.Column="1" Text="{Binding CurrentContextualTip}" FontSize="18" TextWrapping="Wrap" Foreground="#FFFBBF24" />
+                    <TextBlock Grid.Column="0" Text="*" FontSize="22" VerticalAlignment="Top" Margin="0,0,6,0" />
+                    <TextBlock Grid.Column="1" Text="{Binding CurrentContextualTip}" FontSize="22" TextWrapping="Wrap" Foreground="#FFFBBF24" />
                 </Grid>
             </Border>
 
             <!-- Add Flashcard -->
             <Button
                 Grid.Row="6"
-                Width="50" Height="50"
+                Width="65" Height="65"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
-                CornerRadius="25"
-                FontSize="26" FontWeight="Bold"
+                CornerRadius="33"
+                FontSize="38" FontWeight="Bold"
                 Content="+"
                 Command="{Binding ShowAddRecordCommand}"
                 HorizontalContentAlignment="Center"
@@ -946,15 +946,15 @@
             <!-- Edit Flashcard -->
             <Button
                 Grid.Row="6"
-                Width="50" Height="50"
-                Margin="0,0,62,0"
+                Width="65" Height="65"
+                Margin="0,0,77,0"
                 Classes="icon-btn"
-                CornerRadius="25"
+                CornerRadius="33"
                 Command="{Binding ShowEditRecordCommand}"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom">
                 <Path
-                    Width="22" Height="22"
+                    Width="28" Height="28"
                     Fill="#FFFBBF24"
                     Stretch="Uniform"
                     Data="M12,2 L14,4 L5,13 L2,14 L3,11 Z M13,3 L15,5" />
@@ -975,11 +975,11 @@
                         <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="0" />
                     </MultiBinding>
                 </StackPanel.IsVisible>
-                <Button Width="50" Height="50" CornerRadius="25" FontSize="22" FontWeight="SemiBold"
+                <Button Width="65" Height="65" CornerRadius="33" FontSize="32" FontWeight="SemiBold"
                         Content="◀" Command="{Binding PreviousCardCommand}"
                         IsEnabled="{Binding CanNavigateFlashcards}"
                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-                <Button Width="50" Height="50" CornerRadius="25" FontSize="22" FontWeight="SemiBold"
+                <Button Width="65" Height="65" CornerRadius="33" FontSize="32" FontWeight="SemiBold"
                         Content="▶" Command="{Binding NextCardCommand}"
                         IsEnabled="{Binding CanNavigateFlashcards}"
                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
@@ -993,10 +993,10 @@
                         <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="0" />
                     </MultiBinding>
                 </StackPanel.IsVisible>
-                <Button Width="50" Height="50" CornerRadius="25" FontSize="18" FontWeight="SemiBold"
+                <Button Width="65" Height="65" CornerRadius="33" FontSize="28" FontWeight="SemiBold"
                         Content="▶" Command="{Binding PlayCommand}" IsEnabled="{Binding IsRotationPaused}"
                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-                <Button Width="50" Height="50" CornerRadius="25" FontSize="18" FontWeight="SemiBold"
+                <Button Width="65" Height="65" CornerRadius="33" FontSize="28" FontWeight="SemiBold"
                         Content="||" Command="{Binding PauseCommand}" IsEnabled="{Binding IsRotationPlaying}"
                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
             </StackPanel>

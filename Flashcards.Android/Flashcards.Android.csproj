@@ -2,16 +2,16 @@
     <PropertyGroup>
         <TargetFramework>net9.0-android</TargetFramework>
         <OutputType>Exe</OutputType>
+        <AndroidPackageFormat>apk</AndroidPackageFormat>
         <Nullable>enable</Nullable>
         <ApplicationId>com.flashcards.app</ApplicationId>
         <ApplicationVersion>1</ApplicationVersion>
         <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
         <ApplicationTitle>Flashcards</ApplicationTitle>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-        <AndroidManifest>Platforms\Android\AndroidManifest.xml</AndroidManifest>
         <TrimmerRootDescriptor>Platforms\Android\linker.xml</TrimmerRootDescriptor>
         <RootNamespace>Flashcards</RootNamespace>
-        <SupportedOSPlatformVersion>21</SupportedOSPlatformVersion>
+        <SupportedOSPlatformVersion>21.0</SupportedOSPlatformVersion>
         <!-- Embed all assemblies into the APK so they are always available on device -->
         <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
     </PropertyGroup>

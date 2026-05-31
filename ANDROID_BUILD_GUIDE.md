@@ -64,7 +64,7 @@ The project will automatically build the APK and deploy it to the connected devi
 
 The Android manifest is located at:
 ```
-Flashcards.Android/Platforms/Android/AndroidManifest.xml
+Flashcards.Android/Properties/AndroidManifest.xml
 ```
 
 It includes:
@@ -77,7 +77,7 @@ It includes:
 
 ### "No AndroidManifest.xml" Error
 - Run: `dotnet publish` instead of just `dotnet build`
-- Ensure `Platforms/Android/AndroidManifest.xml` exists
+- Ensure `Properties/AndroidManifest.xml` exists
 - Check that the manifest path is correct in the `.csproj` file
 
 ### APK Not Generated
