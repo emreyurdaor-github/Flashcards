@@ -4,6 +4,7 @@
     xmlns:vm="using:Flashcards.ViewModels"
     xmlns:models="using:Flashcards.Models"
     xmlns:converters="using:Flashcards.Converters"
+    xmlns:views="using:Flashcards.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
@@ -74,13 +75,13 @@
                 Margin="0,0,0,12"
                 HorizontalAlignment="Left"
                 SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}"
-                FontSize="22"
+                FontSize="26"
                 FontWeight="SemiBold"
                 Foreground="#FFE2E8F0"
                 Background="#22334155"
                 BorderBrush="#33475569"
                 BorderThickness="1"
-                Padding="12,8"
+                Padding="12,12"
                 MinWidth="280">
                 <ComboBoxItem Content="Flashcards" />
                 <ComboBoxItem Content="Quiz" />
@@ -140,10 +141,10 @@
                     Watermark="Search..."
                     VerticalAlignment="Center"
                     IsTextCompletionEnabled="False"
-                    Padding="8,6"
+                    Padding="8,10"
                     Margin="0,0,0,0"
-                    Width="300"
-                    FontSize="23"
+                    Width="400"
+                    FontSize="26"
                     Background="Transparent">
                     <AutoCompleteBox.ItemTemplate>
                         <DataTemplate DataType="models:FlashcardEntry">
@@ -621,8 +622,8 @@
                     CommandParameter="A"
                     IsEnabled="{Binding MbspSelectedChoice, Converter={x:Static ObjectConverters.IsNull}}">
                     <StackPanel Orientation="Horizontal" Spacing="10">
-                        <Border Width="34" Height="34" CornerRadius="17" Background="#443B82F6" BorderBrush="#664BA3C7" BorderThickness="1">
-                            <TextBlock Text="A" FontSize="20" FontWeight="Bold" Foreground="#FFE2E8F0" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        <Border Width="48" Height="48" CornerRadius="24" Background="#443B82F6" BorderBrush="#664BA3C7" BorderThickness="1">
+                            <TextBlock Text="A" FontSize="26" FontWeight="Bold" Foreground="#FFE2E8F0" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
                             <TextBlock Text="{Binding CurrentMbspChoiceA}" FontSize="24" Foreground="#FFE2E8F0" TextWrapping="Wrap" />
@@ -651,8 +652,8 @@
                     CommandParameter="B"
                     IsEnabled="{Binding MbspSelectedChoice, Converter={x:Static ObjectConverters.IsNull}}">
                     <StackPanel Orientation="Horizontal" Spacing="10">
-                        <Border Width="34" Height="34" CornerRadius="17" Background="#443B82F6" BorderBrush="#664BA3C7" BorderThickness="1">
-                            <TextBlock Text="B" FontSize="20" FontWeight="Bold" Foreground="#FFE2E8F0" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        <Border Width="48" Height="48" CornerRadius="24" Background="#443B82F6" BorderBrush="#664BA3C7" BorderThickness="1">
+                            <TextBlock Text="B" FontSize="26" FontWeight="Bold" Foreground="#FFE2E8F0" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
                             <TextBlock Text="{Binding CurrentMbspChoiceB}" FontSize="24" Foreground="#FFE2E8F0" TextWrapping="Wrap" />
@@ -682,8 +683,8 @@
                     CommandParameter="C"
                     IsEnabled="{Binding MbspSelectedChoice, Converter={x:Static ObjectConverters.IsNull}}">
                     <StackPanel Orientation="Horizontal" Spacing="10">
-                        <Border Width="34" Height="34" CornerRadius="17" Background="#443B82F6" BorderBrush="#664BA3C7" BorderThickness="1">
-                            <TextBlock Text="C" FontSize="20" FontWeight="Bold" Foreground="#FFE2E8F0" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        <Border Width="48" Height="48" CornerRadius="24" Background="#443B82F6" BorderBrush="#664BA3C7" BorderThickness="1">
+                            <TextBlock Text="C" FontSize="26" FontWeight="Bold" Foreground="#FFE2E8F0" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
                             <TextBlock Text="{Binding CurrentMbspChoiceC}" FontSize="24" Foreground="#FFE2E8F0" TextWrapping="Wrap" />
@@ -842,25 +843,20 @@
                 Grid.Row="6"
                 Orientation="Horizontal"
                 HorizontalAlignment="Left"
-                VerticalAlignment="Center"
-                Spacing="4">
+                VerticalAlignment="Center">
                 <StackPanel.IsVisible>
                     <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
                         <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="3" />
                         <Binding Path="IsMbspPage" />
                     </MultiBinding>
                 </StackPanel.IsVisible>
-                <TextBlock
-                    Text="Eng"
-                    FontSize="22"
-                    FontWeight="SemiBold"
-                    VerticalAlignment="Center"
-                    Foreground="#FFE2E8F0" />
-                <ToggleSwitch
+                <views:EngToggle
                     IsChecked="{Binding MbspShowEnglish, Mode=TwoWay}"
-                    OnContent=""
-                    OffContent=""
-                    VerticalAlignment="Center" />
+                    TrackWidth="110"
+                    TrackHeight="38"
+                    LabelFontSize="22"
+                    SegmentFontSize="17"
+                    ToolTip.Tip="Show / hide English translation" />
             </StackPanel>
 
             <Border

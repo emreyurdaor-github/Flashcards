@@ -4,6 +4,7 @@
     xmlns:vm="using:Flashcards.ViewModels"
     xmlns:models="using:Flashcards.Models"
     xmlns:converters="using:Flashcards.Converters"
+    xmlns:views="using:Flashcards.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
@@ -1087,25 +1088,15 @@
                 Grid.Row="6"
                 Orientation="Horizontal"
                 HorizontalAlignment="Left"
-                VerticalAlignment="Center"
-                Spacing="4">
+                VerticalAlignment="Center">
                 <StackPanel.IsVisible>
                     <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
                         <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="3" />
                         <Binding Path="IsMbspPage" />
                     </MultiBinding>
                 </StackPanel.IsVisible>
-                <TextBlock
-                    Text="Eng"
-                    FontSize="12"
-                    FontWeight="SemiBold"
-                    VerticalAlignment="Center"
-                    Foreground="#FFE2E8F0" />
-                <ToggleSwitch
+                <views:EngToggle
                     IsChecked="{Binding MbspShowEnglish, Mode=TwoWay}"
-                    OnContent=""
-                    OffContent=""
-                    VerticalAlignment="Center"
                     ToolTip.Tip="Show / hide English translation" />
             </StackPanel>
 

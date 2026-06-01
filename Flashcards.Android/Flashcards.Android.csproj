@@ -28,6 +28,7 @@
         <Compile Include="..\Flashcards\Data\MbspDataSource.cs" />
         <Compile Include="..\Flashcards\Models\*.cs" />
         <Compile Include="..\Flashcards\ViewModels\*.cs" />
+        <Compile Include="..\Flashcards\Views\EngToggle.axaml.cs" />
         <!-- MainWindow.axaml.cs is NOT linked - Android uses MainView instead -->
     </ItemGroup>
 
@@ -35,6 +36,7 @@
     <ItemGroup>
         <AvaloniaXaml Include="..\Flashcards\App.axaml" />
         <!-- MainWindow.axaml is NOT linked - Android has its own MainView.axaml -->
+        <AvaloniaXaml Include="..\Flashcards\Views\EngToggle.axaml" />
         <AvaloniaResource Include="..\Flashcards\Assets\**" />
     </ItemGroup>
 
