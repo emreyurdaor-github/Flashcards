@@ -20,32 +20,9 @@
         <converters:MultiBooleanAndConverter x:Key="MultiBooleanAndConverter" />
         <converters:EqualityConverter x:Key="EqualityConverter" />
         <converters:BoolNegationConverter x:Key="BoolNegationConverter" />
-        <SolidColorBrush x:Key="TabSelectedBg" Color="#CC3B82F6" />
-        <SolidColorBrush x:Key="TabUnselectedBg" Color="#33475569" />
     </UserControl.Resources>
 
     <UserControl.Styles>
-        <Style Selector="Button.tab-btn">
-            <Setter Property="Padding" Value="18,10" />
-            <Setter Property="CornerRadius" Value="12" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="FontSize" Value="22" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Foreground" Value="#FFE2E8F0" />
-            <Setter Property="Background" Value="{StaticResource TabUnselectedBg}" />
-            <Setter Property="HorizontalContentAlignment" Value="Center" />
-            <Setter Property="VerticalContentAlignment" Value="Center" />
-        </Style>
-        <Style Selector="Button.tab-btn:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="#44475569" />
-        </Style>
-        <Style Selector="Button.tab-btn.selected">
-            <Setter Property="Background" Value="{StaticResource TabSelectedBg}" />
-            <Setter Property="Foreground" Value="White" />
-        </Style>
-        <Style Selector="Button.tab-btn.selected:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="#DD3B82F6" />
-        </Style>
         <!-- Icon button base style -->
         <Style Selector="Button.icon-btn">
             <Setter Property="Padding" Value="0" />
@@ -91,43 +68,25 @@
         BorderBrush="#668ECAE6"
         BorderThickness="1">
         <Grid RowDefinitions="Auto,Auto,Auto,Auto,*,Auto,Auto">
-            <!-- Tab Control -->
-            <Border
+            <!-- Tab ComboBox -->
+            <ComboBox
                 Grid.Row="1"
                 Margin="0,0,0,12"
-                Padding="5"
-                CornerRadius="14"
+                HorizontalAlignment="Left"
+                SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}"
+                FontSize="22"
+                FontWeight="SemiBold"
+                Foreground="#FFE2E8F0"
                 Background="#22334155"
                 BorderBrush="#33475569"
                 BorderThickness="1"
-                HorizontalAlignment="Center">
-                <StackPanel Orientation="Horizontal" Spacing="6">
-                    <Button
-                        Classes="tab-btn"
-                        Classes.selected="{Binding SelectedTabIndex, Converter={StaticResource EqualityConverter}, ConverterParameter=0}"
-                        Content="Flashcards"
-                        Command="{Binding SelectTabCommand}"
-                        CommandParameter="0" />
-                    <Button
-                        Classes="tab-btn"
-                        Classes.selected="{Binding SelectedTabIndex, Converter={StaticResource EqualityConverter}, ConverterParameter=1}"
-                        Content="Quiz"
-                        Command="{Binding SelectTabCommand}"
-                        CommandParameter="1" />
-                    <Button
-                        Classes="tab-btn"
-                        Classes.selected="{Binding SelectedTabIndex, Converter={StaticResource EqualityConverter}, ConverterParameter=2}"
-                        Content="Writing"
-                        Command="{Binding SelectTabCommand}"
-                        CommandParameter="2" />
-                    <Button
-                        Classes="tab-btn"
-                        Classes.selected="{Binding SelectedTabIndex, Converter={StaticResource EqualityConverter}, ConverterParameter=3}"
-                        Content="MBSP"
-                        Command="{Binding SelectTabCommand}"
-                        CommandParameter="3" />
-                </StackPanel>
-            </Border>
+                Padding="12,8"
+                MinWidth="280">
+                <ComboBoxItem Content="Flashcards" />
+                <ComboBoxItem Content="Quiz" />
+                <ComboBoxItem Content="Writing" />
+                <ComboBoxItem Content="MBSP" />
+            </ComboBox>
 
             <!-- Top row with search and close button -->
             <Grid
@@ -183,7 +142,7 @@
                     IsTextCompletionEnabled="False"
                     Padding="8,6"
                     Margin="0,0,0,0"
-                    Width="200"
+                    Width="300"
                     FontSize="23"
                     Background="Transparent">
                     <AutoCompleteBox.ItemTemplate>
