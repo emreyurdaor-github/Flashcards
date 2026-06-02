@@ -15,13 +15,13 @@
         <TextBlock x:Name="LabelText"
                    Text="Eng"
                    VerticalAlignment="Center"
-                   FontSize="12"
+                   FontSize="16"
                    FontWeight="SemiBold"
                    Foreground="#B0B8C5"/>
 
         <!-- Track -->
         <Border x:Name="Track"
-                Height="20"
+                Height="28"
                 Width="68"
                 CornerRadius="2"
                 ClipToBounds="True"
@@ -39,7 +39,7 @@
                                Text="OFF"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"
-                               FontSize="10"
+                               FontSize="12"
                                FontWeight="SemiBold"
                                Foreground="#6B7280"/>
                 </Border>
@@ -53,7 +53,7 @@
                                Text="ON"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"
-                               FontSize="10"
+                               FontSize="12"
                                FontWeight="SemiBold"
                                Foreground="#6B7280"/>
                 </Border>
