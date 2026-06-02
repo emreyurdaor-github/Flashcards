@@ -731,16 +731,21 @@
             </Grid>
 
             <!-- MBSP Quiz Page -->
-            <StackPanel
+            <Grid
                 Grid.Row="4"
                 Margin="0,12,0,0"
-                Spacing="10">
-                <StackPanel.IsVisible>
+                RowDefinitions="*,Auto">
+                <Grid.IsVisible>
                     <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
                         <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="3" />
                         <Binding Path="IsMbspPage" />
                     </MultiBinding>
-                </StackPanel.IsVisible>
+                </Grid.IsVisible>
+
+            <StackPanel
+                Grid.Row="0"
+                Spacing="10"
+                VerticalAlignment="Top">
 
                 <!-- Question -->
                 <Border
@@ -892,13 +897,19 @@
                     HorizontalAlignment="Center"
                     Foreground="#FF86EFAC" />
 
-                <!-- Score -->
-                <TextBlock
-                    Text="{Binding MbspScoreText}"
-                    FontSize="13"
-                    Foreground="#FF94A3B8"
-                    HorizontalAlignment="Center" />
             </StackPanel>
+
+                <!-- Score (bottom) -->
+                <TextBlock
+                    Grid.Row="1"
+                    Text="{Binding MbspScoreText}"
+                    FontSize="22"
+                    FontWeight="SemiBold"
+                    Foreground="#FF94A3B8"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Bottom"
+                    Margin="0,8,0,16" />
+            </Grid>
 
             <!-- MBSP Add/Edit Page -->
             <Grid
