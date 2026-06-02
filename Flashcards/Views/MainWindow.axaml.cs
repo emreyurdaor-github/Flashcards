@@ -1,6 +1,8 @@
 using System;
 using System.ComponentModel;
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Documents;
 using Avalonia.Input;
 using Avalonia.Media;
@@ -123,8 +125,23 @@ public partial class MainWindow : Window
     {
         if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
         {
+            // Don't steal the click from interactive controls (ComboBox, Button, TextBox, etc.)
+            if (IsInteractiveControl(e.Source as Visual))
+                return;
             BeginMoveDrag(e);
         }
+    }
+
+    private static bool IsInteractiveControl(Visual? visual)
+    {
+        while (visual != null)
+        {
+            if (visual is Button or ComboBox or TextBox or AutoCompleteBox
+                      or CheckBox or RadioButton or Slider or ScrollBar)
+                return true;
+            visual = visual.Parent as Visual;
+        }
+        return false;
     }
 
     private void OnClosed(object? sender, EventArgs e)

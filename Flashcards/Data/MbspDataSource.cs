@@ -9,8 +9,8 @@ namespace Flashcards.Data;
 public static class MbspDataSource
 {
     private const string CsvFileName = "medborgerskabsproeven.csv";
-    // New 9-column format: Question,QuestionEnglish,ChoiceA,ChoiceAEnglish,ChoiceB,ChoiceBEnglish,ChoiceC,ChoiceCEnglish,CorrectAnswer
-    private const string CsvHeader = "Question,QuestionEnglish,ChoiceA,ChoiceAEnglish,ChoiceB,ChoiceBEnglish,ChoiceC,ChoiceCEnglish,CorrectAnswer";
+    // New 10-column format: Question,QuestionEnglish,ChoiceA,ChoiceAEnglish,ChoiceB,ChoiceBEnglish,ChoiceC,ChoiceCEnglish,CorrectAnswer,Period
+    private const string CsvHeader = "Question,QuestionEnglish,ChoiceA,ChoiceAEnglish,ChoiceB,ChoiceBEnglish,ChoiceC,ChoiceCEnglish,CorrectAnswer,Period";
 
     private static string? _overrideCsvPath;
 
@@ -76,7 +76,7 @@ public static class MbspDataSource
 
             if (parts.Length >= 9)
             {
-                // New 9-column format: Question,QuestionEnglish,ChoiceA,ChoiceAEnglish,ChoiceB,ChoiceBEnglish,ChoiceC,ChoiceCEnglish,CorrectAnswer
+                // New 10-column format: Question,QuestionEnglish,ChoiceA,ChoiceAEnglish,ChoiceB,ChoiceBEnglish,ChoiceC,ChoiceCEnglish,CorrectAnswer,Period
                 entry = new MbspQuestion
                 {
                     Question = parts[0],
@@ -88,6 +88,7 @@ public static class MbspDataSource
                     ChoiceC = string.IsNullOrWhiteSpace(parts[6]) ? null : parts[6],
                     ChoiceCEnglish = string.IsNullOrWhiteSpace(parts[7]) ? null : parts[7],
                     CorrectAnswer = parts[8],
+                    Period = parts.Length >= 10 && !string.IsNullOrWhiteSpace(parts[9]) ? parts[9] : null,
                 };
             }
             else if (parts.Length >= 6)
@@ -124,6 +125,7 @@ public static class MbspDataSource
                     ChoiceC = string.IsNullOrWhiteSpace(parts[4]) ? null : parts[4],
                     ChoiceCEnglish = null,
                     CorrectAnswer = correctAnswer,
+                    Period = null,
                 };
             }
             else if (parts.Length >= 5)
@@ -148,6 +150,7 @@ public static class MbspDataSource
                         "C" => parts[3],
                         _ => parts[1],
                     },
+                    Period = null,
                 };
             }
             else continue;
@@ -178,6 +181,7 @@ public static class MbspDataSource
                 Escape(q.ChoiceC ?? string.Empty),
                 Escape(q.ChoiceCEnglish ?? string.Empty),
                 Escape(q.CorrectAnswer),
+                Escape(q.Period ?? string.Empty),
             }));
         }
 

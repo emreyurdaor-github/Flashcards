@@ -12,6 +12,7 @@ public sealed class MbspQuestion
     public string? ChoiceCEnglish { get; init; }
     /// <summary>The text of the correct answer (matches one of ChoiceA/B/C)</summary>
     public required string CorrectAnswer { get; init; }
+    public string? Period { get; init; }
 
     public bool HasChoiceC => !string.IsNullOrWhiteSpace(ChoiceC);
     public bool HasQuestionEnglish => !string.IsNullOrWhiteSpace(QuestionEnglish);

@@ -86,7 +86,7 @@
                 <ComboBoxItem Content="Flashcards" />
                 <ComboBoxItem Content="Quiz" />
                 <ComboBoxItem Content="Writing" />
-                <ComboBoxItem Content="MBSP" />
+                <ComboBoxItem Content="MedborgerskabsPrøven" />
             </ComboBox>
 
             <!-- Top row with search and close button -->

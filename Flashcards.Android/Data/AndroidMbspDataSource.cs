@@ -12,7 +12,7 @@ namespace Flashcards.Data;
 public static class AndroidMbspDataSource
 {
     private const string CsvFileName = "medborgerskabsproeven.csv";
-    private const string ExpectedHeader = "Question,QuestionEnglish,ChoiceA,ChoiceB,ChoiceC,CorrectAnswer";
+    private const string ExpectedHeader = "Question,QuestionEnglish,ChoiceA,ChoiceAEnglish,ChoiceB,ChoiceBEnglish,ChoiceC,ChoiceCEnglish,CorrectAnswer,Period";
 
     public static void Initialize(global::Android.App.Application app)
     {
