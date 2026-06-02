@@ -5,6 +5,7 @@ obj/
 # Visual Studio / Rider / JetBrains
 Publish/
 .idea/
+TestXplat/
 *.suo
 *.user
 *.userosscache
