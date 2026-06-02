@@ -69,25 +69,45 @@
         BorderBrush="#668ECAE6"
         BorderThickness="1">
         <Grid RowDefinitions="Auto,Auto,Auto,Auto,*,Auto,Auto">
-            <!-- Tab ComboBox -->
-            <ComboBox
+            <!-- Tab ComboBox row + period filter -->
+            <Grid
                 Grid.Row="1"
-                Margin="0,0,0,12"
-                HorizontalAlignment="Left"
-                SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}"
-                FontSize="26"
-                FontWeight="SemiBold"
-                Foreground="#FFE2E8F0"
-                Background="#22334155"
-                BorderBrush="#33475569"
-                BorderThickness="1"
-                Padding="12,12"
-                MinWidth="280">
-                <ComboBoxItem Content="Flashcards" />
-                <ComboBoxItem Content="Quiz" />
-                <ComboBoxItem Content="Writing" />
-                <ComboBoxItem Content="MedborgerskabsPrøven" />
-            </ComboBox>
+                ColumnDefinitions="Auto,*,Auto"
+                Margin="0,0,0,12">
+                <ComboBox
+                    Grid.Column="0"
+                    HorizontalAlignment="Left"
+                    SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}"
+                    FontSize="26"
+                    FontWeight="SemiBold"
+                    Foreground="#FFE2E8F0"
+                    Background="#22334155"
+                    BorderBrush="#33475569"
+                    BorderThickness="1"
+                    Padding="12,12"
+                    MinWidth="280">
+                    <ComboBoxItem Content="Flashcards" />
+                    <ComboBoxItem Content="Quiz" />
+                    <ComboBoxItem Content="Writing" />
+                    <ComboBoxItem Content="MedborgerskabsPrøven" />
+                </ComboBox>
+
+                <!-- Period filter (only visible on MBSP tab) -->
+                <ComboBox
+                    Grid.Column="2"
+                    HorizontalAlignment="Right"
+                    IsVisible="{Binding SelectedTabIndex, Converter={StaticResource EqualityConverter}, ConverterParameter=3}"
+                    ItemsSource="{Binding MbspPeriods}"
+                    SelectedItem="{Binding SelectedMbspPeriod, Mode=TwoWay}"
+                    FontSize="22"
+                    FontWeight="SemiBold"
+                    Foreground="#FFE2E8F0"
+                    Background="#22334155"
+                    BorderBrush="#33475569"
+                    BorderThickness="1"
+                    Padding="10,10"
+                    MinWidth="180" />
+            </Grid>
 
             <!-- Top row with search and close button -->
             <Grid
@@ -709,6 +729,35 @@
                     TextWrapping="Wrap"
                     HorizontalAlignment="Center"
                     Foreground="#FF86EFAC" />
+
+                <!-- Score + result -->
+                <StackPanel
+                    HorizontalAlignment="Center"
+                    Spacing="2"
+                    Margin="0,8,0,4">
+                    <!-- PASS -->
+                    <TextBlock
+                        Text="PASS"
+                        IsVisible="{Binding MbspResultIsPass}"
+                        FontSize="48"
+                        FontWeight="Bold"
+                        Foreground="#FF22C55F"
+                        HorizontalAlignment="Center" />
+                    <!-- FAIL -->
+                    <TextBlock
+                        Text="FAIL"
+                        IsVisible="{Binding MbspResultIsFail}"
+                        FontSize="48"
+                        FontWeight="Bold"
+                        Foreground="#FFEF4444"
+                        HorizontalAlignment="Center" />
+                    <TextBlock
+                        Text="{Binding MbspScoreText}"
+                        FontSize="36"
+                        FontWeight="SemiBold"
+                        Foreground="#FF94A3B8"
+                        HorizontalAlignment="Center" />
+                </StackPanel>
             </StackPanel>
 
             <!-- MBSP Add/Edit Page -->
@@ -811,6 +860,7 @@
                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
                 <Button Width="65" Height="65" CornerRadius="33" FontSize="32" FontWeight="SemiBold"
                         Content="▶" Command="{Binding NextMbspCommand}"
+                        IsEnabled="{Binding IsMbspComplete, Converter={StaticResource BoolNegationConverter}}"
                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
             </StackPanel>
 
