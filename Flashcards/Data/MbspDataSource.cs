@@ -26,8 +26,8 @@ public static class MbspDataSource
 
     public static bool TryAddQuestion(MbspQuestion question)
     {
-        var key = NormalizeKey(question.Question);
-        if (Questions.Any(q => NormalizeKey(q.Question) == key))
+        var key = NormalizeKey(question.Question+question.Period);
+        if (Questions.Any(q => NormalizeKey(q.Question+q.Period) == key))
             return false;
 
         Questions.Add(question);
@@ -38,12 +38,12 @@ public static class MbspDataSource
     public static bool TryUpdateQuestion(string originalQuestion, MbspQuestion updated)
     {
         var originalKey = NormalizeKey(originalQuestion);
-        var updatedKey = NormalizeKey(updated.Question);
+        var updatedKey = NormalizeKey(updated.Question+updated.Period);
 
-        if (originalKey != updatedKey && Questions.Any(q => NormalizeKey(q.Question) == updatedKey))
+        if (originalKey != updatedKey && Questions.Any(q => NormalizeKey(q.Question+q.Period) == updatedKey))
             return false;
 
-        var index = Questions.FindIndex(q => NormalizeKey(q.Question) == originalKey);
+        var index = Questions.FindIndex(q => NormalizeKey(q.Question+q.Period) == originalKey);
         if (index < 0) return false;
 
         Questions[index] = updated;

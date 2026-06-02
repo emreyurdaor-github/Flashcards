@@ -1893,7 +1893,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
 
         if (IsEditMode)
         {
-            var original = _currentMbspQuestion?.Question ?? string.Empty;
+            var original = _currentMbspQuestion?.Question+_currentMbspQuestion?.Period ?? string.Empty;
             if (!MbspDataSource.TryUpdateQuestion(original, entry))
             {
                 ValidationMessage = "Unable to update: conflicts with an existing record.";
