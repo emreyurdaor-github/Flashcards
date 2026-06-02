@@ -50,6 +50,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     private List<int> _shuffledMbspIndices = new();
     private int _shuffledMbspPosition = -1;
     private bool _isAddMbspPage;
+    private string _selectedMbspPeriod = "All";
     private bool _mbspAnswerRevealed;
     private string? _mbspSelectedChoice;
     private string _newMbspQuestion = string.Empty;
@@ -62,7 +63,8 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     private string _newMbspChoiceCEnglish = string.Empty;
     private string _newMbspCorrectChoice = string.Empty; // stores the actual answer text
     private bool _mbspShowEnglish = false;
-    
+    private int _mbspCorrectCount = 0;
+
     // Search autocomplete collection
     private ObservableCollection<FlashcardEntry> _searchResults = new();
 
@@ -854,6 +856,8 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
 
     public bool MbspHasFeedback => !string.IsNullOrEmpty(MbspAnswerFeedback);
 
+    public string MbspScoreText => $"{_mbspCorrectCount} / {_shuffledMbspIndices.Count}";
+
     public bool IsAddMbspPage
     {
         get => _isAddMbspPage;
@@ -865,6 +869,32 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     }
 
     public bool IsMbspPage => !IsAddMbspPage;
+
+    public IReadOnlyList<string> MbspPeriods { get; private set; } = [];
+
+    public string SelectedMbspPeriod
+    {
+        get => _selectedMbspPeriod;
+        set
+        {
+            if (SetProperty(ref _selectedMbspPeriod, value))
+            {
+                _mbspCorrectCount = 0;
+                ReshuffleMbspIndices();
+                _shuffledMbspPosition = 0;
+                if (_shuffledMbspIndices.Count > 0)
+                {
+                    _currentMbspIndex = _shuffledMbspIndices[0];
+                    CurrentMbspQuestion = _mbspQuestions[_currentMbspIndex];
+                }
+                else
+                {
+                    CurrentMbspQuestion = null;
+                }
+                OnPropertyChanged(nameof(MbspScoreText));
+            }
+        }
+    }
 
     public string NewMbspQuestion
     {
@@ -1064,6 +1094,15 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
             Interval = RotationInterval,
         };
         _rotationTimer.Tick += OnRotationTimerTick;
+
+        MbspPeriods = new[] { "All" }
+            .Concat(_mbspQuestions
+                .Select(q => q.Period)
+                .Where(p => !string.IsNullOrWhiteSpace(p))
+                .Select(p => p!)
+                .Distinct()
+                .OrderByDescending(p => p))
+            .ToList();
 
         SelectNextFlashcard();
         UpdateRotationState();
@@ -1567,10 +1606,19 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
 
     /// <summary>
     /// Builds and shuffles a list of all MBSP question indices using Fisher-Yates.
+    /// When a period filter is active, only indices for matching questions are included.
     /// </summary>
     private void ReshuffleMbspIndices()
     {
-        _shuffledMbspIndices = Enumerable.Range(0, _mbspQuestions.Count).ToList();
+        var indices = (_selectedMbspPeriod == "All")
+            ? Enumerable.Range(0, _mbspQuestions.Count).ToList()
+            : _mbspQuestions
+                .Select((q, i) => (q, i))
+                .Where(x => string.Equals(x.q.Period, _selectedMbspPeriod, StringComparison.Ordinal))
+                .Select(x => x.i)
+                .ToList();
+
+        _shuffledMbspIndices = indices;
         for (int i = _shuffledMbspIndices.Count - 1; i > 0; i--)
         {
             int j = _random.Next(i + 1);
@@ -1583,13 +1631,14 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         if (_mbspQuestions.Count == 0) return;
         ReshuffleMbspIndices();
         _shuffledMbspPosition = 0;
+        if (_shuffledMbspIndices.Count == 0) return;
         _currentMbspIndex = _shuffledMbspIndices[0];
         CurrentMbspQuestion = _mbspQuestions[_currentMbspIndex];
     }
 
     private void SelectNextMbspQuestion()
     {
-        if (_mbspQuestions.Count == 0) return;
+        if (_mbspQuestions.Count == 0 || _shuffledMbspIndices.Count == 0) return;
 
         _shuffledMbspPosition++;
         // Reshuffle when we've gone through all questions
@@ -1605,7 +1654,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
 
     private void SelectPreviousMbspQuestion()
     {
-        if (_mbspQuestions.Count == 0) return;
+        if (_mbspQuestions.Count == 0 || _shuffledMbspIndices.Count == 0) return;
 
         _shuffledMbspPosition--;
         if (_shuffledMbspPosition < 0)
@@ -1627,6 +1676,8 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
             // Always play correct/wrong feedback sound (mute only affects TTS pronunciation)
             bool isCorrect = string.Equals(text, _currentMbspQuestion?.CorrectAnswer,
                 StringComparison.OrdinalIgnoreCase);
+            if (isCorrect) _mbspCorrectCount++;
+            OnPropertyChanged(nameof(MbspScoreText));
             _ = isCorrect
                 ? _audioService.PlayCorrectSoundAsync()
                 : _audioService.PlayWrongSoundAsync();

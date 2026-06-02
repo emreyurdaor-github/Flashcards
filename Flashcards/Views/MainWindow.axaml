@@ -87,10 +87,13 @@
         BorderBrush="#668ECAE6"
         BorderThickness="1">
         <Grid RowDefinitions="Auto,Auto,Auto,Auto,*,Auto,Auto">
-            <!-- Tab ComboBox -->
-            <ComboBox
+            <!-- Tab ComboBox row -->
+            <Grid
                 Grid.Row="1"
-                Margin="0,0,0,12"
+                ColumnDefinitions="Auto,*,Auto"
+                Margin="0,0,0,12">
+            <ComboBox
+                Grid.Column="0"
                 HorizontalAlignment="Left"
                 SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}"
                 FontSize="15"
@@ -106,6 +109,23 @@
                 <ComboBoxItem Content="Writing" />
                 <ComboBoxItem Content="MedborgerskabsPrøven" />
             </ComboBox>
+
+            <!-- Period filter ComboBox (only visible on MBSP tab) -->
+            <ComboBox
+                Grid.Column="2"
+                HorizontalAlignment="Right"
+                IsVisible="{Binding SelectedTabIndex, Converter={StaticResource EqualityConverter}, ConverterParameter=3}"
+                ItemsSource="{Binding MbspPeriods}"
+                SelectedItem="{Binding SelectedMbspPeriod, Mode=TwoWay}"
+                FontSize="13"
+                FontWeight="SemiBold"
+                Foreground="#FFE2E8F0"
+                Background="#22334155"
+                BorderBrush="#33475569"
+                BorderThickness="1"
+                Padding="8,6"
+                MinWidth="130" />
+            </Grid>
 
             <!-- Top row with search and close button -->
             <Grid
@@ -871,6 +891,13 @@
                     TextWrapping="Wrap"
                     HorizontalAlignment="Center"
                     Foreground="#FF86EFAC" />
+
+                <!-- Score -->
+                <TextBlock
+                    Text="{Binding MbspScoreText}"
+                    FontSize="13"
+                    Foreground="#FF94A3B8"
+                    HorizontalAlignment="Center" />
             </StackPanel>
 
             <!-- MBSP Add/Edit Page -->
