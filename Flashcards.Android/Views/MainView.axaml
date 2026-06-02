@@ -584,154 +584,165 @@
             </Grid>
 
             <!-- MBSP Quiz Page -->
-            <StackPanel
+            <Grid
                 Grid.Row="4"
                 Margin="0,12,0,0"
-                Spacing="12">
-                <StackPanel.IsVisible>
+                RowDefinitions="*,Auto">
+                <Grid.IsVisible>
                     <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
                         <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="3" />
                         <Binding Path="IsMbspPage" />
                     </MultiBinding>
-                </StackPanel.IsVisible>
+                </Grid.IsVisible>
 
-                <!-- Question -->
-                <Border
-                    Padding="16"
-                    CornerRadius="14"
-                    Background="#332E3A4F"
-                    BorderBrush="#334BA3C7"
-                    BorderThickness="1">
-                    <StackPanel Spacing="6">
+                <!-- Question + Choices + Feedback (scrollable, fills available space) -->
+                <ScrollViewer
+                    Grid.Row="0"
+                    VerticalScrollBarVisibility="Auto"
+                    HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Spacing="12" Margin="0,0,0,8">
+
+                        <!-- Question -->
+                        <Border
+                            Padding="16"
+                            CornerRadius="14"
+                            Background="#332E3A4F"
+                            BorderBrush="#334BA3C7"
+                            BorderThickness="1">
+                            <StackPanel Spacing="6">
+                                <TextBlock
+                                    Text="{Binding CurrentMbspQuestionText}"
+                                    FontSize="26"
+                                    FontWeight="SemiBold"
+                                    Foreground="#FFE2E8F0"
+                                    TextWrapping="Wrap"
+                                    HorizontalAlignment="Center"
+                                    TextAlignment="Center" />
+                                <TextBlock
+                                    Text="{Binding CurrentMbspQuestionEnglish}"
+                                    FontSize="22"
+                                    FontStyle="Italic"
+                                    Foreground="#FF94A3B8"
+                                    TextWrapping="Wrap"
+                                    HorizontalAlignment="Center"
+                                    TextAlignment="Center">
+                                    <TextBlock.IsVisible>
+                                        <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
+                                            <Binding Path="HasCurrentMbspQuestionEnglish" />
+                                            <Binding Path="MbspShowEnglish" />
+                                        </MultiBinding>
+                                    </TextBlock.IsVisible>
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Choice A -->
+                        <Button
+                            Classes.choice-correct="{Binding MbspChoiceAResult, Converter={StaticResource EqualityConverter}, ConverterParameter=correct}"
+                            Classes.choice-wrong="{Binding MbspChoiceAResult, Converter={StaticResource EqualityConverter}, ConverterParameter=wrong}"
+                            Classes.choice-highlight="{Binding MbspChoiceAResult, Converter={StaticResource EqualityConverter}, ConverterParameter=highlight}"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Left"
+                            Padding="14,14"
+                            CornerRadius="12"
+                            Command="{Binding SelectMbspChoiceCommand}"
+                            CommandParameter="A"
+                            IsEnabled="{Binding MbspSelectedChoice, Converter={x:Static ObjectConverters.IsNull}}">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <Border Width="48" Height="48" CornerRadius="24" Background="#443B82F6" BorderBrush="#664BA3C7" BorderThickness="1">
+                                    <TextBlock Text="A" FontSize="26" FontWeight="Bold" Foreground="#FFE2E8F0" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                                <StackPanel Spacing="2" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding CurrentMbspChoiceA}" FontSize="24" Foreground="#FFE2E8F0" TextWrapping="Wrap" />
+                                    <TextBlock Text="{Binding CurrentMbspChoiceAEnglish}" FontSize="20" FontStyle="Italic" Foreground="#FF94A3B8" TextWrapping="Wrap">
+                                        <TextBlock.IsVisible>
+                                            <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
+                                                <Binding Path="HasCurrentMbspChoiceAEnglish" />
+                                                <Binding Path="MbspShowEnglish" />
+                                            </MultiBinding>
+                                        </TextBlock.IsVisible>
+                                    </TextBlock>
+                                </StackPanel>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Choice B -->
+                        <Button
+                            Classes.choice-correct="{Binding MbspChoiceBResult, Converter={StaticResource EqualityConverter}, ConverterParameter=correct}"
+                            Classes.choice-wrong="{Binding MbspChoiceBResult, Converter={StaticResource EqualityConverter}, ConverterParameter=wrong}"
+                            Classes.choice-highlight="{Binding MbspChoiceBResult, Converter={StaticResource EqualityConverter}, ConverterParameter=highlight}"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Left"
+                            Padding="14,14"
+                            CornerRadius="12"
+                            Command="{Binding SelectMbspChoiceCommand}"
+                            CommandParameter="B"
+                            IsEnabled="{Binding MbspSelectedChoice, Converter={x:Static ObjectConverters.IsNull}}">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <Border Width="48" Height="48" CornerRadius="24" Background="#443B82F6" BorderBrush="#664BA3C7" BorderThickness="1">
+                                    <TextBlock Text="B" FontSize="26" FontWeight="Bold" Foreground="#FFE2E8F0" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                                <StackPanel Spacing="2" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding CurrentMbspChoiceB}" FontSize="24" Foreground="#FFE2E8F0" TextWrapping="Wrap" />
+                                    <TextBlock Text="{Binding CurrentMbspChoiceBEnglish}" FontSize="20" FontStyle="Italic" Foreground="#FF94A3B8" TextWrapping="Wrap">
+                                        <TextBlock.IsVisible>
+                                            <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
+                                                <Binding Path="HasCurrentMbspChoiceBEnglish" />
+                                                <Binding Path="MbspShowEnglish" />
+                                            </MultiBinding>
+                                        </TextBlock.IsVisible>
+                                    </TextBlock>
+                                </StackPanel>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Choice C (only shown when present) -->
+                        <Button
+                            Classes.choice-correct="{Binding MbspChoiceCResult, Converter={StaticResource EqualityConverter}, ConverterParameter=correct}"
+                            Classes.choice-wrong="{Binding MbspChoiceCResult, Converter={StaticResource EqualityConverter}, ConverterParameter=wrong}"
+                            Classes.choice-highlight="{Binding MbspChoiceCResult, Converter={StaticResource EqualityConverter}, ConverterParameter=highlight}"
+                            IsVisible="{Binding CurrentMbspHasChoiceC}"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Left"
+                            Padding="14,14"
+                            CornerRadius="12"
+                            Command="{Binding SelectMbspChoiceCommand}"
+                            CommandParameter="C"
+                            IsEnabled="{Binding MbspSelectedChoice, Converter={x:Static ObjectConverters.IsNull}}">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <Border Width="48" Height="48" CornerRadius="24" Background="#443B82F6" BorderBrush="#664BA3C7" BorderThickness="1">
+                                    <TextBlock Text="C" FontSize="26" FontWeight="Bold" Foreground="#FFE2E8F0" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                                <StackPanel Spacing="2" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding CurrentMbspChoiceC}" FontSize="24" Foreground="#FFE2E8F0" TextWrapping="Wrap" />
+                                    <TextBlock Text="{Binding CurrentMbspChoiceCEnglish}" FontSize="20" FontStyle="Italic" Foreground="#FF94A3B8" TextWrapping="Wrap">
+                                        <TextBlock.IsVisible>
+                                            <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
+                                                <Binding Path="HasCurrentMbspChoiceCEnglish" />
+                                                <Binding Path="MbspShowEnglish" />
+                                            </MultiBinding>
+                                        </TextBlock.IsVisible>
+                                    </TextBlock>
+                                </StackPanel>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Feedback -->
                         <TextBlock
-                            Text="{Binding CurrentMbspQuestionText}"
-                            FontSize="26"
+                            Text="{Binding MbspAnswerFeedback}"
+                            IsVisible="{Binding MbspHasFeedback}"
+                            FontSize="24"
                             FontWeight="SemiBold"
-                            Foreground="#FFE2E8F0"
                             TextWrapping="Wrap"
                             HorizontalAlignment="Center"
-                            TextAlignment="Center" />
-                        <TextBlock
-                            Text="{Binding CurrentMbspQuestionEnglish}"
-                            FontSize="22"
-                            FontStyle="Italic"
-                            Foreground="#FF94A3B8"
-                            TextWrapping="Wrap"
-                            HorizontalAlignment="Center"
-                            TextAlignment="Center">
-                            <TextBlock.IsVisible>
-                                <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
-                                    <Binding Path="HasCurrentMbspQuestionEnglish" />
-                                    <Binding Path="MbspShowEnglish" />
-                                </MultiBinding>
-                            </TextBlock.IsVisible>
-                        </TextBlock>
+                            Foreground="#FF86EFAC" />
+
                     </StackPanel>
-                </Border>
+                </ScrollViewer>
 
-                <!-- Choice A -->
-                <Button
-                    Classes.choice-correct="{Binding MbspChoiceAResult, Converter={StaticResource EqualityConverter}, ConverterParameter=correct}"
-                    Classes.choice-wrong="{Binding MbspChoiceAResult, Converter={StaticResource EqualityConverter}, ConverterParameter=wrong}"
-                    Classes.choice-highlight="{Binding MbspChoiceAResult, Converter={StaticResource EqualityConverter}, ConverterParameter=highlight}"
-                    HorizontalAlignment="Stretch"
-                    HorizontalContentAlignment="Left"
-                    Padding="14,14"
-                    CornerRadius="12"
-                    Command="{Binding SelectMbspChoiceCommand}"
-                    CommandParameter="A"
-                    IsEnabled="{Binding MbspSelectedChoice, Converter={x:Static ObjectConverters.IsNull}}">
-                    <StackPanel Orientation="Horizontal" Spacing="10">
-                        <Border Width="48" Height="48" CornerRadius="24" Background="#443B82F6" BorderBrush="#664BA3C7" BorderThickness="1">
-                            <TextBlock Text="A" FontSize="26" FontWeight="Bold" Foreground="#FFE2E8F0" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                        <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding CurrentMbspChoiceA}" FontSize="24" Foreground="#FFE2E8F0" TextWrapping="Wrap" />
-                            <TextBlock Text="{Binding CurrentMbspChoiceAEnglish}" FontSize="20" FontStyle="Italic" Foreground="#FF94A3B8" TextWrapping="Wrap">
-                                <TextBlock.IsVisible>
-                                    <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
-                                        <Binding Path="HasCurrentMbspChoiceAEnglish" />
-                                        <Binding Path="MbspShowEnglish" />
-                                    </MultiBinding>
-                                </TextBlock.IsVisible>
-                            </TextBlock>
-                        </StackPanel>
-                    </StackPanel>
-                </Button>
-
-                <!-- Choice B -->
-                <Button
-                    Classes.choice-correct="{Binding MbspChoiceBResult, Converter={StaticResource EqualityConverter}, ConverterParameter=correct}"
-                    Classes.choice-wrong="{Binding MbspChoiceBResult, Converter={StaticResource EqualityConverter}, ConverterParameter=wrong}"
-                    Classes.choice-highlight="{Binding MbspChoiceBResult, Converter={StaticResource EqualityConverter}, ConverterParameter=highlight}"
-                    HorizontalAlignment="Stretch"
-                    HorizontalContentAlignment="Left"
-                    Padding="14,14"
-                    CornerRadius="12"
-                    Command="{Binding SelectMbspChoiceCommand}"
-                    CommandParameter="B"
-                    IsEnabled="{Binding MbspSelectedChoice, Converter={x:Static ObjectConverters.IsNull}}">
-                    <StackPanel Orientation="Horizontal" Spacing="10">
-                        <Border Width="48" Height="48" CornerRadius="24" Background="#443B82F6" BorderBrush="#664BA3C7" BorderThickness="1">
-                            <TextBlock Text="B" FontSize="26" FontWeight="Bold" Foreground="#FFE2E8F0" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                        <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding CurrentMbspChoiceB}" FontSize="24" Foreground="#FFE2E8F0" TextWrapping="Wrap" />
-                            <TextBlock Text="{Binding CurrentMbspChoiceBEnglish}" FontSize="20" FontStyle="Italic" Foreground="#FF94A3B8" TextWrapping="Wrap">
-                                <TextBlock.IsVisible>
-                                    <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
-                                        <Binding Path="HasCurrentMbspChoiceBEnglish" />
-                                        <Binding Path="MbspShowEnglish" />
-                                    </MultiBinding>
-                                </TextBlock.IsVisible>
-                            </TextBlock>
-                        </StackPanel>
-                    </StackPanel>
-                </Button>
-
-                <!-- Choice C (only shown when present) -->
-                <Button
-                    Classes.choice-correct="{Binding MbspChoiceCResult, Converter={StaticResource EqualityConverter}, ConverterParameter=correct}"
-                    Classes.choice-wrong="{Binding MbspChoiceCResult, Converter={StaticResource EqualityConverter}, ConverterParameter=wrong}"
-                    Classes.choice-highlight="{Binding MbspChoiceCResult, Converter={StaticResource EqualityConverter}, ConverterParameter=highlight}"
-                    IsVisible="{Binding CurrentMbspHasChoiceC}"
-                    HorizontalAlignment="Stretch"
-                    HorizontalContentAlignment="Left"
-                    Padding="14,14"
-                    CornerRadius="12"
-                    Command="{Binding SelectMbspChoiceCommand}"
-                    CommandParameter="C"
-                    IsEnabled="{Binding MbspSelectedChoice, Converter={x:Static ObjectConverters.IsNull}}">
-                    <StackPanel Orientation="Horizontal" Spacing="10">
-                        <Border Width="48" Height="48" CornerRadius="24" Background="#443B82F6" BorderBrush="#664BA3C7" BorderThickness="1">
-                            <TextBlock Text="C" FontSize="26" FontWeight="Bold" Foreground="#FFE2E8F0" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                        <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding CurrentMbspChoiceC}" FontSize="24" Foreground="#FFE2E8F0" TextWrapping="Wrap" />
-                            <TextBlock Text="{Binding CurrentMbspChoiceCEnglish}" FontSize="20" FontStyle="Italic" Foreground="#FF94A3B8" TextWrapping="Wrap">
-                                <TextBlock.IsVisible>
-                                    <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
-                                        <Binding Path="HasCurrentMbspChoiceCEnglish" />
-                                        <Binding Path="MbspShowEnglish" />
-                                    </MultiBinding>
-                                </TextBlock.IsVisible>
-                            </TextBlock>
-                        </StackPanel>
-                    </StackPanel>
-                </Button>
-
-                <!-- Feedback -->
-                <TextBlock
-                    Text="{Binding MbspAnswerFeedback}"
-                    IsVisible="{Binding MbspHasFeedback}"
-                    FontSize="24"
-                    FontWeight="SemiBold"
-                    TextWrapping="Wrap"
-                    HorizontalAlignment="Center"
-                    Foreground="#FF86EFAC" />
-
-                <!-- Score + result -->
+                <!-- Score + result pinned to bottom -->
                 <StackPanel
+                    Grid.Row="1"
                     Spacing="2"
                     Margin="0,8,0,4">
                     <!-- PASS -->
@@ -750,7 +761,7 @@
                         FontWeight="Bold"
                         Foreground="#FFEF4444"
                         HorizontalAlignment="Center" />
-                    <!-- Correct | Wrong   ◀ left        right ▶   Question# | Total -->
+                    <!-- Correct | Wrong                    Question# | Total -->
                     <Grid ColumnDefinitions="*,*">
                         <TextBlock
                             Grid.Column="0"
@@ -768,7 +779,7 @@
                             HorizontalAlignment="Right" />
                     </Grid>
                 </StackPanel>
-            </StackPanel>
+            </Grid>
 
             <!-- MBSP Add/Edit Page -->
             <Grid
@@ -876,10 +887,11 @@
                 </StackPanel.IsVisible>
                 <Button Width="65" Height="65" CornerRadius="33" FontSize="32" FontWeight="SemiBold"
                         Content="◀" Command="{Binding PreviousMbspCommand}"
+                        IsEnabled="{Binding CanGoToPreviousMbsp}"
                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
                 <Button Width="65" Height="65" CornerRadius="33" FontSize="32" FontWeight="SemiBold"
                         Content="▶" Command="{Binding NextMbspCommand}"
-                        IsEnabled="{Binding IsMbspComplete, Converter={StaticResource BoolNegationConverter}}"
+                        IsEnabled="{Binding CanGoToNextMbsp}"
                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
             </StackPanel>
 

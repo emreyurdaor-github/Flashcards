@@ -876,9 +876,9 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     public string MbspCorrectWrongText =>
         $"{_mbspCorrectCount} | {_mbspAnswerHistory.Count - _mbspCorrectCount}";
 
-    /// <summary>Right counter: "CurrentQuestionNumber | TotalQuestions"</summary>
+    /// <summary>Right counter: "CurrentQuestionNumber of TotalQuestions"</summary>
     public string MbspQuestionProgressText =>
-        $"{(_mbspHistoryPosition >= 0 ? _mbspHistoryPosition + 1 : 0)} | {GetMbspTotal()}";
+        $"{(_mbspHistoryPosition >= 0 ? _mbspHistoryPosition + 1 : 0)} of {GetMbspTotal()}";
 
     private int GetMbspTotal() => (_selectedMbspPeriod == "All")
         ? _mbspQuestions.Count
@@ -893,6 +893,12 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
             return total > 0 && _mbspAnswerHistory.Count >= total;
         }
     }
+
+    /// <summary>True when the Previous button should be enabled (not on the first question).</summary>
+    public bool CanGoToPreviousMbsp => _mbspHistoryPosition > 0;
+
+    /// <summary>True when the Next button should be enabled (not yet on the last question of the pool).</summary>
+    public bool CanGoToNextMbsp => (_mbspHistoryPosition + 1) < GetMbspTotal();
 
     /// <summary>True when the test is complete AND the pass threshold (≥80 %) is met.</summary>
     public bool MbspResultIsPass => IsMbspComplete && _mbspCorrectCount >= GetMbspTotal() * 0.8;
@@ -945,6 +951,8 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
                 OnPropertyChanged(nameof(IsMbspComplete));
                 OnPropertyChanged(nameof(MbspResultIsPass));
                 OnPropertyChanged(nameof(MbspResultIsFail));
+                OnPropertyChanged(nameof(CanGoToPreviousMbsp));
+                OnPropertyChanged(nameof(CanGoToNextMbsp));
             }
         }
     }
@@ -1702,6 +1710,8 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         _currentMbspIndex = idx;
         CurrentMbspQuestion = _mbspQuestions[idx];
         OnPropertyChanged(nameof(MbspQuestionProgressText));
+        OnPropertyChanged(nameof(CanGoToPreviousMbsp));
+        OnPropertyChanged(nameof(CanGoToNextMbsp));
     }
 
     private void SelectNextMbspQuestion()
@@ -1730,6 +1740,8 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         _currentMbspIndex = idx;
         CurrentMbspQuestion = _mbspQuestions[idx];
         OnPropertyChanged(nameof(MbspQuestionProgressText));
+        OnPropertyChanged(nameof(CanGoToPreviousMbsp));
+        OnPropertyChanged(nameof(CanGoToNextMbsp));
         // New question — no answer to restore yet.
     }
 
@@ -1764,6 +1776,8 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
             OnPropertyChanged(nameof(MbspHasFeedback));
         }
         OnPropertyChanged(nameof(MbspQuestionProgressText));
+        OnPropertyChanged(nameof(CanGoToPreviousMbsp));
+        OnPropertyChanged(nameof(CanGoToNextMbsp));
     }
 
     private void SelectMbspChoice(string? choiceLabel)

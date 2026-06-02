@@ -1070,6 +1070,7 @@
                     FontSize="14" FontWeight="SemiBold"
                     Content="◀"
                     Command="{Binding PreviousMbspCommand}"
+                    IsEnabled="{Binding CanGoToPreviousMbsp}"
                     HorizontalContentAlignment="Center"
                     VerticalContentAlignment="Center" />
                 <Button
@@ -1078,7 +1079,7 @@
                     FontSize="14" FontWeight="SemiBold"
                     Content="▶"
                     Command="{Binding NextMbspCommand}"
-                    IsEnabled="{Binding IsMbspComplete, Converter={StaticResource BoolNegationConverter}}"
+                    IsEnabled="{Binding CanGoToNextMbsp}"
                     HorizontalContentAlignment="Center"
                     VerticalContentAlignment="Center" />
             </StackPanel>
