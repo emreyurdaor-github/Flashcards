@@ -71,11 +71,32 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     private string _newMbspPeriod = string.Empty;
     private bool _mbspShowEnglish = false;
     private int _mbspCorrectCount = 0;
+    private string _selectedTypeFilter = "All";
+    private readonly HashSet<FlashcardEntry> _flashcardsViewedInSession = new();
 
     // Search autocomplete collection
     private ObservableCollection<FlashcardEntry> _searchResults = new();
 
     public string DataSourceName { get; } = "Local in-solution data source";
+
+    public IReadOnlyList<string> TypeFilters { get; } = new[] { "All", "v.", "adj.", "n.", "adv.", "prep.", "conj." };
+
+    public bool IsTypeFilterVisible => _selectedTabIndex == 0 || _selectedTabIndex == 1;
+
+    public string SelectedTypeFilter
+    {
+        get => _selectedTypeFilter;
+        set
+        {
+            if (SetProperty(ref _selectedTypeFilter, value))
+            {
+                _navigationHistory.Clear();
+                _flashcardsViewedInSession.Clear();
+                SelectNextFlashcard();
+            }
+        }
+    }
+
     public IRelayCommand ShowAddRecordCommand { get; }
     public IRelayCommand SaveNewRecordCommand { get; }
     public IRelayCommand CancelAddRecordCommand { get; }
@@ -135,6 +156,11 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
                 OnPropertyChanged(nameof(HighlightedExampleDanish));
                 OnPropertyChanged(nameof(HighlightedExampleEnglish));
                 
+                // Track viewed flashcards for session counter
+                if (value is not null)
+                    _flashcardsViewedInSession.Add(value);
+                OnPropertyChanged(nameof(FlashcardProgressText));
+
                 // Play the Danish example sound twice with 1 second delay
                 _ = PlayDanishWordTwiceAsync();
             }
@@ -525,6 +551,10 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
 
     public bool HasFlashcards => CurrentFlashcard is not null;
 
+    /// <summary>Counter text "X of Y" showing unique flashcards seen vs total in current filter.</summary>
+    public string FlashcardProgressText =>
+        $"{_flashcardsViewedInSession.Count} of {GetFilteredFlashcards().Count}";
+
     public bool IsAudioPlaying
     {
         get => _isAudioPlaying;
@@ -671,7 +701,13 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     public int SelectedTabIndex
     {
         get => _selectedTabIndex;
-        set => SetProperty(ref _selectedTabIndex, value);
+        set
+        {
+            if (SetProperty(ref _selectedTabIndex, value))
+            {
+                OnPropertyChanged(nameof(IsTypeFilterVisible));
+            }
+        }
     }
 
     public WritingEntry? CurrentWritingEntry
@@ -1424,9 +1460,20 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         }
     }
 
+    private IReadOnlyList<FlashcardEntry> GetFilteredFlashcards()
+    {
+        if (string.IsNullOrEmpty(_selectedTypeFilter) || _selectedTypeFilter == "All")
+            return _flashcards;
+        return _flashcards
+            .Where(f => !string.IsNullOrWhiteSpace(f.Type) &&
+                        f.Type.Split('/').Select(t => t.Trim()).Any(t => t == _selectedTypeFilter))
+            .ToList();
+    }
+
     private void SelectNextFlashcard()
     {
-        if (_flashcards.Count == 0)
+        var pool = GetFilteredFlashcards();
+        if (pool.Count == 0)
         {
             CurrentFlashcard = null;
             return;
@@ -1438,9 +1485,9 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
             _navigationHistory.Push(CurrentFlashcard);
         }
 
-        if (_flashcards.Count == 1)
+        if (pool.Count == 1)
         {
-            CurrentFlashcard = _flashcards[0];
+            CurrentFlashcard = pool[0];
             return;
         }
 
@@ -1448,7 +1495,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
 
         do
         {
-            nextFlashcard = _flashcards[_random.Next(_flashcards.Count)];
+            nextFlashcard = pool[_random.Next(pool.Count)];
         }
         while (ReferenceEquals(nextFlashcard, CurrentFlashcard));
 

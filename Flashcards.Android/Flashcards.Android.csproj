@@ -14,6 +14,8 @@
         <SupportedOSPlatformVersion>21.0</SupportedOSPlatformVersion>
         <!-- Embed all assemblies into the APK so they are always available on device -->
         <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
+        <!-- Disable Fast Deployment to avoid ADB0010 "Can't find service: package" errors -->
+        <AndroidFastDeploymentType>None</AndroidFastDeploymentType>
     </PropertyGroup>
 
     <!-- Link shared source files from the Flashcards project -->

@@ -107,6 +107,22 @@
                     BorderThickness="1"
                     Padding="10,10"
                     MinWidth="180" />
+
+                <!-- Type filter (visible on Flashcards and Quiz tabs) -->
+                <ComboBox
+                    Grid.Column="2"
+                    HorizontalAlignment="Right"
+                    IsVisible="{Binding IsTypeFilterVisible}"
+                    ItemsSource="{Binding TypeFilters}"
+                    SelectedItem="{Binding SelectedTypeFilter, Mode=TwoWay}"
+                    FontSize="22"
+                    FontWeight="SemiBold"
+                    Foreground="#FFE2E8F0"
+                    Background="#22334155"
+                    BorderBrush="#33475569"
+                    BorderThickness="1"
+                    Padding="10,10"
+                    MinWidth="140" />
             </Grid>
 
             <!-- Top row with search and close button -->
@@ -942,24 +958,42 @@
                     ToolTip.Tip="Show / hide English translation" />
             </StackPanel>
 
-            <Border
+            <!-- Contextual Tip + Flashcard Counter -->
+            <StackPanel
                 Grid.Row="5"
-                Margin="0,8,0,0"
-                Padding="8,6"
-                CornerRadius="8"
-                Background="#22F59E0B">
-                <Border.IsVisible>
-                    <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
-                        <Binding Path="HasCurrentContextualTip" />
-                        <Binding Path="IsFlashcardPage" />
-                        <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="0" />
-                    </MultiBinding>
-                </Border.IsVisible>
-                <Grid ColumnDefinitions="Auto,*">
-                    <TextBlock Grid.Column="0" Text="*" FontSize="22" VerticalAlignment="Top" Margin="0,0,6,0" />
-                    <TextBlock Grid.Column="1" Text="{Binding CurrentContextualTip}" FontSize="22" TextWrapping="Wrap" Foreground="#FFFBBF24" />
-                </Grid>
-            </Border>
+                Spacing="4">
+                <Border
+                    Margin="0,8,0,0"
+                    Padding="8,6"
+                    CornerRadius="8"
+                    Background="#22F59E0B">
+                    <Border.IsVisible>
+                        <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
+                            <Binding Path="HasCurrentContextualTip" />
+                            <Binding Path="IsFlashcardPage" />
+                            <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="0" />
+                        </MultiBinding>
+                    </Border.IsVisible>
+                    <Grid ColumnDefinitions="Auto,*">
+                        <TextBlock Grid.Column="0" Text="*" FontSize="22" VerticalAlignment="Top" Margin="0,0,6,0" />
+                        <TextBlock Grid.Column="1" Text="{Binding CurrentContextualTip}" FontSize="22" TextWrapping="Wrap" Foreground="#FFFBBF24" />
+                    </Grid>
+                </Border>
+                <TextBlock
+                    Text="{Binding FlashcardProgressText}"
+                    FontSize="32"
+                    FontWeight="SemiBold"
+                    Foreground="#FF94A3B8"
+                    HorizontalAlignment="Right"
+                    Margin="0,2,0,0">
+                    <TextBlock.IsVisible>
+                        <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
+                            <Binding Path="IsFlashcardPage" />
+                            <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="0" />
+                        </MultiBinding>
+                    </TextBlock.IsVisible>
+                </TextBlock>
+            </StackPanel>
 
             <!-- Add Flashcard -->
             <Button
