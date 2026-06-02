@@ -503,6 +503,7 @@
                 </StackPanel.IsVisible>
                 <Button Width="65" Height="65" CornerRadius="33"
                         Classes="icon-btn"
+                        Background="#334155"
                         Command="{Binding ShowEditWritingCommand}">
                     <Path
                         Width="28" Height="28"
@@ -910,6 +911,7 @@
                 </StackPanel.IsVisible>
                 <Button Width="65" Height="65" CornerRadius="33"
                         Classes="icon-btn"
+                        Background="#334155"
                         Command="{Binding ShowEditMbspCommand}">
                     <Path Width="28" Height="28" Fill="#FFFBBF24" Stretch="Uniform"
                           Data="M12,2 L14,4 L5,13 L2,14 L3,11 Z M13,3 L15,5" />
@@ -986,6 +988,7 @@
                 Margin="0,0,77,0"
                 Classes="icon-btn"
                 CornerRadius="33"
+                Background="#334155"
                 Command="{Binding ShowEditRecordCommand}"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom">

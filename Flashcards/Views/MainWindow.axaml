@@ -643,6 +643,7 @@
                     Height="32"
                     Classes="icon-btn"
                     CornerRadius="16"
+                    Background="#334155"
                     Command="{Binding ShowEditWritingCommand}">
                     <Path
                         Width="15" Height="15"
@@ -1101,6 +1102,7 @@
                     Width="32" Height="32"
                     Classes="icon-btn"
                     CornerRadius="16"
+                    Background="#334155"
                     Command="{Binding ShowEditMbspCommand}">
                     <Path
                         Width="15" Height="15"
@@ -1196,6 +1198,7 @@
                 Margin="0,0,44,0"
                 Classes="icon-btn"
                 CornerRadius="16"
+                Background="#334155"
                 Command="{Binding ShowEditRecordCommand}"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom">
