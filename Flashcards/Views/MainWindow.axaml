@@ -899,16 +899,36 @@
 
             </StackPanel>
 
-                <!-- Score (bottom) -->
-                <TextBlock
+                <!-- Score + result (bottom) -->
+                <StackPanel
                     Grid.Row="1"
-                    Text="{Binding MbspScoreText}"
-                    FontSize="22"
-                    FontWeight="SemiBold"
-                    Foreground="#FF94A3B8"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Bottom"
-                    Margin="0,8,0,16" />
+                    Spacing="2"
+                    Margin="0,8,0,10">
+                    <!-- PASS -->
+                    <TextBlock
+                        Text="PASS"
+                        IsVisible="{Binding MbspResultIsPass}"
+                        FontSize="32"
+                        FontWeight="Bold"
+                        Foreground="#FF22C55F"
+                        HorizontalAlignment="Center" />
+                    <!-- FAIL -->
+                    <TextBlock
+                        Text="FAIL"
+                        IsVisible="{Binding MbspResultIsFail}"
+                        FontSize="32"
+                        FontWeight="Bold"
+                        Foreground="#FFEF4444"
+                        HorizontalAlignment="Center" />
+                    <TextBlock
+                        Text="{Binding MbspScoreText}"
+                        FontSize="22"
+                        FontWeight="SemiBold"
+                        Foreground="#FF94A3B8"
+                        HorizontalAlignment="Center" />
+                </StackPanel>
             </Grid>
 
             <!-- MBSP Add/Edit Page -->
@@ -1041,6 +1061,7 @@
                     FontSize="14" FontWeight="SemiBold"
                     Content="▶"
                     Command="{Binding NextMbspCommand}"
+                    IsEnabled="{Binding IsMbspComplete, Converter={StaticResource BoolNegationConverter}}"
                     HorizontalContentAlignment="Center"
                     VerticalContentAlignment="Center" />
             </StackPanel>

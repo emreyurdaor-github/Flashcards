@@ -47,8 +47,14 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     private readonly IReadOnlyList<MbspQuestion> _mbspQuestions = MbspDataSource.GetQuestions();
     private MbspQuestion? _currentMbspQuestion;
     private int _currentMbspIndex = -1;
-    private List<int> _shuffledMbspIndices = new();
-    private int _shuffledMbspPosition = -1;
+    // History-based navigation: _mbspHistory records indices of questions shown in order.
+    // _mbspHistoryPosition is the current cursor into that list.
+    // _mbspRemainingQueue is a shuffled pool of not-yet-shown questions.
+    // _mbspAnswerHistory persists the answer the user gave for each question index.
+    private List<int> _mbspHistory = new();
+    private int _mbspHistoryPosition = -1;
+    private List<int> _mbspRemainingQueue = new();
+    private Dictionary<int, string> _mbspAnswerHistory = new();
     private bool _isAddMbspPage;
     private string _selectedMbspPeriod = "All";
     private bool _mbspAnswerRevealed;
@@ -856,7 +862,34 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
 
     public bool MbspHasFeedback => !string.IsNullOrEmpty(MbspAnswerFeedback);
 
-    public string MbspScoreText => $"{_mbspCorrectCount} / {_shuffledMbspIndices.Count}";
+    public string MbspScoreText
+    {
+        get
+        {
+            var total = GetMbspTotal();
+            return $"{_mbspCorrectCount} / {total}";
+        }
+    }
+
+    private int GetMbspTotal() => (_selectedMbspPeriod == "All")
+        ? _mbspQuestions.Count
+        : _mbspQuestions.Count(q => string.Equals(q.Period, _selectedMbspPeriod, StringComparison.Ordinal));
+
+    /// <summary>True when every question in the current pool has been answered.</summary>
+    public bool IsMbspComplete
+    {
+        get
+        {
+            var total = GetMbspTotal();
+            return total > 0 && _mbspAnswerHistory.Count >= total;
+        }
+    }
+
+    /// <summary>True when the test is complete AND the pass threshold (≥80 %) is met.</summary>
+    public bool MbspResultIsPass => IsMbspComplete && _mbspCorrectCount >= GetMbspTotal() * 0.8;
+
+    /// <summary>True when the test is complete AND the pass threshold was NOT met.</summary>
+    public bool MbspResultIsFail => IsMbspComplete && !MbspResultIsPass;
 
     public bool IsAddMbspPage
     {
@@ -880,18 +913,27 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
             if (SetProperty(ref _selectedMbspPeriod, value))
             {
                 _mbspCorrectCount = 0;
-                ReshuffleMbspIndices();
-                _shuffledMbspPosition = 0;
-                if (_shuffledMbspIndices.Count > 0)
+                _mbspHistory.Clear();
+                _mbspHistoryPosition = -1;
+                _mbspAnswerHistory.Clear();
+                ReshuffleMbspQueue();
+                if (_mbspRemainingQueue.Count > 0)
                 {
-                    _currentMbspIndex = _shuffledMbspIndices[0];
-                    CurrentMbspQuestion = _mbspQuestions[_currentMbspIndex];
+                    var idx = _mbspRemainingQueue[0];
+                    _mbspRemainingQueue.RemoveAt(0);
+                    _mbspHistory.Add(idx);
+                    _mbspHistoryPosition = 0;
+                    _currentMbspIndex = idx;
+                    CurrentMbspQuestion = _mbspQuestions[idx];
                 }
                 else
                 {
                     CurrentMbspQuestion = null;
                 }
                 OnPropertyChanged(nameof(MbspScoreText));
+                OnPropertyChanged(nameof(IsMbspComplete));
+                OnPropertyChanged(nameof(MbspResultIsPass));
+                OnPropertyChanged(nameof(MbspResultIsFail));
             }
         }
     }
@@ -1605,12 +1647,13 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     // ─── MBSP Methods ──────────────────────────────────────────────────────────
 
     /// <summary>
-    /// Builds and shuffles a list of all MBSP question indices using Fisher-Yates.
-    /// When a period filter is active, only indices for matching questions are included.
+    /// Builds and shuffles a queue of all MBSP question indices (for the active period filter)
+    /// using Fisher-Yates. Already-seen questions are excluded so we don't repeat them until
+    /// the whole pool has been exhausted.
     /// </summary>
-    private void ReshuffleMbspIndices()
+    private void ReshuffleMbspQueue()
     {
-        var indices = (_selectedMbspPeriod == "All")
+        var allIndices = (_selectedMbspPeriod == "All")
             ? Enumerable.Range(0, _mbspQuestions.Count).ToList()
             : _mbspQuestions
                 .Select((q, i) => (q, i))
@@ -1618,50 +1661,95 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
                 .Select(x => x.i)
                 .ToList();
 
-        _shuffledMbspIndices = indices;
-        for (int i = _shuffledMbspIndices.Count - 1; i > 0; i--)
+        // Exclude questions already in history so they aren't immediately repeated.
+        var historySet = new HashSet<int>(_mbspHistory);
+        var pool = allIndices.Where(i => !historySet.Contains(i)).ToList();
+
+        // If every question has been shown, refill from the full set (new round).
+        if (pool.Count == 0)
+            pool = allIndices;
+
+        // Fisher-Yates shuffle
+        for (int i = pool.Count - 1; i > 0; i--)
         {
             int j = _random.Next(i + 1);
-            (_shuffledMbspIndices[i], _shuffledMbspIndices[j]) = (_shuffledMbspIndices[j], _shuffledMbspIndices[i]);
+            (pool[i], pool[j]) = (pool[j], pool[i]);
         }
+
+        _mbspRemainingQueue = pool;
     }
 
     private void SelectFirstMbspQuestion()
     {
         if (_mbspQuestions.Count == 0) return;
-        ReshuffleMbspIndices();
-        _shuffledMbspPosition = 0;
-        if (_shuffledMbspIndices.Count == 0) return;
-        _currentMbspIndex = _shuffledMbspIndices[0];
-        CurrentMbspQuestion = _mbspQuestions[_currentMbspIndex];
+        ReshuffleMbspQueue();
+        if (_mbspRemainingQueue.Count == 0) return;
+        var idx = _mbspRemainingQueue[0];
+        _mbspRemainingQueue.RemoveAt(0);
+        _mbspHistory.Add(idx);
+        _mbspHistoryPosition = 0;
+        _currentMbspIndex = idx;
+        CurrentMbspQuestion = _mbspQuestions[idx];
     }
 
     private void SelectNextMbspQuestion()
     {
-        if (_mbspQuestions.Count == 0 || _shuffledMbspIndices.Count == 0) return;
+        if (_mbspQuestions.Count == 0) return;
+        if (IsMbspComplete) return; // test finished — Next is disabled
 
-        _shuffledMbspPosition++;
-        // Reshuffle when we've gone through all questions
-        if (_shuffledMbspPosition >= _shuffledMbspIndices.Count)
+        if (_mbspHistoryPosition < _mbspHistory.Count - 1)
         {
-            ReshuffleMbspIndices();
-            _shuffledMbspPosition = 0;
+            // Navigate forward within existing history.
+            _mbspHistoryPosition++;
+            NavigateToMbspHistoryPosition();
+            return;
         }
 
-        _currentMbspIndex = _shuffledMbspIndices[_shuffledMbspPosition];
-        CurrentMbspQuestion = _mbspQuestions[_currentMbspIndex];
+        // At the end of history — pick the next unseen question.
+        if (_mbspRemainingQueue.Count == 0)
+            ReshuffleMbspQueue();
+
+        if (_mbspRemainingQueue.Count == 0) return;
+
+        var idx = _mbspRemainingQueue[0];
+        _mbspRemainingQueue.RemoveAt(0);
+        _mbspHistory.Add(idx);
+        _mbspHistoryPosition = _mbspHistory.Count - 1;
+        _currentMbspIndex = idx;
+        CurrentMbspQuestion = _mbspQuestions[idx];
+        // New question — no answer to restore yet.
     }
 
     private void SelectPreviousMbspQuestion()
     {
-        if (_mbspQuestions.Count == 0 || _shuffledMbspIndices.Count == 0) return;
+        if (_mbspHistoryPosition <= 0) return;
+        _mbspHistoryPosition--;
+        NavigateToMbspHistoryPosition();
+    }
 
-        _shuffledMbspPosition--;
-        if (_shuffledMbspPosition < 0)
-            _shuffledMbspPosition = _shuffledMbspIndices.Count - 1;
-
-        _currentMbspIndex = _shuffledMbspIndices[_shuffledMbspPosition];
+    /// <summary>
+    /// Moves to the question at the current history position and restores its answer state.
+    /// </summary>
+    private void NavigateToMbspHistoryPosition()
+    {
+        _currentMbspIndex = _mbspHistory[_mbspHistoryPosition];
+        // Setting CurrentMbspQuestion resets MbspSelectedChoice and MbspAnswerRevealed.
         CurrentMbspQuestion = _mbspQuestions[_currentMbspIndex];
+
+        // Restore the previously saved answer (if any) without changing the score.
+        if (_mbspAnswerHistory.TryGetValue(_currentMbspIndex, out var savedAnswer))
+        {
+            _mbspSelectedChoice = savedAnswer;
+            OnPropertyChanged(nameof(MbspSelectedChoice));
+            OnPropertyChanged(nameof(MbspChoiceASelected));
+            OnPropertyChanged(nameof(MbspChoiceBSelected));
+            OnPropertyChanged(nameof(MbspChoiceCSelected));
+            OnPropertyChanged(nameof(MbspChoiceAResult));
+            OnPropertyChanged(nameof(MbspChoiceBResult));
+            OnPropertyChanged(nameof(MbspChoiceCResult));
+            OnPropertyChanged(nameof(MbspAnswerFeedback));
+            OnPropertyChanged(nameof(MbspHasFeedback));
+        }
     }
 
     private void SelectMbspChoice(string? choiceLabel)
@@ -1673,14 +1761,22 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         {
             MbspSelectedChoice = text;
 
-            // Always play correct/wrong feedback sound (mute only affects TTS pronunciation)
-            bool isCorrect = string.Equals(text, _currentMbspQuestion?.CorrectAnswer,
-                StringComparison.OrdinalIgnoreCase);
-            if (isCorrect) _mbspCorrectCount++;
-            OnPropertyChanged(nameof(MbspScoreText));
-            _ = isCorrect
-                ? _audioService.PlayCorrectSoundAsync()
-                : _audioService.PlayWrongSoundAsync();
+            // Persist answer and update score only on first answer for this question.
+            if (!_mbspAnswerHistory.ContainsKey(_currentMbspIndex))
+            {
+                _mbspAnswerHistory[_currentMbspIndex] = text;
+
+                bool isCorrect = string.Equals(text, _currentMbspQuestion?.CorrectAnswer,
+                    StringComparison.OrdinalIgnoreCase);
+                if (isCorrect) _mbspCorrectCount++;
+                OnPropertyChanged(nameof(MbspScoreText));
+                OnPropertyChanged(nameof(IsMbspComplete));
+                OnPropertyChanged(nameof(MbspResultIsPass));
+                OnPropertyChanged(nameof(MbspResultIsFail));
+                _ = isCorrect
+                    ? _audioService.PlayCorrectSoundAsync()
+                    : _audioService.PlayWrongSoundAsync();
+            }
         }
     }
 
