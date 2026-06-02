@@ -871,6 +871,14 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         }
     }
 
+    /// <summary>Left counter: "CorrectCount | WrongCount"</summary>
+    public string MbspCorrectWrongText =>
+        $"{_mbspCorrectCount} | {_mbspAnswerHistory.Count - _mbspCorrectCount}";
+
+    /// <summary>Right counter: "CurrentQuestionNumber | TotalQuestions"</summary>
+    public string MbspQuestionProgressText =>
+        $"{(_mbspHistoryPosition >= 0 ? _mbspHistoryPosition + 1 : 0)} | {GetMbspTotal()}";
+
     private int GetMbspTotal() => (_selectedMbspPeriod == "All")
         ? _mbspQuestions.Count
         : _mbspQuestions.Count(q => string.Equals(q.Period, _selectedMbspPeriod, StringComparison.Ordinal));
@@ -931,6 +939,8 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
                     CurrentMbspQuestion = null;
                 }
                 OnPropertyChanged(nameof(MbspScoreText));
+                OnPropertyChanged(nameof(MbspCorrectWrongText));
+                OnPropertyChanged(nameof(MbspQuestionProgressText));
                 OnPropertyChanged(nameof(IsMbspComplete));
                 OnPropertyChanged(nameof(MbspResultIsPass));
                 OnPropertyChanged(nameof(MbspResultIsFail));
@@ -1690,6 +1700,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         _mbspHistoryPosition = 0;
         _currentMbspIndex = idx;
         CurrentMbspQuestion = _mbspQuestions[idx];
+        OnPropertyChanged(nameof(MbspQuestionProgressText));
     }
 
     private void SelectNextMbspQuestion()
@@ -1717,6 +1728,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         _mbspHistoryPosition = _mbspHistory.Count - 1;
         _currentMbspIndex = idx;
         CurrentMbspQuestion = _mbspQuestions[idx];
+        OnPropertyChanged(nameof(MbspQuestionProgressText));
         // New question — no answer to restore yet.
     }
 
@@ -1750,6 +1762,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
             OnPropertyChanged(nameof(MbspAnswerFeedback));
             OnPropertyChanged(nameof(MbspHasFeedback));
         }
+        OnPropertyChanged(nameof(MbspQuestionProgressText));
     }
 
     private void SelectMbspChoice(string? choiceLabel)
@@ -1770,6 +1783,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
                     StringComparison.OrdinalIgnoreCase);
                 if (isCorrect) _mbspCorrectCount++;
                 OnPropertyChanged(nameof(MbspScoreText));
+                OnPropertyChanged(nameof(MbspCorrectWrongText));
                 OnPropertyChanged(nameof(IsMbspComplete));
                 OnPropertyChanged(nameof(MbspResultIsPass));
                 OnPropertyChanged(nameof(MbspResultIsFail));

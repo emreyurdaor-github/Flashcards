@@ -902,8 +902,6 @@
                 <!-- Score + result (bottom) -->
                 <StackPanel
                     Grid.Row="1"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Bottom"
                     Spacing="2"
                     Margin="0,8,0,10">
                     <!-- PASS -->
@@ -922,12 +920,23 @@
                         FontWeight="Bold"
                         Foreground="#FFEF4444"
                         HorizontalAlignment="Center" />
-                    <TextBlock
-                        Text="{Binding MbspScoreText}"
-                        FontSize="22"
-                        FontWeight="SemiBold"
-                        Foreground="#FF94A3B8"
-                        HorizontalAlignment="Center" />
+                    <!-- Correct | Wrong   ◀ left        right ▶   Question# | Total -->
+                    <Grid ColumnDefinitions="*,*">
+                        <TextBlock
+                            Grid.Column="0"
+                            Text="{Binding MbspCorrectWrongText}"
+                            FontSize="20"
+                            FontWeight="SemiBold"
+                            Foreground="#FF94A3B8"
+                            HorizontalAlignment="Left" />
+                        <TextBlock
+                            Grid.Column="1"
+                            Text="{Binding MbspQuestionProgressText}"
+                            FontSize="20"
+                            FontWeight="SemiBold"
+                            Foreground="#FF94A3B8"
+                            HorizontalAlignment="Right" />
+                    </Grid>
                 </StackPanel>
             </Grid>
 
