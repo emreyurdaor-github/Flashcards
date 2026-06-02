@@ -181,6 +181,7 @@ public static class MbspDataSource
                 Escape(q.ChoiceC ?? string.Empty),
                 Escape(q.ChoiceCEnglish ?? string.Empty),
                 Escape(q.CorrectAnswer),
+                Escape(q.Period ?? string.Empty)
             }));
         }
 
