@@ -68,6 +68,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     private string _newMbspChoiceC = string.Empty;
     private string _newMbspChoiceCEnglish = string.Empty;
     private string _newMbspCorrectChoice = string.Empty; // stores the actual answer text
+    private string _newMbspPeriod = string.Empty;
     private bool _mbspShowEnglish = false;
     private int _mbspCorrectCount = 0;
 
@@ -1802,6 +1803,12 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         _ => string.Empty,
     };
 
+    public string NewMbspPeriod
+    {
+        get => _newMbspPeriod;
+        set => SetProperty(ref _newMbspPeriod, value);
+    }
+
     private void ShowAddMbspPage()
     {
         ResetMbspForm();
@@ -1821,6 +1828,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         NewMbspChoiceC = _currentMbspQuestion.ChoiceC ?? string.Empty;
         NewMbspChoiceCEnglish = _currentMbspQuestion.ChoiceCEnglish ?? string.Empty;
         NewMbspCorrectChoice = _currentMbspQuestion.CorrectAnswer;
+        NewMbspPeriod = _currentMbspQuestion.Period ?? string.Empty;
         IsEditMode = true;
         IsAddMbspPage = true;
     }
@@ -1836,6 +1844,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         var choiceC = string.IsNullOrWhiteSpace(NewMbspChoiceC) ? null : NewMbspChoiceC.Trim();
         var choiceCEnglish = string.IsNullOrWhiteSpace(NewMbspChoiceCEnglish) ? null : NewMbspChoiceCEnglish.Trim();
         var correctAnswer = NewMbspCorrectChoice.Trim();
+        var period = string.IsNullOrWhiteSpace(NewMbspPeriod) ? null : NewMbspPeriod.Trim();
 
         if (string.IsNullOrWhiteSpace(question) || string.IsNullOrWhiteSpace(choiceA) ||
             string.IsNullOrWhiteSpace(choiceB))
@@ -1865,6 +1874,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
             ChoiceC = choiceC,
             ChoiceCEnglish = choiceCEnglish,
             CorrectAnswer = correctAnswer,
+            Period = period,
         };
 
         if (IsEditMode)
@@ -1911,6 +1921,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         NewMbspChoiceC = string.Empty;
         NewMbspChoiceCEnglish = string.Empty;
         NewMbspCorrectChoice = string.Empty;
+        NewMbspPeriod = string.Empty;
         ValidationMessage = string.Empty;
     }
 

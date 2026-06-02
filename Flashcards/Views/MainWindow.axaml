@@ -1025,8 +1025,16 @@
                     </StackPanel>
                 </Grid>
 
-                <StackPanel
+                <!-- Period (optional) -->
+                <TextBox
                     Grid.Row="6"
+                    Text="{Binding NewMbspPeriod}"
+                    Watermark="Period (optional, e.g. 2024)"
+                    Margin="0,0,0,6"
+                    HorizontalAlignment="Stretch" />
+
+                <StackPanel
+                    Grid.Row="7"
                     Spacing="4">
                     <TextBlock
                         Text="{Binding ValidationMessage}"

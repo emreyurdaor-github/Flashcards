@@ -774,7 +774,7 @@
             <Grid
                 Grid.Row="4"
                 Margin="0,12,0,0"
-                RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+                RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
                 <Grid.IsVisible>
                     <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
                         <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="3" />
@@ -839,7 +839,16 @@
                     </StackPanel>
                 </Grid>
 
-                <StackPanel Grid.Row="6" Spacing="6">
+                <!-- Period (optional) -->
+                <TextBox
+                    Grid.Row="6"
+                    Text="{Binding NewMbspPeriod}"
+                    Watermark="Period (optional, e.g. 2024)"
+                    FontSize="23"
+                    Margin="0,0,0,8"
+                    HorizontalAlignment="Stretch" />
+
+                <StackPanel Grid.Row="7" Spacing="6">
                     <TextBlock
                         Text="{Binding ValidationMessage}"
                         IsVisible="{Binding HasValidationMessage}"
