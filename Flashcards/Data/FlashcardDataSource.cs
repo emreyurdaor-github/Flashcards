@@ -80,13 +80,18 @@ public static class FlashcardDataSource
             var parts = SplitCsvLine(line);
             if (parts.Length < 2) continue;
 
+            // Type (column 3) is mandatory – skip rows that are missing it.
+            if (parts.Length < 3 || string.IsNullOrWhiteSpace(parts[2]))
+            {
+                Console.Error.WriteLine($"[FlashcardDataSource] Skipping entry '{parts[0]}': Type is required but missing.");
+                continue;
+            }
+
             var entry = new FlashcardEntry
             {
                 Danish = parts[0],
                 English = parts[1],
-                Type = parts.Length > 2 && !string.IsNullOrWhiteSpace(parts[2])
-                    ? parts[2]
-                    : null,
+                Type = parts[2],
                 Conjugation = parts.Length > 3 && !string.IsNullOrWhiteSpace(parts[3])
                     ? parts[3]
                     : null,
@@ -119,7 +124,7 @@ public static class FlashcardDataSource
 
         foreach (var card in Flashcards)
         {
-            lines.Add($"{EscapeCsvField(card.Danish)},{EscapeCsvField(card.English)},{EscapeCsvField(card.Type ?? string.Empty)},{EscapeCsvField(card.Conjugation ?? string.Empty)},{EscapeCsvField(card.ExampleDanish ?? string.Empty)},{EscapeCsvField(card.ExampleEnglish ?? string.Empty)},{EscapeCsvField(card.ContextualTip ?? string.Empty)}");
+            lines.Add($"{EscapeCsvField(card.Danish)},{EscapeCsvField(card.English)},{EscapeCsvField(card.Type)},{EscapeCsvField(card.Conjugation ?? string.Empty)},{EscapeCsvField(card.ExampleDanish ?? string.Empty)},{EscapeCsvField(card.ExampleEnglish ?? string.Empty)},{EscapeCsvField(card.ContextualTip ?? string.Empty)}");
         }
 
         // Write to the runtime output directory (where the app reads from)

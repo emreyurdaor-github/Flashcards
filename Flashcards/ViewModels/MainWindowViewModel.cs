@@ -1292,7 +1292,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     {
         var danish = NewDanish.Trim();
         var english = NewEnglish.Trim();
-        var type = string.IsNullOrWhiteSpace(NewType) ? null : NewType.Trim();
+        var type = NewType.Trim();
         var conjugation = string.IsNullOrWhiteSpace(NewConjugation) ? null : NewConjugation.Trim();
         var exampleDanish = string.IsNullOrWhiteSpace(NewExampleDanish) ? null : NewExampleDanish.Trim();
         var exampleEnglish = string.IsNullOrWhiteSpace(NewExampleEnglish) ? null : NewExampleEnglish.Trim();
@@ -1301,6 +1301,12 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         if (string.IsNullOrWhiteSpace(danish) || string.IsNullOrWhiteSpace(english))
         {
             ValidationMessage = "Danish and English are required.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(type))
+        {
+            ValidationMessage = "Type is required (e.g. v., n., adj., adv., conj., prep.).";
             return;
         }
 

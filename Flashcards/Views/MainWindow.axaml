@@ -470,7 +470,7 @@
 
                 <TextBox
                     Text="{Binding NewType}"
-                    Watermark="Type (optional)" />
+                    Watermark="Type (required)" />
 
                 <TextBox
                     Text="{Binding NewConjugation}"

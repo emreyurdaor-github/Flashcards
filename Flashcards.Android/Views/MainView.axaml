@@ -374,7 +374,7 @@
                 <TextBlock Text="Add flashcard" FontSize="28" FontWeight="SemiBold" Foreground="White" />
                 <TextBox Text="{Binding NewDanish}" Watermark="Danish" FontSize="23" />
                 <TextBox Text="{Binding NewEnglish}" Watermark="English" FontSize="23" />
-                <TextBox Text="{Binding NewType}" Watermark="Type (optional)" FontSize="23" />
+                <TextBox Text="{Binding NewType}" Watermark="Type (required)" FontSize="23" />
                 <TextBox Text="{Binding NewConjugation}" Watermark="Conjugation (optional)" AcceptsReturn="True" TextWrapping="Wrap" Height="65" FontSize="23" />
                 <TextBox Text="{Binding NewExampleDanish}" Watermark="Example Danish (optional)" AcceptsReturn="True" TextWrapping="Wrap" Height="65" FontSize="23" />
                 <TextBox Text="{Binding NewExampleEnglish}" Watermark="Example English (optional)" AcceptsReturn="True" TextWrapping="Wrap" Height="65" FontSize="23" />
