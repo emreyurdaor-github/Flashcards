@@ -27,6 +27,7 @@
         <Compile Include="..\Flashcards\Converters\*.cs" />
         <Compile Include="..\Flashcards\Data\FlashcardDataSource.cs" />
         <Compile Include="..\Flashcards\Data\WritingDataSource.cs" />
+        <Compile Include="..\Flashcards\Data\SpeakingDataSource.cs" />
         <Compile Include="..\Flashcards\Data\MbspDataSource.cs" />
         <Compile Include="..\Flashcards\Models\*.cs" />
         <Compile Include="..\Flashcards\ViewModels\*.cs" />
@@ -47,6 +48,7 @@
         <AndroidAsset Include="..\Flashcards\Data\flashcards.csv" />
         <AndroidAsset Include="..\Flashcards\Data\writing.csv" />
         <AndroidAsset Include="..\Flashcards\Data\medborgerskabsproeven.csv" />
+        <AndroidAsset Include="..\Flashcards\Data\speaking.csv" />
         <AndroidAsset Include="..\Flashcards\Assets\Sounds\correct.mp3" />
         <AndroidAsset Include="..\Flashcards\Assets\Sounds\wrong.mp3" />
     </ItemGroup>

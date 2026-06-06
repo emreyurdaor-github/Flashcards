@@ -107,6 +107,7 @@
                 <ComboBoxItem Content="Flashcards" />
                 <ComboBoxItem Content="Quiz" />
                 <ComboBoxItem Content="Writing" />
+                <ComboBoxItem Content="Speaking" />
                 <ComboBoxItem Content="MedborgerskabsPrøven" />
             </ComboBox>
 
@@ -114,7 +115,7 @@
             <ComboBox
                 Grid.Column="2"
                 HorizontalAlignment="Right"
-                IsVisible="{Binding SelectedTabIndex, Converter={StaticResource EqualityConverter}, ConverterParameter=3}"
+                IsVisible="{Binding SelectedTabIndex, Converter={StaticResource EqualityConverter}, ConverterParameter=4}"
                 ItemsSource="{Binding MbspPeriods}"
                 SelectedItem="{Binding SelectedMbspPeriod, Mode=TwoWay}"
                 FontSize="13"
@@ -125,6 +126,22 @@
                 BorderThickness="1"
                 Padding="8,6"
                 MinWidth="130" />
+
+            <!-- Speaking category filter ComboBox (only visible on Speaking tab) -->
+            <ComboBox
+                Grid.Column="2"
+                HorizontalAlignment="Right"
+                IsVisible="{Binding SelectedTabIndex, Converter={StaticResource EqualityConverter}, ConverterParameter=3}"
+                ItemsSource="{Binding SpeakingCategories}"
+                SelectedItem="{Binding SelectedSpeakingCategory, Mode=TwoWay}"
+                FontSize="13"
+                FontWeight="SemiBold"
+                Foreground="#FFE2E8F0"
+                Background="#22334155"
+                BorderBrush="#33475569"
+                BorderThickness="1"
+                Padding="8,6"
+                MinWidth="160" />
 
             <!-- Type filter ComboBox (visible on Flashcards and Quiz tabs) -->
             <ComboBox
@@ -747,6 +764,224 @@
                  </StackPanel>
             </Grid>
 
+            <!-- Speaking Page -->
+            <Grid
+                Grid.Row="4"
+                Margin="0,12,0,0"
+                RowDefinitions="*,*">
+                <Grid.IsVisible>
+                    <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
+                        <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="3" />
+                        <Binding Path="IsSpeakingPage" />
+                    </MultiBinding>
+                </Grid.IsVisible>
+                <!-- Speaking Section 1: Topic -->
+                <Border
+                    Grid.Row="0"
+                    Margin="0,6,0,5"
+                    Padding="12"
+                    CornerRadius="12"
+                    Background="#332E3A4F"
+                    BorderBrush="#334BA3C7"
+                    BorderThickness="1">
+                    <Grid RowDefinitions="Auto,Auto,*">
+                        <!-- Timer row: speaker button (left) + counter + play (right) -->
+                        <Grid
+                            Grid.Row="0"
+                            ColumnDefinitions="Auto,*,Auto"
+                            Margin="0,0,0,4"
+                            IsVisible="{Binding IsSpeakingTimerVisible}">
+                            <!-- Left: speaker button -->
+                            <Button
+                                Grid.Column="0"
+                                Width="22"
+                                Height="22"
+                                Classes="icon-btn"
+                                CornerRadius="11"
+                                Background="#334155"
+                                Command="{Binding PlaySpeakingTopicCommand}"
+                                VerticalAlignment="Center">
+                                <Path
+                                    Width="12" Height="12"
+                                    Fill="#FF94D9FF"
+                                    Stretch="Uniform"
+                                    Data="M4,5 L4,13 L1,11 L1,7 Z M4,5 L10,2 L10,16 L4,13 Z M11,7 Q13,9 11,11 M12,5.5 Q15,9 12,12.5" />
+                            </Button>
+                            <!-- Right: counter + play button -->
+                            <StackPanel
+                                Grid.Column="2"
+                                Orientation="Horizontal"
+                                Spacing="4"
+                                VerticalAlignment="Center">
+                                <TextBlock
+                                    Text="{Binding SpeakingTimerDisplay}"
+                                    FontSize="13"
+                                    FontWeight="SemiBold"
+                                    Foreground="#FFE2E8F0"
+                                    VerticalAlignment="Center" />
+                                <Button
+                                    Width="22"
+                                    Height="22"
+                                    Classes="icon-btn"
+                                    CornerRadius="11"
+                                    Background="#334155"
+                                    Command="{Binding StartSpeakingTimerCommand}"
+                                    IsEnabled="{Binding IsSpeakingTimerStopped}"
+                                    VerticalAlignment="Center">
+                                    <Path
+                                        Width="8" Height="8"
+                                        Fill="#FF86EFAC"
+                                        Stretch="Uniform"
+                                        Data="M0,0 L10,5 L0,10 Z" />
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                        <!-- Topic title -->
+                        <TextBlock
+                            Grid.Row="1"
+                            Text="{Binding CurrentSpeakingTopicTitle}"
+                            FontSize="12"
+                            Foreground="#FFFBBF24"
+                            FontWeight="SemiBold"
+                            Margin="0,0,0,4" />
+                        <ScrollViewer
+                            x:Name="SpeakingTopicScroller"
+                            Grid.Row="2"
+                            VerticalScrollBarVisibility="Auto"
+                            HorizontalScrollBarVisibility="Disabled">
+                            <TextBlock
+                                Text="{Binding CurrentSpeakingTopic}"
+                                FontSize="14"
+                                Foreground="#FFCBD5E1"
+                                TextWrapping="Wrap" />
+                        </ScrollViewer>
+                    </Grid>
+                </Border>
+                <!-- Speaking Section 2: Notes -->
+                <Border
+                    Grid.Row="1"
+                    Margin="0,5,0,0"
+                    Padding="12"
+                    CornerRadius="12"
+                    Background="#332E3A4F"
+                    BorderBrush="#334BA3C7"
+                    BorderThickness="1">
+                    <Grid RowDefinitions="Auto,*">
+                        <TextBlock
+                            Grid.Row="0"
+                            Text="{Binding CurrentSpeakingNotesTitle}"
+                            FontSize="12"
+                            Foreground="#FFFBBF24"
+                            FontWeight="SemiBold"
+                            Margin="0,0,0,4" />
+                        <ScrollViewer
+                            x:Name="SpeakingNotesScroller"
+                            Grid.Row="1"
+                            VerticalScrollBarVisibility="Auto"
+                            HorizontalScrollBarVisibility="Disabled">
+                            <TextBlock
+                                Text="{Binding CurrentSpeakingNotes}"
+                                FontSize="14"
+                                Foreground="#FFCBD5E1"
+                                TextWrapping="Wrap" />
+                        </ScrollViewer>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!-- Speaking Page Bottom Buttons -->
+            <StackPanel
+                Grid.Row="6"
+                Orientation="Horizontal"
+                HorizontalAlignment="Center"
+                Spacing="8">
+                <StackPanel.IsVisible>
+                    <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
+                        <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="3" />
+                        <Binding Path="IsSpeakingPage" />
+                    </MultiBinding>
+                </StackPanel.IsVisible>
+                <Button
+                    Width="32" Height="32" CornerRadius="16" FontSize="14" FontWeight="SemiBold"
+                    Content="◀" Command="{Binding PreviousSpeakingCommand}"
+                    HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                <Button
+                    Width="32" Height="32" CornerRadius="16" FontSize="14" FontWeight="SemiBold"
+                    Content="▶" Command="{Binding NextSpeakingCommand}"
+                    HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+            </StackPanel>
+
+            <!-- Speaking Page Edit/Add Buttons -->
+            <StackPanel
+                Grid.Row="6"
+                Orientation="Horizontal"
+                HorizontalAlignment="Right"
+                Spacing="8">
+                <StackPanel.IsVisible>
+                    <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
+                        <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="3" />
+                        <Binding Path="IsSpeakingPage" />
+                    </MultiBinding>
+                </StackPanel.IsVisible>
+                <Button
+                    Width="32" Height="32" Classes="icon-btn" CornerRadius="16" Background="#334155"
+                    Command="{Binding ShowEditSpeakingCommand}">
+                    <Path Width="15" Height="15" Fill="#FFFBBF24" Stretch="Uniform"
+                          Data="M12,2 L14,4 L5,13 L2,14 L3,11 Z M13,3 L15,5" />
+                </Button>
+                <Button
+                    Width="32" Height="32" CornerRadius="16" FontSize="18" FontWeight="Bold"
+                    Content="+" Command="{Binding ShowAddSpeakingCommand}"
+                    HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+            </StackPanel>
+
+            <!-- Add Speaking Page -->
+            <Grid
+                Grid.Row="4"
+                Margin="0,12,0,0"
+                RowDefinitions="Auto,Auto,*,Auto,*,Auto,Auto"
+                IsVisible="{Binding IsAddSpeakingPage}">
+                <TextBlock
+                    Grid.Row="0"
+                    Text="Add speaking entry"
+                    FontSize="16" FontWeight="SemiBold" Foreground="White" Margin="0,0,0,8" />
+                <TextBox
+                    Grid.Row="1"
+                    Text="{Binding NewSpeakingTopicTitle}"
+                    Watermark="Topic title (optional)"
+                    Margin="0,0,0,4"
+                    HorizontalAlignment="Stretch" />
+                <TextBox
+                    Grid.Row="2"
+                    Text="{Binding NewSpeakingTopic}"
+                    Watermark="Topic text"
+                    AcceptsReturn="True" TextWrapping="Wrap"
+                    Margin="0,0,0,8" VerticalAlignment="Stretch" />
+                <TextBox
+                    Grid.Row="3"
+                    Text="{Binding NewSpeakingNotesTitle}"
+                    Watermark="Notes title (optional)"
+                    Margin="0,0,0,4"
+                    HorizontalAlignment="Stretch" />
+                <TextBox
+                    Grid.Row="4"
+                    Text="{Binding NewSpeakingNotes}"
+                    Watermark="Notes text"
+                    AcceptsReturn="True" TextWrapping="Wrap"
+                    Margin="0,0,0,8" VerticalAlignment="Stretch" />
+                <TextBlock
+                    Grid.Row="5"
+                    Text="{Binding ValidationMessage}"
+                    IsVisible="{Binding HasValidationMessage}"
+                    TextWrapping="Wrap" Foreground="#FFFCA5A5" FontSize="12" />
+                <StackPanel
+                    Grid.Row="6"
+                    Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+                    <Button Content="Cancel" Command="{Binding CancelAddSpeakingCommand}" />
+                    <Button Content="Save" Command="{Binding SaveNewSpeakingCommand}" />
+                </StackPanel>
+            </Grid>
+
             <!-- MBSP Quiz Page -->
             <Grid
                 Grid.Row="4"
@@ -754,7 +989,7 @@
                 RowDefinitions="*,Auto">
                 <Grid.IsVisible>
                     <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
-                        <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="3" />
+                        <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="4" />
                         <Binding Path="IsMbspPage" />
                     </MultiBinding>
                 </Grid.IsVisible>
@@ -964,7 +1199,7 @@
                 RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
                 <Grid.IsVisible>
                     <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
-                        <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="3" />
+                        <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="4" />
                         <Binding Path="IsAddMbspPage" />
                     </MultiBinding>
                 </Grid.IsVisible>
@@ -1077,7 +1312,7 @@
                 Spacing="8">
                 <StackPanel.IsVisible>
                     <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
-                        <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="3" />
+                        <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="4" />
                         <Binding Path="IsMbspPage" />
                     </MultiBinding>
                 </StackPanel.IsVisible>
@@ -1110,7 +1345,7 @@
                 Spacing="8">
                 <StackPanel.IsVisible>
                     <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
-                        <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="3" />
+                        <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="4" />
                         <Binding Path="IsMbspPage" />
                     </MultiBinding>
                 </StackPanel.IsVisible>
@@ -1144,7 +1379,7 @@
                 VerticalAlignment="Center">
                 <StackPanel.IsVisible>
                     <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
-                        <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="3" />
+                        <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="4" />
                         <Binding Path="IsMbspPage" />
                     </MultiBinding>
                 </StackPanel.IsVisible>

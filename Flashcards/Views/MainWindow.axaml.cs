@@ -32,23 +32,46 @@ public partial class MainWindow : Window
         var danish = this.FindControl<ScrollViewer>("DanishWritingScroller");
         var english = this.FindControl<ScrollViewer>("EnglishWritingScroller");
 
-        if (danish == null || english == null) return;
-
-        danish.ScrollChanged += (_, _) =>
+        if (danish != null && english != null)
         {
-            if (_syncingScroll) return;
-            _syncingScroll = true;
-            english.Offset = danish.Offset;
-            _syncingScroll = false;
-        };
+            danish.ScrollChanged += (_, _) =>
+            {
+                if (_syncingScroll) return;
+                _syncingScroll = true;
+                english.Offset = danish.Offset;
+                _syncingScroll = false;
+            };
 
-        english.ScrollChanged += (_, _) =>
+            english.ScrollChanged += (_, _) =>
+            {
+                if (_syncingScroll) return;
+                _syncingScroll = true;
+                danish.Offset = english.Offset;
+                _syncingScroll = false;
+            };
+        }
+
+        var topic = this.FindControl<ScrollViewer>("SpeakingTopicScroller");
+        var notes = this.FindControl<ScrollViewer>("SpeakingNotesScroller");
+
+        if (topic != null && notes != null)
         {
-            if (_syncingScroll) return;
-            _syncingScroll = true;
-            danish.Offset = english.Offset;
-            _syncingScroll = false;
-        };
+            topic.ScrollChanged += (_, _) =>
+            {
+                if (_syncingScroll) return;
+                _syncingScroll = true;
+                notes.Offset = topic.Offset;
+                _syncingScroll = false;
+            };
+
+            notes.ScrollChanged += (_, _) =>
+            {
+                if (_syncingScroll) return;
+                _syncingScroll = true;
+                topic.Offset = notes.Offset;
+                _syncingScroll = false;
+            };
+        }
     }
 
     protected override void OnDataContextChanged(EventArgs e)

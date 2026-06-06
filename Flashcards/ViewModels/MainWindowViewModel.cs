@@ -17,14 +17,17 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     private static readonly TimeSpan RotationInterval = TimeSpan.FromSeconds(20);
     private readonly IReadOnlyList<FlashcardEntry> _flashcards = FlashcardDataSource.GetFlashcards();
     private readonly IReadOnlyList<WritingEntry> _writingEntries = WritingDataSource.GetWritingEntries();
+    private readonly IReadOnlyList<SpeakingEntry> _speakingEntries = SpeakingDataSource.GetEntries();
     private readonly DispatcherTimer _rotationTimer;
     private readonly Random _random = new();
     private readonly AudioService _audioService = new();
     private readonly Stack<FlashcardEntry> _navigationHistory = new();
     private FlashcardEntry? _currentFlashcard;
     private WritingEntry? _currentWritingEntry;
+    private SpeakingEntry? _currentSpeakingEntry;
     private bool _isAddRecordPage;
     private bool _isAddWritingPage;
+    private bool _isAddSpeakingPage;
     private bool _isRotationPaused = true;
     private bool _isMuted = true;
     private int _selectedTabIndex = 0;
@@ -39,9 +42,18 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     private string _newWritingEnglish = string.Empty;
     private string _newWritingDanishTitle = string.Empty;
     private string _newWritingEnglishTitle = string.Empty;
+    private string _newSpeakingTopic = string.Empty;
+    private string _newSpeakingTopicTitle = string.Empty;
+    private string _newSpeakingNotes = string.Empty;
+    private string _newSpeakingNotesTitle = string.Empty;
     private string _validationMessage = string.Empty;
     private string _searchText = string.Empty;
     private bool _isAudioPlaying = false;
+
+    // Speaking timer
+    private DispatcherTimer? _speakingTimer;
+    private int _speakingTimerSeconds = 120;
+    private bool _isSpeakingTimerRunning = false;
 
     // MBSP
     private readonly IReadOnlyList<MbspQuestion> _mbspQuestions = MbspDataSource.GetQuestions();
@@ -83,6 +95,41 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
 
     public bool IsTypeFilterVisible => _selectedTabIndex == 0 || _selectedTabIndex == 1;
 
+    public IReadOnlyList<string> SpeakingCategories { get; } = new[] { "2 Min. Presentation" };
+
+    private string _selectedSpeakingCategory = "2 Min. Presentation";
+    public string SelectedSpeakingCategory
+    {
+        get => _selectedSpeakingCategory;
+        set
+        {
+            if (SetProperty(ref _selectedSpeakingCategory, value))
+            {
+                ResetSpeakingTimer();
+                OnPropertyChanged(nameof(IsSpeakingTimerVisible));
+            }
+        }
+    }
+
+    public bool IsSpeakingTimerVisible => _selectedSpeakingCategory == "2 Min. Presentation";
+
+    public string SpeakingTimerDisplay =>
+        $"{_speakingTimerSeconds / 60:D2}:{_speakingTimerSeconds % 60:D2}";
+
+    public bool IsSpeakingTimerRunning
+    {
+        get => _isSpeakingTimerRunning;
+        private set
+        {
+            if (SetProperty(ref _isSpeakingTimerRunning, value))
+                OnPropertyChanged(nameof(IsSpeakingTimerStopped));
+        }
+    }
+
+    public bool IsSpeakingTimerStopped => !IsSpeakingTimerRunning;
+
+    public IAsyncRelayCommand StartSpeakingTimerCommand { get; }
+
     public string SelectedTypeFilter
     {
         get => _selectedTypeFilter;
@@ -107,12 +154,19 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     public IRelayCommand ShowEditWritingCommand { get; }
     public IRelayCommand NextWritingCommand { get; }
     public IRelayCommand PreviousWritingCommand { get; }
+    public IRelayCommand ShowAddSpeakingCommand { get; }
+    public IRelayCommand SaveNewSpeakingCommand { get; }
+    public IRelayCommand CancelAddSpeakingCommand { get; }
+    public IRelayCommand ShowEditSpeakingCommand { get; }
+    public IRelayCommand NextSpeakingCommand { get; }
+    public IRelayCommand PreviousSpeakingCommand { get; }
     public IRelayCommand PlayCommand { get; }
     public IRelayCommand PauseCommand { get; }
     public IRelayCommand PreviousCardCommand { get; }
     public IRelayCommand NextCardCommand { get; }
     public IAsyncRelayCommand PlayDanishWordCommand { get; }
     public IAsyncRelayCommand PlayDanishExampleCommand { get; }
+    public IAsyncRelayCommand PlaySpeakingTopicCommand { get; }
     public IRelayCommand MinimizeToTrayCommand { get; set; }
     public IRelayCommand<FlashcardEntry?> SelectSearchResultCommand { get; }
     public IRelayCommand ToggleMuteCommand { get; }
@@ -793,6 +847,66 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
 
     public bool IsWritingPage => !IsAddWritingPage;
 
+    // ─── Speaking Properties ────────────────────────────────────────────────────
+
+    public SpeakingEntry? CurrentSpeakingEntry
+    {
+        get => _currentSpeakingEntry;
+        private set
+        {
+            if (SetProperty(ref _currentSpeakingEntry, value))
+            {
+                OnPropertyChanged(nameof(CurrentSpeakingTopicTitle));
+                OnPropertyChanged(nameof(CurrentSpeakingTopic));
+                OnPropertyChanged(nameof(CurrentSpeakingNotesTitle));
+                OnPropertyChanged(nameof(CurrentSpeakingNotes));
+                OnPropertyChanged(nameof(HasSpeakingEntries));
+            }
+        }
+    }
+
+    public string CurrentSpeakingTopicTitle => _currentSpeakingEntry?.TopicTitle ?? "Topic";
+    public string CurrentSpeakingTopic => _currentSpeakingEntry?.Topic ?? "No speaking entries available";
+    public string CurrentSpeakingNotesTitle => _currentSpeakingEntry?.NotesTitle ?? "Notes";
+    public string CurrentSpeakingNotes => _currentSpeakingEntry?.Notes ?? string.Empty;
+    public bool HasSpeakingEntries => _currentSpeakingEntry is not null;
+
+    public bool IsAddSpeakingPage
+    {
+        get => _isAddSpeakingPage;
+        private set
+        {
+            if (SetProperty(ref _isAddSpeakingPage, value))
+                OnPropertyChanged(nameof(IsSpeakingPage));
+        }
+    }
+
+    public bool IsSpeakingPage => !IsAddSpeakingPage;
+
+    public string NewSpeakingTopicTitle
+    {
+        get => _newSpeakingTopicTitle;
+        set => SetProperty(ref _newSpeakingTopicTitle, value);
+    }
+
+    public string NewSpeakingTopic
+    {
+        get => _newSpeakingTopic;
+        set => SetProperty(ref _newSpeakingTopic, value);
+    }
+
+    public string NewSpeakingNotesTitle
+    {
+        get => _newSpeakingNotesTitle;
+        set => SetProperty(ref _newSpeakingNotesTitle, value);
+    }
+
+    public string NewSpeakingNotes
+    {
+        get => _newSpeakingNotes;
+        set => SetProperty(ref _newSpeakingNotes, value);
+    }
+
     // ─── MBSP Properties ───────────────────────────────────────────────────────
 
     public MbspQuestion? CurrentMbspQuestion
@@ -1161,12 +1275,20 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         CancelAddWritingCommand = new RelayCommand(CancelAddWriting);
         NextWritingCommand = new RelayCommand(SelectNextWritingEntry);
         PreviousWritingCommand = new RelayCommand(SelectPreviousWritingEntry);
+        ShowAddSpeakingCommand = new RelayCommand(ShowAddSpeakingPage);
+        ShowEditSpeakingCommand = new RelayCommand(ShowEditSpeaking);
+        SaveNewSpeakingCommand = new RelayCommand(SaveNewSpeaking);
+        CancelAddSpeakingCommand = new RelayCommand(CancelAddSpeaking);
+        NextSpeakingCommand = new RelayCommand(SelectNextSpeakingEntry);
+        PreviousSpeakingCommand = new RelayCommand(SelectPreviousSpeakingEntry);
+        StartSpeakingTimerCommand = new AsyncRelayCommand(StartSpeakingTimerAndPlayAsync);
         PlayCommand = new RelayCommand(Play);
         PauseCommand = new RelayCommand(Pause);
         PreviousCardCommand = new RelayCommand(SelectPreviousFlashcard);
         NextCardCommand = new RelayCommand(SelectNextFlashcard);
         PlayDanishWordCommand = new AsyncRelayCommand(PlayCurrentDanishWord);
         PlayDanishExampleCommand = new AsyncRelayCommand(PlayCurrentDanishExample);
+        PlaySpeakingTopicCommand = new AsyncRelayCommand(PlaySpeakingTopicAsync);
         MinimizeToTrayCommand = new RelayCommand(MinimizeToTray);
         SelectSearchResultCommand = new RelayCommand<FlashcardEntry?>(SelectSearchResult);
         ToggleMuteCommand = new RelayCommand(ToggleMute);
@@ -1204,6 +1326,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         SelectNextFlashcard();
         UpdateRotationState();
         SelectFirstWritingEntry();
+        SelectFirstSpeakingEntry();
         SelectFirstMbspQuestion();
     }
 
@@ -1211,6 +1334,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     {
         _rotationTimer.Stop();
         _rotationTimer.Tick -= OnRotationTimerTick;
+        _speakingTimer?.Stop();
         _audioService?.Dispose();
     }
 
@@ -1449,6 +1573,10 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         NewWritingEnglish = string.Empty;
         NewWritingDanishTitle = string.Empty;
         NewWritingEnglishTitle = string.Empty;
+        NewSpeakingTopic = string.Empty;
+        NewSpeakingTopicTitle = string.Empty;
+        NewSpeakingNotes = string.Empty;
+        NewSpeakingNotesTitle = string.Empty;
         ValidationMessage = string.Empty;
     }
 
@@ -1596,6 +1724,151 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         }
     }
 
+    // ─── Speaking Timer ─────────────────────────────────────────────────────────
+
+    private async Task StartSpeakingTimerAndPlayAsync()
+    {
+        // Reset to 2 minutes and start counting down
+        _speakingTimerSeconds = 120;
+        OnPropertyChanged(nameof(SpeakingTimerDisplay));
+
+        _speakingTimer ??= new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+        _speakingTimer.Tick -= OnSpeakingTimerTick;
+        _speakingTimer.Tick += OnSpeakingTimerTick;
+        _speakingTimer.Start();
+        IsSpeakingTimerRunning = true;
+
+        // Also read the topic text aloud
+        await PlaySpeakingTopicAsync();
+    }
+
+    private void OnSpeakingTimerTick(object? sender, EventArgs e)
+    {
+        if (_speakingTimerSeconds > 0)
+        {
+            _speakingTimerSeconds--;
+            OnPropertyChanged(nameof(SpeakingTimerDisplay));
+        }
+
+        if (_speakingTimerSeconds == 0)
+        {
+            _speakingTimer?.Stop();
+            IsSpeakingTimerRunning = false;
+        }
+    }
+
+    private void ResetSpeakingTimer()
+    {
+        _speakingTimer?.Stop();
+        IsSpeakingTimerRunning = false;
+        _speakingTimerSeconds = 120;
+        OnPropertyChanged(nameof(SpeakingTimerDisplay));
+    }
+
+    // ─── Speaking Navigation ────────────────────────────────────────────────────
+
+    private void SelectFirstSpeakingEntry()
+    {
+        if (_speakingEntries.Count > 0)
+            CurrentSpeakingEntry = _speakingEntries[0];
+    }
+
+    private void SelectNextSpeakingEntry()
+    {
+        if (_speakingEntries.Count == 0) { CurrentSpeakingEntry = null; return; }
+        if (_speakingEntries.Count == 1) { CurrentSpeakingEntry = _speakingEntries[0]; return; }
+
+        var idx = -1;
+        for (int i = 0; i < _speakingEntries.Count; i++)
+            if (ReferenceEquals(_speakingEntries[i], CurrentSpeakingEntry)) { idx = i; break; }
+
+        CurrentSpeakingEntry = _speakingEntries[idx >= _speakingEntries.Count - 1 ? 0 : idx + 1];
+    }
+
+    private void SelectPreviousSpeakingEntry()
+    {
+        if (_speakingEntries.Count == 0) { CurrentSpeakingEntry = null; return; }
+
+        var idx = -1;
+        for (int i = 0; i < _speakingEntries.Count; i++)
+            if (ReferenceEquals(_speakingEntries[i], CurrentSpeakingEntry)) { idx = i; break; }
+
+        CurrentSpeakingEntry = idx <= 0
+            ? _speakingEntries[_speakingEntries.Count - 1]
+            : _speakingEntries[idx - 1];
+    }
+
+    private void ShowAddSpeakingPage()
+    {
+        ResetForm();
+        IsAddSpeakingPage = true;
+        IsEditMode = false;
+    }
+
+    private void ShowEditSpeaking()
+    {
+        if (CurrentSpeakingEntry is null) return;
+        NewSpeakingTopicTitle = CurrentSpeakingEntry.TopicTitle;
+        NewSpeakingTopic = CurrentSpeakingEntry.Topic;
+        NewSpeakingNotesTitle = CurrentSpeakingEntry.NotesTitle;
+        NewSpeakingNotes = CurrentSpeakingEntry.Notes;
+        IsEditMode = true;
+        IsAddSpeakingPage = true;
+    }
+
+    private void SaveNewSpeaking()
+    {
+        var topicTitle = NewSpeakingTopicTitle.Trim();
+        var topic = NewSpeakingTopic.Trim();
+        var notesTitle = NewSpeakingNotesTitle.Trim();
+        var notes = NewSpeakingNotes.Trim();
+
+        if (string.IsNullOrWhiteSpace(topic))
+        {
+            ValidationMessage = "Topic text is required.";
+            return;
+        }
+
+        var entry = new SpeakingEntry
+        {
+            TopicTitle = topicTitle,
+            Topic = topic,
+            NotesTitle = notesTitle,
+            Notes = notes,
+        };
+
+        if (IsEditMode)
+        {
+            var original = CurrentSpeakingEntry?.Topic ?? string.Empty;
+            if (!SpeakingDataSource.TryUpdateEntry(original, entry))
+            {
+                ValidationMessage = "Unable to update: conflicts with an existing record.";
+                return;
+            }
+            CurrentSpeakingEntry = entry;
+            IsEditMode = false;
+        }
+        else
+        {
+            if (!SpeakingDataSource.TryAddEntry(entry))
+            {
+                ValidationMessage = $"A record with that topic already exists.";
+                return;
+            }
+            CurrentSpeakingEntry = entry;
+        }
+
+        ResetForm();
+        IsAddSpeakingPage = false;
+    }
+
+    private void CancelAddSpeaking()
+    {
+        ResetForm();
+        IsAddSpeakingPage = false;
+        IsEditMode = false;
+    }
+
     private void Play()
     {
         IsRotationPaused = false;
@@ -1643,6 +1916,74 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         finally
         {
             IsAudioPlaying = false;
+        }
+    }
+
+    private async Task PlaySpeakingTopicAsync()
+    {
+        var text = CurrentSpeakingTopic;
+        if (string.IsNullOrWhiteSpace(text) ||
+            text == "No speaking entries available") return;
+        try
+        {
+            foreach (var chunk in SplitIntoTtsChunks(text))
+            {
+                await _audioService.PlayDanishPronunciation(chunk);
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ViewModel] PlaySpeakingTopicAsync: Error - {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Splits text into chunks of at most 180 characters, breaking on sentence
+    /// boundaries (. ! ?) where possible, then on commas/spaces.
+    /// </summary>
+    private static IEnumerable<string> SplitIntoTtsChunks(string text, int maxLen = 180)
+    {
+        // Normalise whitespace
+        text = text.Trim();
+        while (text.Length > 0)
+        {
+            if (text.Length <= maxLen)
+            {
+                yield return text;
+                yield break;
+            }
+
+            // Try to break on a sentence-ending punctuation within the limit
+            int breakAt = -1;
+            for (int i = maxLen; i >= maxLen / 2; i--)
+            {
+                char c = text[i - 1];
+                if (c == '.' || c == '!' || c == '?')
+                {
+                    breakAt = i;
+                    break;
+                }
+            }
+
+            // Fall back to comma or space
+            if (breakAt < 0)
+            {
+                for (int i = maxLen; i >= maxLen / 2; i--)
+                {
+                    char c = text[i - 1];
+                    if (c == ',' || c == ' ')
+                    {
+                        breakAt = i;
+                        break;
+                    }
+                }
+            }
+
+            // Hard cut if nothing suitable found
+            if (breakAt < 0) breakAt = maxLen;
+
+            yield return text[..breakAt].Trim();
+            text = text[breakAt..].Trim();
         }
     }
 
