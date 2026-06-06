@@ -7,16 +7,16 @@ namespace Flashcards.Data;
 
 public class SpeakingEntry
 {
-    public string TopicTitle { get; set; } = string.Empty;
-    public string Topic { get; set; } = string.Empty;
-    public string NotesTitle { get; set; } = string.Empty;
-    public string Notes { get; set; } = string.Empty;
+    public string Emne { get; set; } = string.Empty;
+    public string Praesentation { get; set; } = string.Empty;
+    public string Subject { get; set; } = string.Empty;
+    public string Presentation { get; set; } = string.Empty;
 }
 
 public static class SpeakingDataSource
 {
     private const string CsvFileName = "speaking.csv";
-    private const string CsvHeader = "TopicTitle,Topic,NotesTitle,Notes";
+    private const string CsvHeader = "Emne,Praesentation,Subject,Presentation";
 
     private static string? _overrideCsvPath;
 
@@ -32,8 +32,8 @@ public static class SpeakingDataSource
 
     public static bool TryAddEntry(SpeakingEntry entry)
     {
-        var normalizedKey = NormalizeKey(entry.Topic);
-        if (Entries.Any(e => NormalizeKey(e.Topic) == normalizedKey))
+        var normalizedKey = NormalizeKey(entry.Praesentation);
+        if (Entries.Any(e => NormalizeKey(e.Praesentation) == normalizedKey))
             return false;
 
         Entries.Add(entry);
@@ -41,15 +41,15 @@ public static class SpeakingDataSource
         return true;
     }
 
-    public static bool TryUpdateEntry(string originalTopic, SpeakingEntry updated)
+    public static bool TryUpdateEntry(string originalPraesentation, SpeakingEntry updated)
     {
-        var originalKey = NormalizeKey(originalTopic);
-        var updatedKey = NormalizeKey(updated.Topic);
+        var originalKey = NormalizeKey(originalPraesentation);
+        var updatedKey = NormalizeKey(updated.Praesentation);
 
-        if (originalKey != updatedKey && Entries.Any(e => NormalizeKey(e.Topic) == updatedKey))
+        if (originalKey != updatedKey && Entries.Any(e => NormalizeKey(e.Praesentation) == updatedKey))
             return false;
 
-        var index = Entries.FindIndex(e => NormalizeKey(e.Topic) == originalKey);
+        var index = Entries.FindIndex(e => NormalizeKey(e.Praesentation) == originalKey);
         if (index < 0) return false;
 
         Entries[index] = updated;
@@ -75,30 +75,32 @@ public static class SpeakingDataSource
         {
             if (parts.Count < 2) continue;
 
-            if (parts[0].Equals("Topic", StringComparison.OrdinalIgnoreCase) ||
+            if (parts[0].Equals("Praesentation", StringComparison.OrdinalIgnoreCase) ||
+                parts[0].Equals("Topic", StringComparison.OrdinalIgnoreCase) ||
+                parts[0].Equals("Emne", StringComparison.OrdinalIgnoreCase) ||
                 parts[0].Equals("TopicTitle", StringComparison.OrdinalIgnoreCase))
                 continue;
 
             var entry = parts.Count >= 4
                 ? new SpeakingEntry
                 {
-                    TopicTitle = parts[0],
-                    Topic = parts[1],
-                    NotesTitle = parts[2],
-                    Notes = parts[3],
+                    Emne = parts[0],
+                    Praesentation = parts[1],
+                    Subject = parts[2],
+                    Presentation = parts[3],
                 }
                 : new SpeakingEntry
                 {
-                    TopicTitle = string.Empty,
-                    Topic = parts[0],
-                    NotesTitle = string.Empty,
-                    Notes = parts.Count > 1 ? parts[1] : string.Empty,
+                    Emne = string.Empty,
+                    Praesentation = parts[0],
+                    Subject = string.Empty,
+                    Presentation = parts.Count > 1 ? parts[1] : string.Empty,
                 };
 
-            if (string.IsNullOrWhiteSpace(entry.Topic))
+            if (string.IsNullOrWhiteSpace(entry.Praesentation))
                 continue;
 
-            if (!seenKeys.Add(NormalizeKey(entry.Topic)))
+            if (!seenKeys.Add(NormalizeKey(entry.Praesentation)))
                 continue;
 
             list.Add(entry);
@@ -188,7 +190,7 @@ public static class SpeakingDataSource
 
         foreach (var entry in Entries)
         {
-            sb.AppendLine($"{EscapeCsvField(entry.TopicTitle)},{EscapeCsvField(entry.Topic)},{EscapeCsvField(entry.NotesTitle)},{EscapeCsvField(entry.Notes)}");
+            sb.AppendLine($"{EscapeCsvField(entry.Emne)},{EscapeCsvField(entry.Praesentation)},{EscapeCsvField(entry.Subject)},{EscapeCsvField(entry.Presentation)}");
         }
 
         var content = sb.ToString();
@@ -222,5 +224,5 @@ public static class SpeakingDataSource
         return $"\"{normalized.Replace("\"", "\"\"")}\"";
     }
 
-    private static string NormalizeKey(string topic) => topic.Trim().ToUpperInvariant();
+    private static string NormalizeKey(string praesentation) => praesentation.Trim().ToUpperInvariant();
 }

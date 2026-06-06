@@ -872,10 +872,10 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         }
     }
 
-    public string CurrentSpeakingTopicTitle => _currentSpeakingEntry?.TopicTitle ?? "Topic";
-    public string CurrentSpeakingTopic => _currentSpeakingEntry?.Topic ?? "No speaking entries available";
-    public string CurrentSpeakingNotesTitle => _currentSpeakingEntry?.NotesTitle ?? "Notes";
-    public string CurrentSpeakingNotes => _currentSpeakingEntry?.Notes ?? string.Empty;
+    public string CurrentSpeakingTopicTitle => _currentSpeakingEntry?.Emne ?? "Topic";
+    public string CurrentSpeakingTopic => _currentSpeakingEntry?.Praesentation ?? "No speaking entries available";
+    public string CurrentSpeakingNotesTitle => _currentSpeakingEntry?.Subject ?? "Notes";
+    public string CurrentSpeakingNotes => _currentSpeakingEntry?.Presentation ?? string.Empty;
     public bool HasSpeakingEntries => _currentSpeakingEntry is not null;
 
     public IReadOnlyList<WritingSegment> CurrentSpeakingTopicSegments =>
@@ -1946,10 +1946,10 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     private void ShowEditSpeaking()
     {
         if (CurrentSpeakingEntry is null) return;
-        NewSpeakingTopicTitle = CurrentSpeakingEntry.TopicTitle;
-        NewSpeakingTopic = CurrentSpeakingEntry.Topic;
-        NewSpeakingNotesTitle = CurrentSpeakingEntry.NotesTitle;
-        NewSpeakingNotes = CurrentSpeakingEntry.Notes;
+        NewSpeakingTopicTitle = CurrentSpeakingEntry.Emne;
+        NewSpeakingTopic = CurrentSpeakingEntry.Praesentation;
+        NewSpeakingNotesTitle = CurrentSpeakingEntry.Subject;
+        NewSpeakingNotes = CurrentSpeakingEntry.Presentation;
         IsEditMode = true;
         IsAddSpeakingPage = true;
     }
@@ -1969,15 +1969,15 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
 
         var entry = new SpeakingEntry
         {
-            TopicTitle = topicTitle,
-            Topic = topic,
-            NotesTitle = notesTitle,
-            Notes = notes,
+            Emne = topicTitle,
+            Praesentation = topic,
+            Subject = notesTitle,
+            Presentation = notes,
         };
 
         if (IsEditMode)
         {
-            var original = CurrentSpeakingEntry?.Topic ?? string.Empty;
+            var original = CurrentSpeakingEntry?.Praesentation ?? string.Empty;
             if (!SpeakingDataSource.TryUpdateEntry(original, entry))
             {
                 ValidationMessage = "Unable to update: conflicts with an existing record.";
