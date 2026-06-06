@@ -1812,6 +1812,10 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
             _currentSpeakingWordIndex = -1;
             OnPropertyChanged(nameof(CurrentSpeakingTopicSegments));
             OnPropertyChanged(nameof(SpeakingWordProgress));
+
+            // Highlighting done — stop the countdown timer too
+            _speakingTimer?.Stop();
+            IsSpeakingTimerRunning = false;
             return;
         }
 
