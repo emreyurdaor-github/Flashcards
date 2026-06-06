@@ -881,6 +881,12 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     public IReadOnlyList<WritingSegment> CurrentSpeakingTopicSegments =>
         BuildWordHighlightSegments(CurrentSpeakingTopic, _currentSpeakingWordIndex);
 
+    /// <summary>Fraction (0–1) of words spoken so far. -1 when not active.</summary>
+    public double SpeakingWordProgress =>
+        _speakingTotalWords > 0
+            ? (double)_currentSpeakingWordIndex / _speakingTotalWords
+            : -1;
+
     public bool IsAddSpeakingPage
     {
         get => _isAddSpeakingPage;
@@ -1805,10 +1811,12 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         {
             _currentSpeakingWordIndex = -1;
             OnPropertyChanged(nameof(CurrentSpeakingTopicSegments));
+            OnPropertyChanged(nameof(SpeakingWordProgress));
             return;
         }
 
         OnPropertyChanged(nameof(CurrentSpeakingTopicSegments));
+        OnPropertyChanged(nameof(SpeakingWordProgress));
         _speakingWordTimer.Interval = WordDelay(_speakingWords, _currentSpeakingWordIndex);
         _speakingWordTimer.Start();
     }
@@ -1820,6 +1828,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         _speakingTotalWords = 0;
         _speakingWords.Clear();
         OnPropertyChanged(nameof(CurrentSpeakingTopicSegments));
+        OnPropertyChanged(nameof(SpeakingWordProgress));
     }
 
     /// <summary>

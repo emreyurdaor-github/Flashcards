@@ -183,7 +183,10 @@ public partial class MainView : UserControl
             RefreshDanishWritingInlines(vm);
 
         if (e.PropertyName == nameof(MainWindowViewModel.CurrentSpeakingTopicSegments))
+        {
             RefreshSpeakingTopicInlines(vm);
+            ScrollSpeakingTopicToWord(vm);
+        }
     }
 
     private void RefreshDanishWritingInlines(MainWindowViewModel vm)
@@ -224,5 +227,20 @@ public partial class MainView : UserControl
                 Foreground = seg.IsHighlighted ? greenBrush : whiteBrush
             });
         }
+    }
+
+    private void ScrollSpeakingTopicToWord(MainWindowViewModel vm)
+    {
+        var scroller = this.FindControl<ScrollViewer>("SpeakingTopicScroller");
+        var tb = this.FindControl<TextBlock>("SpeakingTopicTextBlock");
+        if (scroller == null || tb == null) return;
+
+        double progress = vm.SpeakingWordProgress;
+        if (progress < 0) { scroller.Offset = new Avalonia.Vector(0, 0); return; }
+
+        double contentHeight = tb.Bounds.Height;
+        double viewportHeight = scroller.Viewport.Height;
+        double targetOffset = progress * contentHeight - viewportHeight / 2;
+        scroller.Offset = new Avalonia.Vector(0, Math.Max(0, targetOffset));
     }
 }
