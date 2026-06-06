@@ -619,7 +619,7 @@
 
             <!-- Speaking Page -->
             <Grid
-                x:Name="SpeakingGrid"
+                x:Name="SpeakingPageGrid"
                 Grid.Row="4"
                 Margin="0,12,0,0"
                 RowDefinitions="*,*">
@@ -698,6 +698,7 @@
                             FontSize="20"
                             Foreground="#FFFBBF24"
                             FontWeight="SemiBold"
+                            TextWrapping="Wrap"
                             Margin="0,0,0,4" />
                         <ScrollViewer
                             x:Name="SpeakingTopicScroller"
@@ -725,7 +726,8 @@
                     CornerRadius="12"
                     Background="#332E3A4F"
                     BorderBrush="#334BA3C7"
-                    BorderThickness="1">
+                    BorderThickness="1"
+                    IsVisible="{Binding SpeakingShowTopic}">
                     <Grid RowDefinitions="Auto,*">
                         <TextBlock
                             Grid.Row="0"
@@ -733,6 +735,7 @@
                             FontSize="20"
                             Foreground="#FFFBBF24"
                             FontWeight="SemiBold"
+                            TextWrapping="Wrap"
                             Margin="0,0,0,4" />
                         <ScrollViewer
                             x:Name="SpeakingNotesScroller"
@@ -790,6 +793,27 @@
                 <Button Width="65" Height="65" CornerRadius="33" FontSize="38" FontWeight="Bold"
                         Content="+" Command="{Binding ShowAddSpeakingCommand}"
                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+            </StackPanel>
+
+            <!-- Speaking Eng Toggle (bottom-left corner) -->
+            <StackPanel
+                Grid.Row="6"
+                Orientation="Horizontal"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center">
+                <StackPanel.IsVisible>
+                    <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
+                        <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="3" />
+                        <Binding Path="IsSpeakingPage" />
+                    </MultiBinding>
+                </StackPanel.IsVisible>
+                <views:EngToggle
+                    IsChecked="{Binding SpeakingShowTopic, Mode=TwoWay}"
+                    TrackWidth="90"
+                    TrackHeight="36"
+                    LabelFontSize="20"
+                    SegmentFontSize="14"
+                    ToolTip.Tip="Show / hide Topic" />
             </StackPanel>
 
             <!-- Add Speaking Page -->

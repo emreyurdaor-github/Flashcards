@@ -46,6 +46,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     private string _newSpeakingTopicTitle = string.Empty;
     private string _newSpeakingNotes = string.Empty;
     private string _newSpeakingNotesTitle = string.Empty;
+    private string _newSpeakingPeriod = string.Empty;
     private string _validationMessage = string.Empty;
     private string _searchText = string.Empty;
     private bool _isAudioPlaying = false;
@@ -88,6 +89,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     private string _newMbspCorrectChoice = string.Empty; // stores the actual answer text
     private string _newMbspPeriod = string.Empty;
     private bool _mbspShowEnglish = false;
+    private bool _speakingShowTopic = true;
     private int _mbspCorrectCount = 0;
     private string _selectedTypeFilter = "All";
     private readonly HashSet<FlashcardEntry> _flashcardsViewedInSession = new();
@@ -101,9 +103,9 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
 
     public bool IsTypeFilterVisible => _selectedTabIndex == 0 || _selectedTabIndex == 1;
 
-    public IReadOnlyList<string> SpeakingCategories { get; } = new[] { "2 Min. Presentation" };
+    public IReadOnlyList<string> SpeakingCategories { get; private set; } = [];
 
-    private string _selectedSpeakingCategory = "2 Min. Presentation";
+    private string _selectedSpeakingCategory = "All";
     public string SelectedSpeakingCategory
     {
         get => _selectedSpeakingCategory;
@@ -113,6 +115,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
             {
                 ResetSpeakingTimer();
                 OnPropertyChanged(nameof(IsSpeakingTimerVisible));
+                SelectFirstSpeakingEntry();
             }
         }
     }
@@ -923,6 +926,12 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         set => SetProperty(ref _newSpeakingNotes, value);
     }
 
+    public string NewSpeakingPeriod
+    {
+        get => _newSpeakingPeriod;
+        set => SetProperty(ref _newSpeakingPeriod, value);
+    }
+
     // ─── MBSP Properties ───────────────────────────────────────────────────────
 
     public MbspQuestion? CurrentMbspQuestion
@@ -971,6 +980,12 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     {
         get => _mbspShowEnglish;
         set => SetProperty(ref _mbspShowEnglish, value);
+    }
+
+    public bool SpeakingShowTopic
+    {
+        get => _speakingShowTopic;
+        set => SetProperty(ref _speakingShowTopic, value);
     }
 
     public bool MbspAnswerRevealed
@@ -1339,6 +1354,14 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
                 .OrderByDescending(p => p))
             .ToList();
 
+        SpeakingCategories = new[] { "All" }
+            .Concat(_speakingEntries
+                .Select(e => e.Period)
+                .Where(p => !string.IsNullOrWhiteSpace(p))
+                .Distinct())
+            .ToList();
+        _selectedSpeakingCategory = SpeakingCategories.Count > 0 ? SpeakingCategories[0] : "All";
+
         SelectNextFlashcard();
         UpdateRotationState();
         SelectFirstWritingEntry();
@@ -1594,6 +1617,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         NewSpeakingTopicTitle = string.Empty;
         NewSpeakingNotes = string.Empty;
         NewSpeakingNotesTitle = string.Empty;
+        NewSpeakingPeriod = string.Empty;
         ValidationMessage = string.Empty;
     }
 
@@ -1909,35 +1933,49 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
 
     // ─── Speaking Navigation ────────────────────────────────────────────────────
 
+    private IReadOnlyList<SpeakingEntry> GetFilteredSpeakingEntries()
+    {
+        if (string.IsNullOrEmpty(_selectedSpeakingCategory) || _selectedSpeakingCategory == "All")
+            return _speakingEntries;
+        return _speakingEntries
+            .Where(e => string.Equals(e.Period, _selectedSpeakingCategory, StringComparison.Ordinal))
+            .ToList();
+    }
+
     private void SelectFirstSpeakingEntry()
     {
-        if (_speakingEntries.Count > 0)
-            CurrentSpeakingEntry = _speakingEntries[0];
+        var filtered = GetFilteredSpeakingEntries();
+        if (filtered.Count > 0)
+            CurrentSpeakingEntry = filtered[0];
+        else
+            CurrentSpeakingEntry = null;
     }
 
     private void SelectNextSpeakingEntry()
     {
-        if (_speakingEntries.Count == 0) { CurrentSpeakingEntry = null; return; }
-        if (_speakingEntries.Count == 1) { CurrentSpeakingEntry = _speakingEntries[0]; return; }
+        var filtered = GetFilteredSpeakingEntries();
+        if (filtered.Count == 0) { CurrentSpeakingEntry = null; return; }
+        if (filtered.Count == 1) { CurrentSpeakingEntry = filtered[0]; return; }
 
         var idx = -1;
-        for (int i = 0; i < _speakingEntries.Count; i++)
-            if (ReferenceEquals(_speakingEntries[i], CurrentSpeakingEntry)) { idx = i; break; }
+        for (int i = 0; i < filtered.Count; i++)
+            if (ReferenceEquals(filtered[i], CurrentSpeakingEntry)) { idx = i; break; }
 
-        CurrentSpeakingEntry = _speakingEntries[idx >= _speakingEntries.Count - 1 ? 0 : idx + 1];
+        CurrentSpeakingEntry = filtered[idx >= filtered.Count - 1 ? 0 : idx + 1];
     }
 
     private void SelectPreviousSpeakingEntry()
     {
-        if (_speakingEntries.Count == 0) { CurrentSpeakingEntry = null; return; }
+        var filtered = GetFilteredSpeakingEntries();
+        if (filtered.Count == 0) { CurrentSpeakingEntry = null; return; }
 
         var idx = -1;
-        for (int i = 0; i < _speakingEntries.Count; i++)
-            if (ReferenceEquals(_speakingEntries[i], CurrentSpeakingEntry)) { idx = i; break; }
+        for (int i = 0; i < filtered.Count; i++)
+            if (ReferenceEquals(filtered[i], CurrentSpeakingEntry)) { idx = i; break; }
 
         CurrentSpeakingEntry = idx <= 0
-            ? _speakingEntries[_speakingEntries.Count - 1]
-            : _speakingEntries[idx - 1];
+            ? filtered[filtered.Count - 1]
+            : filtered[idx - 1];
     }
 
     private void ShowAddSpeakingPage()
@@ -1954,6 +1992,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         NewSpeakingTopic = CurrentSpeakingEntry.Praesentation;
         NewSpeakingNotesTitle = CurrentSpeakingEntry.Subject;
         NewSpeakingNotes = CurrentSpeakingEntry.Presentation;
+        NewSpeakingPeriod = CurrentSpeakingEntry.Period;
         IsEditMode = true;
         IsAddSpeakingPage = true;
     }
@@ -1977,6 +2016,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
             Praesentation = topic,
             Subject = notesTitle,
             Presentation = notes,
+            Period = NewSpeakingPeriod.Trim(),
         };
 
         if (IsEditMode)

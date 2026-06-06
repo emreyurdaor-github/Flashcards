@@ -11,12 +11,13 @@ public class SpeakingEntry
     public string Praesentation { get; set; } = string.Empty;
     public string Subject { get; set; } = string.Empty;
     public string Presentation { get; set; } = string.Empty;
+    public string Period { get; set; } = string.Empty;
 }
 
 public static class SpeakingDataSource
 {
     private const string CsvFileName = "speaking.csv";
-    private const string CsvHeader = "Emne,Praesentation,Subject,Presentation";
+    private const string CsvHeader = "Emne,Praesentation,Subject,Presentation,Period";
 
     private static string? _overrideCsvPath;
 
@@ -88,6 +89,7 @@ public static class SpeakingDataSource
                     Praesentation = parts[1],
                     Subject = parts[2],
                     Presentation = parts[3],
+                    Period = parts.Count >= 5 ? parts[4] : string.Empty,
                 }
                 : new SpeakingEntry
                 {
@@ -95,6 +97,7 @@ public static class SpeakingDataSource
                     Praesentation = parts[0],
                     Subject = string.Empty,
                     Presentation = parts.Count > 1 ? parts[1] : string.Empty,
+                    Period = string.Empty,
                 };
 
             if (string.IsNullOrWhiteSpace(entry.Praesentation))
@@ -190,7 +193,7 @@ public static class SpeakingDataSource
 
         foreach (var entry in Entries)
         {
-            sb.AppendLine($"{EscapeCsvField(entry.Emne)},{EscapeCsvField(entry.Praesentation)},{EscapeCsvField(entry.Subject)},{EscapeCsvField(entry.Presentation)}");
+            sb.AppendLine($"{EscapeCsvField(entry.Emne)},{EscapeCsvField(entry.Praesentation)},{EscapeCsvField(entry.Subject)},{EscapeCsvField(entry.Presentation)},{EscapeCsvField(entry.Period)}");
         }
 
         var content = sb.ToString();

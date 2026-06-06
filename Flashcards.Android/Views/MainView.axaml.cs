@@ -187,6 +187,18 @@ public partial class MainView : UserControl
             RefreshSpeakingTopicInlines(vm);
             ScrollSpeakingTopicToWord(vm);
         }
+
+        if (e.PropertyName == nameof(MainWindowViewModel.SpeakingShowTopic))
+            ApplySpeakingTopicVisibility(vm.SpeakingShowTopic);
+    }
+
+    private void ApplySpeakingTopicVisibility(bool showNotes)
+    {
+        var grid = this.FindControl<Grid>("SpeakingPageGrid");
+        if (grid == null) return;
+        grid.RowDefinitions = showNotes
+            ? new RowDefinitions("*,*")
+            : new RowDefinitions("*,0");
     }
 
     private void RefreshDanishWritingInlines(MainWindowViewModel vm)

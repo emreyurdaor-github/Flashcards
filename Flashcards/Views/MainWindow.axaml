@@ -766,6 +766,7 @@
 
             <!-- Speaking Page -->
             <Grid
+                x:Name="SpeakingPageGrid"
                 Grid.Row="4"
                 Margin="0,12,0,0"
                 RowDefinitions="*,*">
@@ -843,6 +844,7 @@
                             FontSize="12"
                             Foreground="#FFFBBF24"
                             FontWeight="SemiBold"
+                            TextWrapping="Wrap"
                             Margin="0,0,0,4" />
                         <ScrollViewer
                             x:Name="SpeakingTopicScroller"
@@ -865,7 +867,8 @@
                     CornerRadius="12"
                     Background="#332E3A4F"
                     BorderBrush="#334BA3C7"
-                    BorderThickness="1">
+                    BorderThickness="1"
+                    IsVisible="{Binding SpeakingShowTopic}">
                     <Grid RowDefinitions="Auto,*">
                         <TextBlock
                             Grid.Row="0"
@@ -873,6 +876,7 @@
                             FontSize="12"
                             Foreground="#FFFBBF24"
                             FontWeight="SemiBold"
+                            TextWrapping="Wrap"
                             Margin="0,0,0,4" />
                         <ScrollViewer
                             x:Name="SpeakingNotesScroller"
@@ -935,11 +939,28 @@
                     HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
             </StackPanel>
 
+            <!-- Speaking Eng Toggle (bottom-left corner) -->
+            <StackPanel
+                Grid.Row="6"
+                Orientation="Horizontal"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center">
+                <StackPanel.IsVisible>
+                    <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
+                        <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="3" />
+                        <Binding Path="IsSpeakingPage" />
+                    </MultiBinding>
+                </StackPanel.IsVisible>
+                <views:EngToggle
+                    IsChecked="{Binding SpeakingShowTopic, Mode=TwoWay}"
+                    ToolTip.Tip="Show / hide Topic" />
+            </StackPanel>
+
             <!-- Add Speaking Page -->
             <Grid
                 Grid.Row="4"
                 Margin="0,12,0,0"
-                RowDefinitions="Auto,Auto,*,Auto,*,Auto,Auto"
+                RowDefinitions="Auto,Auto,*,Auto,*,Auto,Auto,Auto"
                 IsVisible="{Binding IsAddSpeakingPage}">
                 <TextBlock
                     Grid.Row="0"
@@ -969,13 +990,19 @@
                     Watermark="Notes text"
                     AcceptsReturn="True" TextWrapping="Wrap"
                     Margin="0,0,0,8" VerticalAlignment="Stretch" />
-                <TextBlock
+                <TextBox
                     Grid.Row="5"
+                    Text="{Binding NewSpeakingPeriod}"
+                    Watermark="Period (e.g. 2 Min. Presentation)"
+                    Margin="0,0,0,6"
+                    HorizontalAlignment="Stretch" />
+                <TextBlock
+                    Grid.Row="6"
                     Text="{Binding ValidationMessage}"
                     IsVisible="{Binding HasValidationMessage}"
                     TextWrapping="Wrap" Foreground="#FFFCA5A5" FontSize="12" />
                 <StackPanel
-                    Grid.Row="6"
+                    Grid.Row="7"
                     Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
                     <Button Content="Cancel" Command="{Binding CancelAddSpeakingCommand}" />
                     <Button Content="Save" Command="{Binding SaveNewSpeakingCommand}" />
