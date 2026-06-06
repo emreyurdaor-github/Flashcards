@@ -89,6 +89,7 @@ public partial class MainWindow : Window
 
             viewModel.PropertyChanged += OnViewModelPropertyChanged;
             RefreshDanishWritingInlines(viewModel);
+            RefreshSpeakingTopicInlines(viewModel);
 
             // Find and configure the AutoCompleteBox
             var autoCompleteBox = this.FindControl<AutoCompleteBox>("SearchBox");
@@ -117,11 +118,13 @@ public partial class MainWindow : Window
 
     private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(MainWindowViewModel.CurrentDanishWritingSegments) &&
-            sender is MainWindowViewModel vm)
-        {
+        if (sender is not MainWindowViewModel vm) return;
+
+        if (e.PropertyName == nameof(MainWindowViewModel.CurrentDanishWritingSegments))
             RefreshDanishWritingInlines(vm);
-        }
+
+        if (e.PropertyName == nameof(MainWindowViewModel.CurrentSpeakingTopicSegments))
+            RefreshSpeakingTopicInlines(vm);
     }
 
     private void RefreshDanishWritingInlines(MainWindowViewModel vm)
@@ -135,6 +138,26 @@ public partial class MainWindow : Window
         var greenBrush = new SolidColorBrush(Color.FromRgb(0x4A, 0xDE, 0x80)); // readable green
         var whiteBrush = new SolidColorBrush(Color.FromArgb(0xFF, 0xCB, 0xD5, 0xE1)); // #FFCBD5E1
         foreach (var seg in vm.CurrentDanishWritingSegments)
+        {
+            tb.Inlines.Add(new Run
+            {
+                Text = seg.Text,
+                Foreground = seg.IsHighlighted ? greenBrush : whiteBrush
+            });
+        }
+    }
+
+    private void RefreshSpeakingTopicInlines(MainWindowViewModel vm)
+    {
+        var tb = this.FindControl<TextBlock>("SpeakingTopicTextBlock");
+        if (tb == null) return;
+
+        tb.Inlines ??= new InlineCollection();
+        tb.Inlines.Clear();
+
+        var greenBrush = new SolidColorBrush(Color.FromRgb(0x4A, 0xDE, 0x80));
+        var whiteBrush = new SolidColorBrush(Color.FromArgb(0xFF, 0xCB, 0xD5, 0xE1));
+        foreach (var seg in vm.CurrentSpeakingTopicSegments)
         {
             tb.Inlines.Add(new Run
             {

@@ -55,6 +55,12 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     private int _speakingTimerSeconds = 120;
     private bool _isSpeakingTimerRunning = false;
 
+    // Speaking word-highlight
+    private DispatcherTimer? _speakingWordTimer;
+    private int _currentSpeakingWordIndex = -1;
+    private int _speakingTotalWords = 0;
+    private List<string> _speakingWords = new();
+
     // MBSP
     private readonly IReadOnlyList<MbspQuestion> _mbspQuestions = MbspDataSource.GetQuestions();
     private MbspQuestion? _currentMbspQuestion;
@@ -861,6 +867,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
                 OnPropertyChanged(nameof(CurrentSpeakingNotesTitle));
                 OnPropertyChanged(nameof(CurrentSpeakingNotes));
                 OnPropertyChanged(nameof(HasSpeakingEntries));
+                ResetWordHighlight();
             }
         }
     }
@@ -870,6 +877,9 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     public string CurrentSpeakingNotesTitle => _currentSpeakingEntry?.NotesTitle ?? "Notes";
     public string CurrentSpeakingNotes => _currentSpeakingEntry?.Notes ?? string.Empty;
     public bool HasSpeakingEntries => _currentSpeakingEntry is not null;
+
+    public IReadOnlyList<WritingSegment> CurrentSpeakingTopicSegments =>
+        BuildWordHighlightSegments(CurrentSpeakingTopic, _currentSpeakingWordIndex);
 
     public bool IsAddSpeakingPage
     {
@@ -1335,6 +1345,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         _rotationTimer.Stop();
         _rotationTimer.Tick -= OnRotationTimerTick;
         _speakingTimer?.Stop();
+        _speakingWordTimer?.Stop();
         _audioService?.Dispose();
     }
 
@@ -1738,6 +1749,9 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         _speakingTimer.Start();
         IsSpeakingTimerRunning = true;
 
+        // Start word highlighting
+        StartWordHighlight();
+
         // Also read the topic text aloud
         await PlaySpeakingTopicAsync();
     }
@@ -1763,6 +1777,121 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         IsSpeakingTimerRunning = false;
         _speakingTimerSeconds = 120;
         OnPropertyChanged(nameof(SpeakingTimerDisplay));
+        ResetWordHighlight();
+    }
+
+    private void StartWordHighlight()
+    {
+        _speakingWords = SplitIntoWords(CurrentSpeakingTopic);
+        _speakingTotalWords = _speakingWords.Count;
+        _currentSpeakingWordIndex = 0;
+        OnPropertyChanged(nameof(CurrentSpeakingTopicSegments));
+
+        _speakingWordTimer ??= new DispatcherTimer();
+        _speakingWordTimer.Tick -= OnSpeakingWordTimerTick;
+        _speakingWordTimer.Tick += OnSpeakingWordTimerTick;
+        // 600 ms lead-in before the first word is highlighted
+        _speakingWordTimer.Interval = TimeSpan.FromMilliseconds(600) + WordDelay(_speakingWords, 0);
+        _speakingWordTimer.Start();
+    }
+
+    private void OnSpeakingWordTimerTick(object? sender, EventArgs e)
+    {
+        // Stop, advance, re-start with the delay for the newly highlighted word
+        _speakingWordTimer!.Stop();
+        _currentSpeakingWordIndex++;
+
+        if (_currentSpeakingWordIndex >= _speakingTotalWords)
+        {
+            _currentSpeakingWordIndex = -1;
+            OnPropertyChanged(nameof(CurrentSpeakingTopicSegments));
+            return;
+        }
+
+        OnPropertyChanged(nameof(CurrentSpeakingTopicSegments));
+        _speakingWordTimer.Interval = WordDelay(_speakingWords, _currentSpeakingWordIndex);
+        _speakingWordTimer.Start();
+    }
+
+    private void ResetWordHighlight()
+    {
+        _speakingWordTimer?.Stop();
+        _currentSpeakingWordIndex = -1;
+        _speakingTotalWords = 0;
+        _speakingWords.Clear();
+        OnPropertyChanged(nameof(CurrentSpeakingTopicSegments));
+    }
+
+    /// <summary>
+    /// Calculates the display duration for the word at <paramref name="index"/>.
+    /// Base rate: ~75 ms per character, minimum 210 ms.
+    /// Extra pause: +375 ms after sentence-ending punctuation (. ! ?),
+    ///              +185 ms after mid-sentence pauses (, ;).
+    /// </summary>
+    private static TimeSpan WordDelay(List<string> words, int index)
+    {
+        if (index < 0 || index >= words.Count)
+            return TimeSpan.FromMilliseconds(375);
+
+        var word = words[index];
+
+        // Determine punctuation bonus before stripping
+        int punctuationBonus = 0;
+        if (word.Length > 0)
+        {
+            char last = word[^1];
+            if (last == '.' || last == '!' || last == '?')
+                punctuationBonus = 375;
+            else if (last == ',' || last == ';')
+                punctuationBonus = 185;
+        }
+
+        // Strip trailing punctuation for character count
+        var stripped = word.TrimEnd('.', ',', '!', '?', ';', ':');
+        int ms = Math.Max(210, stripped.Length * 75) + punctuationBonus;
+        return TimeSpan.FromMilliseconds(ms);
+    }
+
+    /// <summary>
+    /// Splits text into a flat list of word tokens (whitespace/punctuation excluded).
+    /// </summary>
+    private static List<string> SplitIntoWords(string text) =>
+        string.IsNullOrWhiteSpace(text)
+            ? new List<string>()
+            : text.Split(new[] { ' ', '\t', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
+                  .ToList();
+
+    private static IReadOnlyList<WritingSegment> BuildWordHighlightSegments(string text, int currentWordIndex)
+    {
+        var segments = new List<WritingSegment>();
+        if (string.IsNullOrEmpty(text)) return segments;
+
+        int wordIdx = 0;
+        int i = 0;
+
+        while (i < text.Length)
+        {
+            // Collect whitespace run
+            int wsStart = i;
+            while (i < text.Length && char.IsWhiteSpace(text[i])) i++;
+            if (i > wsStart)
+                segments.Add(new WritingSegment { Text = text[wsStart..i] });
+
+            // Collect word token
+            int wStart = i;
+            while (i < text.Length && !char.IsWhiteSpace(text[i])) i++;
+            if (i > wStart)
+            {
+                segments.Add(new WritingSegment
+                {
+                    Text = text[wStart..i],
+                    IsHighlighted = currentWordIndex >= 0 && wordIdx == currentWordIndex
+                });
+                wordIdx++;
+            }
+        }
+
+        return segments;
     }
 
     // ─── Speaking Navigation ────────────────────────────────────────────────────

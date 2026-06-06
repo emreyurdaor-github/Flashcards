@@ -850,7 +850,7 @@
                             VerticalScrollBarVisibility="Auto"
                             HorizontalScrollBarVisibility="Disabled">
                             <TextBlock
-                                Text="{Binding CurrentSpeakingTopic}"
+                                x:Name="SpeakingTopicTextBlock"
                                 FontSize="14"
                                 Foreground="#FFCBD5E1"
                                 TextWrapping="Wrap" />

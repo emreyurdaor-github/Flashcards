@@ -705,7 +705,11 @@
                             VerticalScrollBarVisibility="Auto"
                             HorizontalScrollBarVisibility="Disabled">
                             <TextBlock
-                                Text="{Binding CurrentSpeakingTopic}"
+                                x:Name="SpeakingTopicTextBlock"
+                                FontSize="24"
+                                Foreground="#FFCBD5E1"
+                                TextWrapping="Wrap" />
+                        </ScrollViewer>
                                 FontSize="24"
                                 Foreground="#FFCBD5E1"
                                 TextWrapping="Wrap" />
