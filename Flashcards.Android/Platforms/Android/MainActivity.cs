@@ -29,6 +29,7 @@ public class MainActivity : AvaloniaMainActivity<App>
         // Initialize Android-specific data source before the app starts
         AndroidFlashcardDataSource.Initialize(Application!);
         AndroidWritingDataSource.Initialize(Application!);
+        AndroidSpeakingDataSource.Initialize(Application!);
         AndroidMbspDataSource.Initialize(Application!);
 
         return base.CustomizeAppBuilder(builder)

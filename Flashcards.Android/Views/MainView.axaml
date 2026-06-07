@@ -59,6 +59,10 @@
         <Style Selector="Button.choice-highlight /template/ ContentPresenter">
             <Setter Property="Background" Value="#3322C55F" />
         </Style>
+        <Style Selector="Button.choice-highlight">
+            <Setter Property="BorderBrush" Value="#8822C55F" />
+            <Setter Property="BorderThickness" Value="2" />
+        </Style>
     </UserControl.Styles>
 
     <Border
@@ -711,10 +715,6 @@
                                 Foreground="#FFCBD5E1"
                                 TextWrapping="Wrap" />
                         </ScrollViewer>
-                                FontSize="24"
-                                Foreground="#FFCBD5E1"
-                                TextWrapping="Wrap" />
-                        </ScrollViewer>
                     </Grid>
                 </Border>
 
@@ -820,7 +820,7 @@
             <Grid
                 Grid.Row="4"
                 Margin="0,12,0,0"
-                RowDefinitions="Auto,Auto,*,Auto,*,Auto,Auto"
+                RowDefinitions="Auto,Auto,*,Auto,*,Auto,Auto,Auto"
                 IsVisible="{Binding IsAddSpeakingPage}">
                 <TextBlock
                     Grid.Row="0"
@@ -848,13 +848,20 @@
                     Watermark="Notes text"
                     AcceptsReturn="True" TextWrapping="Wrap"
                     FontSize="23" Margin="0,0,0,8" VerticalAlignment="Stretch" />
-                <TextBlock
+                <TextBox
                     Grid.Row="5"
+                    Text="{Binding NewSpeakingPeriod}"
+                    Watermark="Period (e.g. 2 Min. Presentation)"
+                    FontSize="23"
+                    Margin="0,0,0,6"
+                    HorizontalAlignment="Stretch" />
+                <TextBlock
+                    Grid.Row="6"
                     Text="{Binding ValidationMessage}"
                     IsVisible="{Binding HasValidationMessage}"
                     TextWrapping="Wrap" Foreground="#FFFCA5A5" FontSize="22" />
                 <StackPanel
-                    Grid.Row="6"
+                    Grid.Row="7"
                     Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
                     <Button Content="Cancel" FontSize="23" Command="{Binding CancelAddSpeakingCommand}" />
                     <Button Content="Save" FontSize="23" Command="{Binding SaveNewSpeakingCommand}" />
