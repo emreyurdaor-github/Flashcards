@@ -224,16 +224,19 @@
                 <Panel Grid.Column="2" Width="38" Height="38" />
             </Grid>
 
-            <StackPanel
+            <ScrollViewer
                 Grid.Row="4"
-                Margin="0,12,0,0"
-                Spacing="10">
-                <StackPanel.IsVisible>
+                VerticalScrollBarVisibility="Auto"
+                HorizontalScrollBarVisibility="Disabled">
+                <ScrollViewer.IsVisible>
                     <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
                         <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="0" />
                         <Binding Path="IsFlashcardPage" />
                     </MultiBinding>
-                </StackPanel.IsVisible>
+                </ScrollViewer.IsVisible>
+            <StackPanel
+                Margin="0,12,0,0"
+                Spacing="10">
                 <Border
                     Margin="0,6,0,0"
                     Padding="12"
@@ -385,7 +388,33 @@
                             IsVisible="{Binding HighlightedExampleEnglish.IsFullTextOnly}"/>
                     </StackPanel>
                 </Border>
+
+                <!-- Mnemonic display -->
+                <Border
+                    Margin="0,6,0,0"
+                    Padding="12,10"
+                    CornerRadius="12"
+                    Background="#22A855F7"
+                    BorderBrush="#44A855F7"
+                    BorderThickness="1"
+                    IsVisible="{Binding HasCurrentMnemonic}">
+                    <Grid ColumnDefinitions="Auto,*">
+                        <TextBlock
+                            Grid.Column="0"
+                            Text="🧠"
+                            FontSize="22"
+                            VerticalAlignment="Top"
+                            Margin="0,0,8,0" />
+                        <TextBlock
+                            Grid.Column="1"
+                            Text="{Binding CurrentMnemonic}"
+                            FontSize="24"
+                            TextWrapping="Wrap"
+                            Foreground="#FFD8B4FE" />
+                    </Grid>
+                </Border>
             </StackPanel>
+            </ScrollViewer>
 
             <StackPanel
                 Grid.Row="4"
@@ -400,6 +429,7 @@
                 <TextBox Text="{Binding NewExampleDanish}" Watermark="Example Danish (optional)" AcceptsReturn="True" TextWrapping="Wrap" Height="65" FontSize="23" />
                 <TextBox Text="{Binding NewExampleEnglish}" Watermark="Example English (optional)" AcceptsReturn="True" TextWrapping="Wrap" Height="65" FontSize="23" />
                 <TextBox Text="{Binding NewContextualTip}" Watermark="Contextual tip (optional)" AcceptsReturn="True" TextWrapping="Wrap" Height="65" FontSize="23" />
+                <TextBox Text="{Binding NewMnemonic}" Watermark="Mnemonic (optional)" AcceptsReturn="True" TextWrapping="Wrap" Height="65" FontSize="23" />
                 <TextBlock
                     Text="{Binding ValidationMessage}"
                     IsVisible="{Binding HasValidationMessage}"

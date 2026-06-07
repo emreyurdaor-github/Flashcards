@@ -46,11 +46,17 @@ public static class AndroidFlashcardDataSource
         else if (assetChanged)
         {
             // Bundled asset was updated: re-copy it, but preserve any user-added rows
-            // (rows whose Danish key does not appear in the new asset)
-            var assetLines = ReadLines(assetBytes);
-            var existingLines = File.ReadAllLines(destPath);
-            var merged = MergeUserEntries(assetLines, existingLines);
-            File.WriteAllLines(destPath, merged, System.Text.Encoding.UTF8);
+            // (rows whose Danish key does not appear in the new asset).
+            // Use record-level splitting so multi-line quoted fields (e.g. mnemonic)
+            // are treated as a single record and not corrupted.
+            var assetContent = System.Text.Encoding.UTF8.GetString(assetBytes);
+            var assetRecords = FlashcardDataSource.SplitIntoRecords(assetContent);
+            var existingContent = File.ReadAllText(destPath);
+            var existingRecords = FlashcardDataSource.SplitIntoRecords(existingContent);
+            var merged = MergeUserEntries(assetRecords, existingRecords);
+            // Write records separated by newlines; embedded newlines inside quoted
+            // fields are preserved correctly as part of each record string.
+            File.WriteAllText(destPath, string.Join("\n", merged) + "\n", System.Text.Encoding.UTF8);
         }
 
         // Persist the asset hash so we can detect future updates
@@ -61,48 +67,39 @@ public static class AndroidFlashcardDataSource
     }
 
     /// <summary>
-    /// Returns the asset lines plus any rows from the existing stored CSV whose
+    /// Returns the asset records plus any records from the existing stored CSV whose
     /// Danish key (first CSV field) does not already appear in the asset.
+    /// Each element in the lists is a complete logical CSV record (may contain embedded
+    /// newlines for multi-line quoted fields such as mnemonic).
     /// </summary>
-    private static List<string> MergeUserEntries(string[] assetLines, string[] existingLines)
+    private static List<string> MergeUserEntries(List<string> assetRecords, List<string> existingRecords)
     {
         // Collect the set of Danish keys already present in the new asset
         var assetKeys = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
-        foreach (var line in assetLines)
+        foreach (var record in assetRecords)
         {
-            if (string.IsNullOrWhiteSpace(line) ||
-                line.StartsWith(ExpectedHeader, System.StringComparison.OrdinalIgnoreCase))
+            if (string.IsNullOrWhiteSpace(record) ||
+                record.StartsWith(ExpectedHeader, System.StringComparison.OrdinalIgnoreCase))
                 continue;
-            var key = ExtractFirstField(line);
+            var key = ExtractFirstField(record);
             if (!string.IsNullOrWhiteSpace(key))
                 assetKeys.Add(key.Trim());
         }
 
-        var result = new List<string>(assetLines);
+        var result = new List<string>(assetRecords);
 
-        // Append user-added rows that are not in the new asset
-        foreach (var line in existingLines)
+        // Append user-added records that are not in the new asset
+        foreach (var record in existingRecords)
         {
-            if (string.IsNullOrWhiteSpace(line) ||
-                line.StartsWith(ExpectedHeader, System.StringComparison.OrdinalIgnoreCase))
+            if (string.IsNullOrWhiteSpace(record) ||
+                record.StartsWith(ExpectedHeader, System.StringComparison.OrdinalIgnoreCase))
                 continue;
-            var key = ExtractFirstField(line);
+            var key = ExtractFirstField(record);
             if (!string.IsNullOrWhiteSpace(key) && !assetKeys.Contains(key.Trim()))
-                result.Add(line);
+                result.Add(record);
         }
 
         return result;
-    }
-
-    private static string[] ReadLines(byte[] bytes)
-    {
-        using var ms = new MemoryStream(bytes);
-        using var reader = new StreamReader(ms, System.Text.Encoding.UTF8);
-        var lines = new List<string>();
-        string? line;
-        while ((line = reader.ReadLine()) != null)
-            lines.Add(line);
-        return [.. lines];
     }
 
     /// <summary>Extracts the first CSV field (handles quoted fields).</summary>

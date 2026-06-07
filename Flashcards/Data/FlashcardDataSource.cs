@@ -68,9 +68,12 @@ public static class FlashcardDataSource
         if (!File.Exists(CsvPath))
             return list;
 
-        var lines = File.ReadAllLines(CsvPath);
+        // Read as full text so that quoted fields containing newlines are kept intact,
+        // then split into logical CSV records (newlines inside quoted fields are NOT record separators).
+        var content = File.ReadAllText(CsvPath);
+        var records = SplitIntoRecords(content);
 
-        foreach (var line in lines)
+        foreach (var line in records)
         {
             // Skip header and blank lines
             if (string.IsNullOrWhiteSpace(line) ||
@@ -161,6 +164,80 @@ public static class FlashcardDataSource
     private static string NormalizeDanishKey(string danish)
     {
         return danish.Trim().ToUpperInvariant();
+    }
+
+    // Splits a full CSV file text into logical records, correctly keeping newlines
+    // that appear inside quoted fields as part of the same record rather than
+    // treating them as record separators.
+    internal static List<string> SplitIntoRecords(string content)
+    {
+        var records = new List<string>();
+        var current = new System.Text.StringBuilder();
+        bool inQuotes = false;
+
+        for (int i = 0; i < content.Length; i++)
+        {
+            char c = content[i];
+
+            if (inQuotes)
+            {
+                if (c == '"')
+                {
+                    // Escaped double-quote ("") inside a quoted field
+                    if (i + 1 < content.Length && content[i + 1] == '"')
+                    {
+                        current.Append("\"\"");
+                        i++;
+                    }
+                    else
+                    {
+                        // Closing quote
+                        inQuotes = false;
+                        current.Append(c);
+                    }
+                }
+                else
+                {
+                    // Newlines inside a quoted field are part of the field value
+                    current.Append(c);
+                }
+            }
+            else
+            {
+                if (c == '"')
+                {
+                    inQuotes = true;
+                    current.Append(c);
+                }
+                else if (c == '\n')
+                {
+                    // Strip trailing \r for Windows line endings
+                    if (current.Length > 0 && current[current.Length - 1] == '\r')
+                        current.Length--;
+
+                    var record = current.ToString();
+                    if (!string.IsNullOrWhiteSpace(record))
+                        records.Add(record);
+                    current.Clear();
+                }
+                else if (c != '\r') // skip bare \r
+                {
+                    current.Append(c);
+                }
+            }
+        }
+
+        // Flush any trailing content not terminated by a newline
+        if (current.Length > 0)
+        {
+            if (current[current.Length - 1] == '\r')
+                current.Length--;
+            var record = current.ToString();
+            if (!string.IsNullOrWhiteSpace(record))
+                records.Add(record);
+        }
+
+        return records;
     }
 
     // Minimal CSV line splitter that handles quoted fields.
