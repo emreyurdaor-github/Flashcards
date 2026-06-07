@@ -15,7 +15,7 @@ public static class AndroidFlashcardDataSource
 {
     private const string CsvFileName = "flashcards.csv";
     private const string HashFileName = "flashcards.csv.assetHash";
-    private const string ExpectedHeader = "Danish,English,Type,Conjugation,ExampleDanish,ExampleEnglish,ContextualTip";
+    private const string ExpectedHeader = "Danish,English,Type,Conjugation,ExampleDanish,ExampleEnglish,ContextualTip,Mnemonic";
 
     public static void Initialize(global::Android.App.Application app)
     {

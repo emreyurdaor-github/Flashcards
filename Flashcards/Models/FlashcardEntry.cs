@@ -16,6 +16,8 @@ public sealed class FlashcardEntry
 
     public string? ContextualTip { get; init; }
 
+    public string? Mnemonic { get; init; }
+
     public bool HasConjugation => !string.IsNullOrWhiteSpace(Conjugation);
 
     public bool HasExampleDanish => !string.IsNullOrWhiteSpace(ExampleDanish);
@@ -23,4 +25,6 @@ public sealed class FlashcardEntry
     public bool HasExampleEnglish => !string.IsNullOrWhiteSpace(ExampleEnglish);
 
     public bool HasContextualTip => !string.IsNullOrWhiteSpace(ContextualTip);
+
+    public bool HasMnemonic => !string.IsNullOrWhiteSpace(Mnemonic);
 }

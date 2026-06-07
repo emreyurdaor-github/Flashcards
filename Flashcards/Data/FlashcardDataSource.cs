@@ -9,7 +9,7 @@ namespace Flashcards.Data;
 public static class FlashcardDataSource
 {
     private const string CsvFileName = "flashcards.csv";
-    private const string CsvHeader = "Danish,English,Type,Conjugation,ExampleDanish,ExampleEnglish,ContextualTip";
+    private const string CsvHeader = "Danish,English,Type,Conjugation,ExampleDanish,ExampleEnglish,ContextualTip,Mnemonic";
 
     private static string? _overrideCsvPath;
 
@@ -104,6 +104,9 @@ public static class FlashcardDataSource
                 ContextualTip = parts.Length > 6 && !string.IsNullOrWhiteSpace(parts[6])
                     ? parts[6]
                     : null,
+                Mnemonic = parts.Length > 7 && !string.IsNullOrWhiteSpace(parts[7])
+                    ? parts[7]
+                    : null,
             };
 
             // Keep first occurrence from CSV if duplicate Danish keys are present.
@@ -124,7 +127,7 @@ public static class FlashcardDataSource
 
         foreach (var card in Flashcards)
         {
-            lines.Add($"{EscapeCsvField(card.Danish)},{EscapeCsvField(card.English)},{EscapeCsvField(card.Type)},{EscapeCsvField(card.Conjugation ?? string.Empty)},{EscapeCsvField(card.ExampleDanish ?? string.Empty)},{EscapeCsvField(card.ExampleEnglish ?? string.Empty)},{EscapeCsvField(card.ContextualTip ?? string.Empty)}");
+            lines.Add($"{EscapeCsvField(card.Danish)},{EscapeCsvField(card.English)},{EscapeCsvField(card.Type)},{EscapeCsvField(card.Conjugation ?? string.Empty)},{EscapeCsvField(card.ExampleDanish ?? string.Empty)},{EscapeCsvField(card.ExampleEnglish ?? string.Empty)},{EscapeCsvField(card.ContextualTip ?? string.Empty)},{EscapeCsvField(card.Mnemonic ?? string.Empty)}");
         }
 
         // Write to the runtime output directory (where the app reads from)

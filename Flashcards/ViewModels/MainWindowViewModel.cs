@@ -38,6 +38,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     private string _newExampleDanish = string.Empty;
     private string _newExampleEnglish = string.Empty;
     private string _newContextualTip = string.Empty;
+    private string _newMnemonic = string.Empty;
     private string _newWritingDanish = string.Empty;
     private string _newWritingEnglish = string.Empty;
     private string _newWritingDanishTitle = string.Empty;
@@ -212,6 +213,8 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
                 OnPropertyChanged(nameof(HasCurrentExampleEnglish));
                 OnPropertyChanged(nameof(CurrentContextualTip));
                 OnPropertyChanged(nameof(HasCurrentContextualTip));
+                OnPropertyChanged(nameof(CurrentMnemonic));
+                OnPropertyChanged(nameof(HasCurrentMnemonic));
                 OnPropertyChanged(nameof(HasFlashcards));
                 
                 // Update highlighted examples
@@ -262,6 +265,10 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     public string? CurrentContextualTip => CurrentFlashcard?.ContextualTip;
 
     public bool HasCurrentContextualTip => CurrentFlashcard?.HasContextualTip == true;
+
+    public string? CurrentMnemonic => CurrentFlashcard?.Mnemonic;
+
+    public bool HasCurrentMnemonic => CurrentFlashcard?.HasMnemonic == true;
 
     public string? CurrentExampleDanishHighlighted
     {
@@ -691,6 +698,12 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     {
         get => _newContextualTip;
         set => SetProperty(ref _newContextualTip, value);
+    }
+
+    public string NewMnemonic
+    {
+        get => _newMnemonic;
+        set => SetProperty(ref _newMnemonic, value);
     }
 
     public string ValidationMessage
@@ -1447,6 +1460,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         NewExampleDanish = CurrentFlashcard.ExampleDanish ?? string.Empty;
         NewExampleEnglish = CurrentFlashcard.ExampleEnglish ?? string.Empty;
         NewContextualTip = CurrentFlashcard.ContextualTip ?? string.Empty;
+        NewMnemonic = CurrentFlashcard.Mnemonic ?? string.Empty;
 
         IsEditMode = true;
         IsAddRecordPage = true;
@@ -1461,6 +1475,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         var exampleDanish = string.IsNullOrWhiteSpace(NewExampleDanish) ? null : NewExampleDanish.Trim();
         var exampleEnglish = string.IsNullOrWhiteSpace(NewExampleEnglish) ? null : NewExampleEnglish.Trim();
         var contextualTip = string.IsNullOrWhiteSpace(NewContextualTip) ? null : NewContextualTip.Trim();
+        var mnemonic = string.IsNullOrWhiteSpace(NewMnemonic) ? null : NewMnemonic.Trim();
 
         if (string.IsNullOrWhiteSpace(danish) || string.IsNullOrWhiteSpace(english))
         {
@@ -1483,6 +1498,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
             ExampleDanish = exampleDanish,
             ExampleEnglish = exampleEnglish,
             ContextualTip = contextualTip,
+            Mnemonic = mnemonic,
         };
 
         if (IsEditMode)
@@ -1609,6 +1625,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         NewExampleDanish = string.Empty;
         NewExampleEnglish = string.Empty;
         NewContextualTip = string.Empty;
+        NewMnemonic = string.Empty;
         NewWritingDanish = string.Empty;
         NewWritingEnglish = string.Empty;
         NewWritingDanishTitle = string.Empty;

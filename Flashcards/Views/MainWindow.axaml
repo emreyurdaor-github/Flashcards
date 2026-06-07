@@ -456,6 +456,31 @@
                             IsVisible="{Binding HighlightedExampleEnglish.IsFullTextOnly}"/>
                     </StackPanel>
                 </Border>
+
+                <!-- Mnemonic display -->
+                <Border
+                    Margin="0,6,0,0"
+                    Padding="10,8"
+                    CornerRadius="10"
+                    Background="#22A855F7"
+                    BorderBrush="#44A855F7"
+                    BorderThickness="1"
+                    IsVisible="{Binding HasCurrentMnemonic}">
+                    <Grid ColumnDefinitions="Auto,*">
+                        <TextBlock
+                            Grid.Column="0"
+                            Text="🧠"
+                            FontSize="12"
+                            VerticalAlignment="Top"
+                            Margin="0,0,6,0" />
+                        <TextBlock
+                            Grid.Column="1"
+                            Text="{Binding CurrentMnemonic}"
+                            FontSize="14"
+                            TextWrapping="Wrap"
+                            Foreground="#FFD8B4FE" />
+                    </Grid>
+                </Border>
             </StackPanel>
 
             <StackPanel
@@ -513,6 +538,13 @@
                 <TextBox
                     Text="{Binding NewContextualTip}"
                     Watermark="Contextual tip (optional)"
+                    AcceptsReturn="True"
+                    TextWrapping="Wrap"
+                    Height="50" />
+
+                <TextBox
+                    Text="{Binding NewMnemonic}"
+                    Watermark="Mnemonic (optional)"
                     AcceptsReturn="True"
                     TextWrapping="Wrap"
                     Height="50" />
