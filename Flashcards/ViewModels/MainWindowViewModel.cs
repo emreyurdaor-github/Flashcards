@@ -2236,8 +2236,23 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     /// Splits text into chunks of at most 180 characters, breaking on sentence
     /// boundaries (. ! ?) where possible, then on commas/spaces.
     /// </summary>
+    /// <summary>
+    /// Removes all content enclosed in square brackets (e.g. "[stage direction]") from text.
+    /// Cleans up any double-spaces left behind.
+    /// </summary>
+    private static string StripBracketedText(string text)
+    {
+        // Remove everything between [ and ] (including the brackets themselves)
+        var result = System.Text.RegularExpressions.Regex.Replace(text, @"\[.*?\]", string.Empty);
+        // Collapse multiple spaces / trim
+        result = System.Text.RegularExpressions.Regex.Replace(result, @"  +", " ");
+        return result.Trim();
+    }
+
     private static IEnumerable<string> SplitIntoTtsChunks(string text, int maxLen = 180)
     {
+        // Strip bracketed annotations before chunking
+        text = StripBracketedText(text);
         // Normalise whitespace
         text = text.Trim();
         while (text.Length > 0)
