@@ -55,6 +55,27 @@
         <Style Selector="Button.icon-btn:disabled /template/ ContentPresenter">
             <Setter Property="Opacity" Value="0.35" />
         </Style>
+        <!-- Repeat toggle button style -->
+        <Style Selector="ToggleButton.repeat-btn">
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+        <Style Selector="ToggleButton.repeat-btn /template/ ContentPresenter">
+            <Setter Property="CornerRadius" Value="11" />
+        </Style>
+        <Style Selector="ToggleButton.repeat-btn:checked /template/ ContentPresenter">
+            <Setter Property="Background" Value="#4486EFAC" />
+        </Style>
+        <Style Selector="ToggleButton.repeat-btn:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#33FFFFFF" />
+        </Style>
+        <Style Selector="ToggleButton.repeat-btn:pressed /template/ ContentPresenter">
+            <Setter Property="Background" Value="#55FFFFFF" />
+        </Style>
         <!-- MBSP choice result styles -->
         <Style Selector="Button.choice-correct /template/ ContentPresenter">
             <Setter Property="Background" Value="#4422C55F" />
@@ -818,10 +839,10 @@
                     BorderBrush="#334BA3C7"
                     BorderThickness="1">
                     <Grid RowDefinitions="Auto,Auto,*">
-                        <!-- Timer row: speaker button (left) + counter + play (right) -->
+                        <!-- Timer row: speaker button (left) + repeat toggle + counter + play (right) -->
                         <Grid
                             Grid.Row="0"
-                            ColumnDefinitions="Auto,*,Auto"
+                            ColumnDefinitions="Auto,Auto,*,Auto"
                             Margin="0,0,0,4"
                             IsVisible="{Binding IsSpeakingTimerVisible}">
                             <!-- Left: speaker button -->
@@ -840,9 +861,25 @@
                                     Stretch="Uniform"
                                     Data="M4,5 L4,13 L1,11 L1,7 Z M4,5 L10,2 L10,16 L4,13 Z M11,7 Q13,9 11,11 M12,5.5 Q15,9 12,12.5" />
                             </Button>
+                            <!-- Repeat toggle button -->
+                            <ToggleButton
+                                Grid.Column="1"
+                                Width="22"
+                                Height="22"
+                                Classes="repeat-btn"
+                                IsChecked="{Binding IsSpeakingRepeatEnabled, Mode=TwoWay}"
+                                ToolTip.Tip="Repeat"
+                                VerticalAlignment="Center"
+                                Margin="4,0,0,0">
+                                <Path
+                                    Width="12" Height="12"
+                                    Fill="#FF86EFAC"
+                                    Stretch="Uniform"
+                                    Data="M 1,5 L 11,5 L 11,3 L 15,6 L 11,9 L 11,7 L 1,7 Z M 15,11 L 5,11 L 5,9 L 1,12 L 5,15 L 5,13 L 15,13 Z" />
+                            </ToggleButton>
                             <!-- Right: counter + play button -->
                             <StackPanel
-                                Grid.Column="2"
+                                Grid.Column="3"
                                 Orientation="Horizontal"
                                 Spacing="4"
                                 VerticalAlignment="Center">

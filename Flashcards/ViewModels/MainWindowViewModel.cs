@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Threading;
@@ -63,6 +64,10 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     private int _speakingTotalWords = 0;
     private List<string> _speakingWords = new();
 
+    // Speaking repeat
+    private bool _isSpeakingRepeatEnabled = false;
+    private CancellationTokenSource? _speakingPlayCts;
+
     // MBSP
     private readonly IReadOnlyList<MbspQuestion> _mbspQuestions = MbspDataSource.GetQuestions();
     private MbspQuestion? _currentMbspQuestion;
@@ -121,7 +126,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         }
     }
 
-    public bool IsSpeakingTimerVisible => _selectedSpeakingCategory == "2 Min. Presentation";
+    public bool IsSpeakingTimerVisible => HasSpeakingEntries;
 
     public string SpeakingTimerDisplay =>
         $"{_speakingTimerSeconds / 60:D2}:{_speakingTimerSeconds % 60:D2}";
@@ -878,11 +883,13 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         {
             if (SetProperty(ref _currentSpeakingEntry, value))
             {
+                _speakingPlayCts?.Cancel();
                 OnPropertyChanged(nameof(CurrentSpeakingTopicTitle));
                 OnPropertyChanged(nameof(CurrentSpeakingTopic));
                 OnPropertyChanged(nameof(CurrentSpeakingNotesTitle));
                 OnPropertyChanged(nameof(CurrentSpeakingNotes));
                 OnPropertyChanged(nameof(HasSpeakingEntries));
+                OnPropertyChanged(nameof(IsSpeakingTimerVisible));
                 ResetWordHighlight();
             }
         }
@@ -999,6 +1006,19 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     {
         get => _speakingShowTopic;
         set => SetProperty(ref _speakingShowTopic, value);
+    }
+
+    public bool IsSpeakingRepeatEnabled
+    {
+        get => _isSpeakingRepeatEnabled;
+        set
+        {
+            if (SetProperty(ref _isSpeakingRepeatEnabled, value))
+            {
+                if (!value)
+                    _speakingPlayCts?.Cancel();
+            }
+        }
     }
 
     public bool MbspAnswerRevealed
@@ -1367,13 +1387,12 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
                 .OrderByDescending(p => p))
             .ToList();
 
-        SpeakingCategories = new[] { "All" }
-            .Concat(_speakingEntries
-                .Select(e => e.Period)
-                .Where(p => !string.IsNullOrWhiteSpace(p))
-                .Distinct())
+        SpeakingCategories = _speakingEntries
+            .Select(e => e.Period)
+            .Where(p => !string.IsNullOrWhiteSpace(p))
+            .Distinct()
             .ToList();
-        _selectedSpeakingCategory = SpeakingCategories.Count > 0 ? SpeakingCategories[0] : "All";
+        _selectedSpeakingCategory = SpeakingCategories.Count > 0 ? SpeakingCategories[0] : string.Empty;
 
         SelectNextFlashcard();
         UpdateRotationState();
@@ -1388,6 +1407,8 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         _rotationTimer.Tick -= OnRotationTimerTick;
         _speakingTimer?.Stop();
         _speakingWordTimer?.Stop();
+        _speakingPlayCts?.Cancel();
+        _speakingPlayCts?.Dispose();
         _audioService?.Dispose();
     }
 
@@ -1786,21 +1807,77 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
 
     private async Task StartSpeakingTimerAndPlayAsync()
     {
-        // Reset to 2 minutes and start counting down
+        var text = CurrentSpeakingTopic;
+
+        // Reset timer display (but don't start it yet)
         _speakingTimerSeconds = 120;
         OnPropertyChanged(nameof(SpeakingTimerDisplay));
 
-        _speakingTimer ??= new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
-        _speakingTimer.Tick -= OnSpeakingTimerTick;
-        _speakingTimer.Tick += OnSpeakingTimerTick;
-        _speakingTimer.Start();
-        IsSpeakingTimerRunning = true;
+        // Cancel any existing playback/repeat loop
+        _speakingPlayCts?.Cancel();
+        _speakingPlayCts = new CancellationTokenSource();
+        var cts = _speakingPlayCts;
 
-        // Start word highlighting
-        StartWordHighlight();
+        try
+        {
+            // 1. Play Emne first (no timer / highlighting yet)
+            await PlayEmneAsync(cts);
 
-        // Also read the topic text aloud
-        await PlaySpeakingTopicAsync();
+            if (cts.IsCancellationRequested) return;
+
+            // 2. NOW start the countdown timer and word highlighting
+            _speakingTimer ??= new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+            _speakingTimer.Tick -= OnSpeakingTimerTick;
+            _speakingTimer.Tick += OnSpeakingTimerTick;
+            _speakingTimer.Start();
+            IsSpeakingTimerRunning = true;
+            StartWordHighlight();
+
+            // 3. Play Praesentation (with optional repeat)
+            if (!string.IsNullOrWhiteSpace(text) && text != "No speaking entries available")
+            {
+                do
+                {
+                    foreach (var chunk in SplitIntoTtsChunks(text))
+                    {
+                        if (cts.IsCancellationRequested) return;
+                        await _audioService.PlayDanishPronunciation(chunk, slow: true);
+                    }
+
+                    if (_isSpeakingRepeatEnabled && !cts.IsCancellationRequested)
+                        await Task.Delay(700, cts.Token);
+                }
+                while (_isSpeakingRepeatEnabled && !cts.IsCancellationRequested);
+            }
+        }
+        catch (OperationCanceledException) { }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ViewModel] StartSpeakingTimerAndPlayAsync: Error - {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Plays the Emne (topic title) aloud, followed by a 2-second silence.
+    /// Returns immediately (without playing) when Emne is empty.
+    /// </summary>
+    private async Task PlayEmneAsync(CancellationTokenSource cts)
+    {
+        var emne = _currentSpeakingEntry?.Emne;
+        if (string.IsNullOrWhiteSpace(emne)) return;
+
+        foreach (var chunk in SplitIntoTtsChunks(emne))
+        {
+            if (cts.IsCancellationRequested) return;
+            await _audioService.PlayDanishPronunciation(chunk, slow: true);
+        }
+
+        // 2-second pause between Emne and Praesentation
+        if (!cts.IsCancellationRequested)
+        {
+            try { await Task.Delay(2000, cts.Token); }
+            catch (OperationCanceledException) { }
+        }
     }
 
     private void OnSpeakingTimerTick(object? sender, EventArgs e)
@@ -2123,13 +2200,32 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         var text = CurrentSpeakingTopic;
         if (string.IsNullOrWhiteSpace(text) ||
             text == "No speaking entries available") return;
+
+        // Cancel any existing playback/repeat loop
+        _speakingPlayCts?.Cancel();
+        _speakingPlayCts = new CancellationTokenSource();
+        var cts = _speakingPlayCts;
+
         try
         {
-            foreach (var chunk in SplitIntoTtsChunks(text))
+            // 1. Play Emne first, then 2-second pause
+            await PlayEmneAsync(cts);
+
+            // 2. Play Praesentation (with optional repeat)
+            do
             {
-                await _audioService.PlayDanishPronunciation(chunk);
+                foreach (var chunk in SplitIntoTtsChunks(text))
+                {
+                    if (cts.IsCancellationRequested) return;
+                    await _audioService.PlayDanishPronunciation(chunk, slow: true);
+                }
+
+                if (_isSpeakingRepeatEnabled && !cts.IsCancellationRequested)
+                    await Task.Delay(700, cts.Token);
             }
+            while (_isSpeakingRepeatEnabled && !cts.IsCancellationRequested);
         }
+        catch (OperationCanceledException) { }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[ViewModel] PlaySpeakingTopicAsync: Error - {ex.Message}");

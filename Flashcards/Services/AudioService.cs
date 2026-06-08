@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Avalonia.Platform;
 using NAudio.Wave;
+using NAudio.Wave.SampleProviders;
 
 namespace Flashcards.Services;
 
@@ -28,7 +29,7 @@ public class AudioService : IDisposable
     /// <summary>
     /// Plays Danish pronunciation for a given word using Google Translate TTS
     /// </summary>
-    public async Task PlayDanishPronunciation(string word)
+    public async Task PlayDanishPronunciation(string word, bool slow = false)
     {
         if (string.IsNullOrWhiteSpace(word))
             return;
@@ -68,7 +69,7 @@ public class AudioService : IDisposable
             System.Diagnostics.Debug.WriteLine($"[AudioService] Saved audio to: {tempFile}");
 
             // Play the audio asynchronously and wait for it to complete
-            await PlayAudioFileAsync(tempFile);
+            await PlayAudioFileAsync(tempFile, slow);
 
             // Clean up temp file after playback completes
             try
@@ -157,7 +158,7 @@ public class AudioService : IDisposable
         }
     }
 
-    private async Task PlayAudioFileAsync(string filePath)
+    private async Task PlayAudioFileAsync(string filePath, bool slow = false)
     {
         try
         {
@@ -185,8 +186,20 @@ public class AudioService : IDisposable
             // Create new player and play MP3 file
             _wavePlayer = new WaveOutEvent();
             var reader = new AudioFileReader(filePath);
-            
-            _wavePlayer.Init(reader);
+
+            if (slow)
+            {
+                // Upsample to ~133% of original rate so WaveOut plays it at 75% speed
+                int slowRate = (int)(reader.WaveFormat.SampleRate / 0.75);
+                var resampled = new WdlResamplingSampleProvider(reader, slowRate);
+                _wavePlayer.Init(resampled);
+                System.Diagnostics.Debug.WriteLine($"[AudioService] Slow mode: resampling {reader.WaveFormat.SampleRate} Hz -> {slowRate} Hz");
+            }
+            else
+            {
+                _wavePlayer.Init(reader);
+            }
+
             System.Diagnostics.Debug.WriteLine("[AudioService] Starting playback...");
             _wavePlayer.Play();
             
