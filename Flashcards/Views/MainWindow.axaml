@@ -14,8 +14,8 @@
     x:DataType="vm:MainWindowViewModel"
     Title="Flashcards"
     Icon="/Assets/app.ico"
-    Width="520"
-    Height="680"
+    Width="560"
+    Height="720"
     CanResize="False"
     ShowInTaskbar="False"
     SystemDecorations="None"
@@ -910,7 +910,7 @@
                         <TextBlock
                             Grid.Row="1"
                             Text="{Binding CurrentSpeakingTopicTitle}"
-                            FontSize="12"
+                            FontSize="14"
                             Foreground="#FFFBBF24"
                             FontWeight="SemiBold"
                             TextWrapping="Wrap"
@@ -942,7 +942,7 @@
                         <TextBlock
                             Grid.Row="0"
                             Text="{Binding CurrentSpeakingNotesTitle}"
-                            FontSize="12"
+                            FontSize="14"
                             Foreground="#FFFBBF24"
                             FontWeight="SemiBold"
                             TextWrapping="Wrap"
