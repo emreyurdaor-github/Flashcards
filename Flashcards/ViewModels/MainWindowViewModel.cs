@@ -914,8 +914,44 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
             return emne;
         }
     }
-    public string CurrentSpeakingTopic => _currentSpeakingEntry?.Praesentation ?? "No speaking entries available";
-    public string CurrentSpeakingNotesTitle => _currentSpeakingEntry?.Subject ?? "Notes";
+    public string CurrentSpeakingTopic
+    {
+        get
+        {
+            var topic = _currentSpeakingEntry?.Praesentation ?? "No speaking entries available";
+            // If the topic starts with a [section] tag, insert a line break after the closing ]
+            if (topic.StartsWith('['))
+            {
+                var bracketClose = topic.IndexOf(']');
+                if (bracketClose >= 0 && bracketClose < topic.Length - 1)
+                {
+                    var afterBracket = topic.Substring(bracketClose + 1).TrimStart();
+                    if (!string.IsNullOrEmpty(afterBracket))
+                        return topic.Substring(0, bracketClose + 1) + "\n\n" + afterBracket;
+                }
+            }
+            return topic;
+        }
+    }
+    public string CurrentSpeakingNotesTitle
+    {
+        get
+        {
+            var subject = _currentSpeakingEntry?.Subject ?? "Notes";
+            // If the Subject starts with a [section] tag, insert a line break after the closing ]
+            if (subject.StartsWith('['))
+            {
+                var bracketClose = subject.IndexOf(']');
+                if (bracketClose >= 0 && bracketClose < subject.Length - 1)
+                {
+                    var afterBracket = subject.Substring(bracketClose + 1).TrimStart();
+                    if (!string.IsNullOrEmpty(afterBracket))
+                        return subject.Substring(0, bracketClose + 1) + "\n\n" + afterBracket;
+                }
+            }
+            return subject;
+        }
+    }
     public string CurrentSpeakingNotes => _currentSpeakingEntry?.Presentation ?? string.Empty;
     public bool HasSpeakingEntries => _currentSpeakingEntry is not null;
 

@@ -15,7 +15,7 @@
     Title="Flashcards"
     Icon="/Assets/app.ico"
     Width="560"
-    Height="720"
+    Height="800"
     CanResize="False"
     ShowInTaskbar="False"
     SystemDecorations="None"
