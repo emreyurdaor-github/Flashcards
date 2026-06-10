@@ -33,8 +33,8 @@ public static class SpeakingDataSource
 
     public static bool TryAddEntry(SpeakingEntry entry)
     {
-        var normalizedKey = NormalizeKey(entry.Praesentation);
-        if (Entries.Any(e => NormalizeKey(e.Praesentation) == normalizedKey))
+        var normalizedKey = NormalizeKey(entry.Emne);
+        if (Entries.Any(e => NormalizeKey(e.Emne) == normalizedKey))
             return false;
 
         Entries.Add(entry);
@@ -42,15 +42,15 @@ public static class SpeakingDataSource
         return true;
     }
 
-    public static bool TryUpdateEntry(string originalPraesentation, SpeakingEntry updated)
+    public static bool TryUpdateEntry(string originalEmne, SpeakingEntry updated)
     {
-        var originalKey = NormalizeKey(originalPraesentation);
-        var updatedKey = NormalizeKey(updated.Praesentation);
+        var originalKey = NormalizeKey(originalEmne);
+        var updatedKey = NormalizeKey(updated.Emne);
 
-        if (originalKey != updatedKey && Entries.Any(e => NormalizeKey(e.Praesentation) == updatedKey))
+        if (originalKey != updatedKey && Entries.Any(e => NormalizeKey(e.Emne) == updatedKey))
             return false;
 
-        var index = Entries.FindIndex(e => NormalizeKey(e.Praesentation) == originalKey);
+        var index = Entries.FindIndex(e => NormalizeKey(e.Emne) == originalKey);
         if (index < 0) return false;
 
         Entries[index] = updated;
@@ -100,10 +100,10 @@ public static class SpeakingDataSource
                     Period = string.Empty,
                 };
 
-            if (string.IsNullOrWhiteSpace(entry.Praesentation))
+            if (string.IsNullOrWhiteSpace(entry.Emne))
                 continue;
 
-            if (!seenKeys.Add(NormalizeKey(entry.Praesentation)))
+            if (!seenKeys.Add(NormalizeKey(entry.Emne)))
                 continue;
 
             list.Add(entry);
@@ -227,5 +227,5 @@ public static class SpeakingDataSource
         return $"\"{normalized.Replace("\"", "\"\"")}\"";
     }
 
-    private static string NormalizeKey(string praesentation) => praesentation.Trim().ToUpperInvariant();
+    private static string NormalizeKey(string emne) => emne.Trim().ToUpperInvariant();
 }

@@ -895,7 +895,25 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         }
     }
 
-    public string CurrentSpeakingTopicTitle => _currentSpeakingEntry?.Emne ?? "Topic";
+    public string CurrentSpeakingTopicTitle
+    {
+        get
+        {
+            var emne = _currentSpeakingEntry?.Emne ?? "Topic";
+            // If the Emne starts with a [section] tag, insert a line break after the closing ]
+            if (emne.StartsWith('['))
+            {
+                var bracketClose = emne.IndexOf(']');
+                if (bracketClose >= 0 && bracketClose < emne.Length - 1)
+                {
+                    var afterBracket = emne.Substring(bracketClose + 1).TrimStart();
+                    if (!string.IsNullOrEmpty(afterBracket))
+                        return emne.Substring(0, bracketClose + 1) + "\n\n" + afterBracket;
+                }
+            }
+            return emne;
+        }
+    }
     public string CurrentSpeakingTopic => _currentSpeakingEntry?.Praesentation ?? "No speaking entries available";
     public string CurrentSpeakingNotesTitle => _currentSpeakingEntry?.Subject ?? "Notes";
     public string CurrentSpeakingNotes => _currentSpeakingEntry?.Presentation ?? string.Empty;
@@ -2098,11 +2116,11 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         var notesTitle = NewSpeakingNotesTitle.Trim();
         var notes = NewSpeakingNotes.Trim();
 
-        if (string.IsNullOrWhiteSpace(topic))
-        {
-            ValidationMessage = "Topic text is required.";
-            return;
-        }
+        // if (string.IsNullOrWhiteSpace(topic))
+        // {
+        //     ValidationMessage = "Topic text is required.";
+        //     return;
+        // }
 
         var entry = new SpeakingEntry
         {
@@ -2115,7 +2133,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
 
         if (IsEditMode)
         {
-            var original = CurrentSpeakingEntry?.Praesentation ?? string.Empty;
+            var original = CurrentSpeakingEntry?.Emne ?? string.Empty;
             if (!SpeakingDataSource.TryUpdateEntry(original, entry))
             {
                 ValidationMessage = "Unable to update: conflicts with an existing record.";
