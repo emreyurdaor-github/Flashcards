@@ -2307,47 +2307,56 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     {
         // Strip bracketed annotations before chunking
         text = StripBracketedText(text);
-        // Normalise whitespace
-        text = text.Trim();
-        while (text.Length > 0)
-        {
-            if (text.Length <= maxLen)
-            {
-                yield return text;
-                yield break;
-            }
+        
+        // Split text by line break characters to get paragraphs
+        var paragraphs = text.Split(new[] { "\r\n", "\r", "\n","." }, StringSplitOptions.RemoveEmptyEntries);
 
-            // Try to break on a sentence-ending punctuation within the limit
-            int breakAt = -1;
-            for (int i = maxLen; i >= maxLen / 2; i--)
+        foreach (var p in paragraphs)
+        {
+            var paragraph = p.Trim();
+            if (string.IsNullOrWhiteSpace(paragraph))
+                continue;
+
+            while (paragraph.Length > 0)
             {
-                char c = text[i - 1];
-                if (c == '.' || c == '!' || c == '?')
+                if (paragraph.Length <= maxLen)
                 {
-                    breakAt = i;
+                    yield return paragraph;
                     break;
                 }
-            }
 
-            // Fall back to comma or space
-            if (breakAt < 0)
-            {
+                // Try to break on a sentence-ending punctuation within the limit
+                int breakAt = -1;
                 for (int i = maxLen; i >= maxLen / 2; i--)
                 {
-                    char c = text[i - 1];
-                    if (c == ',' || c == ' ')
+                    char c = paragraph[i - 1];
+                    if (c == '.' || c == '!' || c == '?')
                     {
                         breakAt = i;
                         break;
                     }
                 }
+
+                // Fall back to comma or space
+                if (breakAt < 0)
+                {
+                    for (int i = maxLen; i >= maxLen / 2; i--)
+                    {
+                        char c = paragraph[i - 1];
+                        if (c == ',' || c == ' ')
+                        {
+                            breakAt = i;
+                            break;
+                        }
+                    }
+                }
+
+                // Hard cut if nothing suitable found
+                if (breakAt < 0) breakAt = maxLen;
+
+                yield return paragraph[..breakAt].Trim();
+                paragraph = paragraph[breakAt..].Trim();
             }
-
-            // Hard cut if nothing suitable found
-            if (breakAt < 0) breakAt = maxLen;
-
-            yield return text[..breakAt].Trim();
-            text = text[breakAt..].Trim();
         }
     }
 
