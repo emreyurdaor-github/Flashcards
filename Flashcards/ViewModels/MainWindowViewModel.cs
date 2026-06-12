@@ -31,7 +31,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     private bool _isAddSpeakingPage;
     private bool _isRotationPaused = true;
     private bool _isMuted = true;
-    private int _selectedTabIndex = 0;
+    private int _selectedTabIndex = 3;
     private string _newDanish = string.Empty;
     private string _newEnglish = string.Empty;
     private string _newType = string.Empty;
@@ -1445,6 +1445,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
             .Select(e => e.Period)
             .Where(p => !string.IsNullOrWhiteSpace(p))
             .Distinct()
+            .OrderBy(p => p)
             .ToList();
         _selectedSpeakingCategory = SpeakingCategories.Count > 0 ? SpeakingCategories[0] : string.Empty;
 
