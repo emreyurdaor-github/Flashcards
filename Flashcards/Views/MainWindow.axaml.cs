@@ -187,7 +187,10 @@ public partial class MainWindow : Window
         foreach (var seg in vm.CurrentSpeakingTopicSegments)
             tb.Inlines.Add(BuildSpeakingInline(seg,
                 normalFore: seg.IsHighlighted ? greenBrush : whiteBrush,
-                normalWeight: FontWeight.Normal));
+                normalWeight: FontWeight.Normal,
+                onHoverPlayDanish: seg.Tooltip is not null
+                    ? word => vm.PlayVocabWord(word)
+                    : null));
     }
 
     private void RefreshSpeakingTitleInlines(MainWindowViewModel vm)
@@ -202,7 +205,10 @@ public partial class MainWindow : Window
         foreach (var seg in vm.CurrentSpeakingTitleSegments)
             tb.Inlines.Add(BuildSpeakingInline(seg,
                 normalFore: yellowBrush,
-                normalWeight: FontWeight.SemiBold));
+                normalWeight: FontWeight.SemiBold,
+                onHoverPlayDanish: seg.Tooltip is not null
+                    ? word => vm.PlayVocabWord(word)
+                    : null));
     }
 
     private void RefreshSpeakingNotesTitleInlines(MainWindowViewModel vm)
@@ -237,39 +243,44 @@ public partial class MainWindow : Window
 
     /// <summary>
     /// Builds an Avalonia inline for a speaking segment.
-    /// Bold+italic+underline matches that carry a tooltip are wrapped in an
-    /// InlineUIContainer so the ToolTip attached property can be used.
-    /// Plain segments are simple Runs.
+    /// Bold+italic+underline key-word matches use InlineUIContainer so a ToolTip and
+    /// click-to-play handler can be attached. Plain or value-only matches use Span/Run.
     /// </summary>
     private static Inline BuildSpeakingInline(
-        Models.WritingSegment seg, IBrush normalFore, FontWeight normalWeight)
+        Models.WritingSegment seg, IBrush normalFore, FontWeight normalWeight,
+        Action<string>? onHoverPlayDanish = null)
     {
         if (!seg.IsBoldItalic)
             return new Run { Text = seg.Text, Foreground = normalFore, FontWeight = normalWeight };
 
-        var boldItalicFore = normalFore; // keep same colour, just change weight/style
         var underline = TextDecorations.Underline;
 
-        if (seg.Tooltip is not null)
+        if (seg.Tooltip is not null || onHoverPlayDanish is not null)
         {
-            // Use an embedded TextBlock so we can attach a ToolTip
+            // Use an embedded TextBlock so we can attach ToolTip and hover-to-play
             var inner = new TextBlock
             {
                 Text = seg.Text,
-                Foreground = boldItalicFore,
+                Foreground = normalFore,
                 FontWeight = FontWeight.Bold,
                 FontStyle = FontStyle.Italic,
                 TextDecorations = underline,
                 Padding = new Thickness(0),
             };
-            ToolTip.SetTip(inner, seg.Tooltip);
+            if (seg.Tooltip is not null)
+                ToolTip.SetTip(inner, seg.Tooltip);
+            if (onHoverPlayDanish is not null)
+            {
+                inner.Cursor = new Cursor(StandardCursorType.Hand);
+                inner.PointerEntered += (_, _) => onHoverPlayDanish(seg.Text);
+            }
             return new InlineUIContainer { Child = inner };
         }
 
-        // No tooltip — a Span with a nested Run is sufficient
+        // No tooltip / no play — a Span with a nested Run is sufficient
         return new Span
         {
-            Foreground = boldItalicFore,
+            Foreground = normalFore,
             FontWeight = FontWeight.Bold,
             FontStyle = FontStyle.Italic,
             TextDecorations = underline,

@@ -2408,6 +2408,17 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     }
 
     /// <summary>
+    /// Plays the Danish pronunciation of a single vocabulary word immediately (fire-and-forget).
+    /// Bypasses command concurrency guards so it always responds to hover.
+    /// </summary>
+    public void PlayVocabWord(string word)
+    {
+        var clean = word.Trim('.', ',', '!', '?', ';', ':', '(', ')', '"', '\'', '–', '-').Trim();
+        if (!string.IsNullOrWhiteSpace(clean))
+            _ = _audioService.PlayDanishPronunciation(clean);
+    }
+
+    /// <summary>
     /// Splits text into chunks of at most 180 characters, breaking on sentence
     /// boundaries (. ! ?) where possible, then on commas/spaces.
     /// </summary>
