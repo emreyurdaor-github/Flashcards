@@ -2087,6 +2087,12 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         var segments = new List<WritingSegment>();
         if (string.IsNullOrEmpty(text)) return segments;
 
+        // Separate multi-word phrases (sorted longest first for greedy matching)
+        var multiWordPhrases = vocabDict?.Keys
+            .Where(k => k.Contains(' '))
+            .OrderByDescending(k => k.Length)
+            .ToList();
+
         int wordIdx = 0;
         int i = 0;
 
@@ -2098,7 +2104,46 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
             if (i > wsStart)
                 segments.Add(new WritingSegment { Text = text[wsStart..i] });
 
-            // Collect word token
+            if (i >= text.Length) break;
+
+            // Try multi-word phrase match first (longest phrase wins)
+            bool foundMultiWord = false;
+            if (multiWordPhrases is { Count: > 0 })
+            {
+                foreach (var phrase in multiWordPhrases)
+                {
+                    int endPos = i + phrase.Length;
+                    if (endPos > text.Length) continue;
+
+                    // Case-insensitive match at current position
+                    if (string.Compare(text, i, phrase, 0, phrase.Length,
+                            StringComparison.OrdinalIgnoreCase) != 0) continue;
+
+                    // Must end at a word boundary (space, punctuation, or end of text)
+                    if (endPos < text.Length && char.IsLetterOrDigit(text[endPos])) continue;
+
+                    int phraseWordCount = phrase.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length;
+                    bool isHighlighted = currentWordIndex >= 0
+                        && currentWordIndex >= wordIdx
+                        && currentWordIndex < wordIdx + phraseWordCount;
+
+                    vocabDict!.TryGetValue(phrase, out var phraseTooltip);
+                    segments.Add(new WritingSegment
+                    {
+                        Text = text[i..endPos],
+                        IsHighlighted = isHighlighted,
+                        IsBoldItalic = true,
+                        Tooltip = phraseTooltip,
+                    });
+                    wordIdx += phraseWordCount;
+                    i = endPos;
+                    foundMultiWord = true;
+                    break;
+                }
+            }
+            if (foundMultiWord) continue;
+
+            // Collect single word token
             int wStart = i;
             while (i < text.Length && !char.IsWhiteSpace(text[i])) i++;
             if (i > wStart)
