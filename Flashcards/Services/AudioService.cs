@@ -189,11 +189,11 @@ public class AudioService : IDisposable
 
             if (slow)
             {
-                // Upsample to ~133% of original rate so WaveOut plays it at 75% speed
-                int slowRate = (int)(reader.WaveFormat.SampleRate / 0.75);
-                var resampled = new WdlResamplingSampleProvider(reader, slowRate);
-                _wavePlayer.Init(resampled);
-                System.Diagnostics.Debug.WriteLine($"[AudioService] Slow mode: resampling {reader.WaveFormat.SampleRate} Hz -> {slowRate} Hz");
+                // Read source at 75% frame rate via linear interpolation.
+                // Output WaveFormat stays at the original rate (standard, unaffected by OS mixer).
+                var slowProvider = new VariSpeedSampleProvider(reader, speed: 0.82);
+                _wavePlayer.Init(slowProvider);
+                System.Diagnostics.Debug.WriteLine("[AudioService] Slow mode: using VariSpeedSampleProvider at 0.75x");
             }
             else
             {
@@ -266,5 +266,70 @@ public class AudioService : IDisposable
     public void Dispose()
     {
         _wavePlayer?.Dispose();
+    }
+
+    /// <summary>
+    /// Reads a source ISampleProvider at a fractional rate to change playback speed
+    /// (pitch changes proportionally, like slowing a tape).
+    /// The output WaveFormat is identical to the source so no OS-level resampling interferes.
+    /// </summary>
+    private sealed class VariSpeedSampleProvider : ISampleProvider
+    {
+        private readonly float[] _allSamples;
+        private readonly int _channels;
+        private double _readPos;
+        private readonly double _speed;
+
+        public WaveFormat WaveFormat { get; }
+
+        /// <param name="source">Audio source to wrap.</param>
+        /// <param name="speed">Playback speed factor (e.g. 0.75 = 75% speed, lower pitch).</param>
+        public VariSpeedSampleProvider(ISampleProvider source, double speed)
+        {
+            _speed = speed;
+            WaveFormat = source.WaveFormat;
+            _channels = source.WaveFormat.Channels;
+
+            // Buffer the entire source (TTS clips are short, typically < 30 s)
+            var buf = new float[8192];
+            var allSamples = new System.Collections.Generic.List<float>(
+                source.WaveFormat.SampleRate * _channels * 30);
+            int read;
+            while ((read = source.Read(buf, 0, buf.Length)) > 0)
+            {
+                for (int i = 0; i < read; i++)
+                    allSamples.Add(buf[i]);
+            }
+            _allSamples = allSamples.ToArray();
+        }
+
+        public int Read(float[] buffer, int offset, int count)
+        {
+            int outputFrames = count / _channels;
+            int totalSourceFrames = _allSamples.Length / _channels;
+            int written = 0;
+
+            for (int i = 0; i < outputFrames; i++)
+            {
+                int frame0 = (int)_readPos;
+                if (frame0 >= totalSourceFrames - 1) break;
+
+                double frac = _readPos - frame0;
+                int idx0 = frame0 * _channels;
+                int idx1 = (frame0 + 1) * _channels;
+
+                // Linear interpolation between adjacent source frames
+                for (int c = 0; c < _channels; c++)
+                {
+                    buffer[offset + i * _channels + c] =
+                        (float)(_allSamples[idx0 + c] + frac * (_allSamples[idx1 + c] - _allSamples[idx0 + c]));
+                }
+
+                written++;
+                _readPos += _speed; // advance at fractional rate (0.75 → slower)
+            }
+
+            return written * _channels;
+        }
     }
 }
