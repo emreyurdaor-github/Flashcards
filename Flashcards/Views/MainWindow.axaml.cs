@@ -185,15 +185,9 @@ public partial class MainWindow : Window
         var greenBrush = new SolidColorBrush(Color.FromRgb(0x4A, 0xDE, 0x80));
         var whiteBrush = new SolidColorBrush(Color.FromArgb(0xFF, 0xCB, 0xD5, 0xE1));
         foreach (var seg in vm.CurrentSpeakingTopicSegments)
-        {
-            tb.Inlines.Add(new Run
-            {
-                Text = seg.Text,
-                Foreground = seg.IsHighlighted ? greenBrush : whiteBrush,
-                FontWeight = seg.IsBoldItalic ? FontWeight.Bold : FontWeight.Normal,
-                FontStyle = seg.IsBoldItalic ? FontStyle.Italic : FontStyle.Normal,
-            });
-        }
+            tb.Inlines.Add(BuildSpeakingInline(seg,
+                normalFore: seg.IsHighlighted ? greenBrush : whiteBrush,
+                normalWeight: FontWeight.Normal));
     }
 
     private void RefreshSpeakingTitleInlines(MainWindowViewModel vm)
@@ -204,17 +198,11 @@ public partial class MainWindow : Window
         tb.Inlines ??= new InlineCollection();
         tb.Inlines.Clear();
 
-        var yellowBrush = new SolidColorBrush(Color.FromRgb(0xFB, 0xBF, 0x24)); // #FFFBBF24
+        var yellowBrush = new SolidColorBrush(Color.FromRgb(0xFB, 0xBF, 0x24));
         foreach (var seg in vm.CurrentSpeakingTitleSegments)
-        {
-            tb.Inlines.Add(new Run
-            {
-                Text = seg.Text,
-                Foreground = yellowBrush,
-                FontWeight = seg.IsBoldItalic ? FontWeight.Bold : FontWeight.SemiBold,
-                FontStyle = seg.IsBoldItalic ? FontStyle.Italic : FontStyle.Normal,
-            });
-        }
+            tb.Inlines.Add(BuildSpeakingInline(seg,
+                normalFore: yellowBrush,
+                normalWeight: FontWeight.SemiBold));
     }
 
     private void RefreshSpeakingNotesTitleInlines(MainWindowViewModel vm)
@@ -227,15 +215,9 @@ public partial class MainWindow : Window
 
         var yellowBrush = new SolidColorBrush(Color.FromRgb(0xFB, 0xBF, 0x24));
         foreach (var seg in vm.CurrentSpeakingNotesTitleSegments)
-        {
-            tb.Inlines.Add(new Run
-            {
-                Text = seg.Text,
-                Foreground = yellowBrush,
-                FontWeight = seg.IsBoldItalic ? FontWeight.Bold : FontWeight.SemiBold,
-                FontStyle = seg.IsBoldItalic ? FontStyle.Italic : FontStyle.Normal,
-            });
-        }
+            tb.Inlines.Add(BuildSpeakingInline(seg,
+                normalFore: yellowBrush,
+                normalWeight: FontWeight.SemiBold));
     }
 
     private void RefreshSpeakingNotesInlines(MainWindowViewModel vm)
@@ -248,15 +230,51 @@ public partial class MainWindow : Window
 
         var whiteBrush = new SolidColorBrush(Color.FromArgb(0xFF, 0xCB, 0xD5, 0xE1));
         foreach (var seg in vm.CurrentSpeakingNotesSegments)
+            tb.Inlines.Add(BuildSpeakingInline(seg,
+                normalFore: whiteBrush,
+                normalWeight: FontWeight.Normal));
+    }
+
+    /// <summary>
+    /// Builds an Avalonia inline for a speaking segment.
+    /// Bold+italic+underline matches that carry a tooltip are wrapped in an
+    /// InlineUIContainer so the ToolTip attached property can be used.
+    /// Plain segments are simple Runs.
+    /// </summary>
+    private static Inline BuildSpeakingInline(
+        Models.WritingSegment seg, IBrush normalFore, FontWeight normalWeight)
+    {
+        if (!seg.IsBoldItalic)
+            return new Run { Text = seg.Text, Foreground = normalFore, FontWeight = normalWeight };
+
+        var boldItalicFore = normalFore; // keep same colour, just change weight/style
+        var underline = TextDecorations.Underline;
+
+        if (seg.Tooltip is not null)
         {
-            tb.Inlines.Add(new Run
+            // Use an embedded TextBlock so we can attach a ToolTip
+            var inner = new TextBlock
             {
                 Text = seg.Text,
-                Foreground = whiteBrush,
-                FontWeight = seg.IsBoldItalic ? FontWeight.Bold : FontWeight.Normal,
-                FontStyle = seg.IsBoldItalic ? FontStyle.Italic : FontStyle.Normal,
-            });
+                Foreground = boldItalicFore,
+                FontWeight = FontWeight.Bold,
+                FontStyle = FontStyle.Italic,
+                TextDecorations = underline,
+                Padding = new Thickness(0),
+            };
+            ToolTip.SetTip(inner, seg.Tooltip);
+            return new InlineUIContainer { Child = inner };
         }
+
+        // No tooltip — a Span with a nested Run is sufficient
+        return new Span
+        {
+            Foreground = boldItalicFore,
+            FontWeight = FontWeight.Bold,
+            FontStyle = FontStyle.Italic,
+            TextDecorations = underline,
+            Inlines = { new Run { Text = seg.Text } },
+        };
     }
 
     private void ScrollSpeakingTopicToWord(MainWindowViewModel vm)

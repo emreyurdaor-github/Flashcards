@@ -975,16 +975,16 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     };
 
     public IReadOnlyList<WritingSegment> CurrentSpeakingTitleSegments =>
-        BuildSpeakingDictionarySegments(CurrentSpeakingTopicTitle, SpeakingVocabulary.Keys);
+        BuildSpeakingDictionarySegments(CurrentSpeakingTopicTitle, SpeakingVocabulary, useKeys: true);
 
     public IReadOnlyList<WritingSegment> CurrentSpeakingNotesTitleSegments =>
-        BuildSpeakingDictionarySegments(CurrentSpeakingNotesTitle, SpeakingVocabulary.Values);
+        BuildSpeakingDictionarySegments(CurrentSpeakingNotesTitle, SpeakingVocabulary, useKeys: false);
 
     public IReadOnlyList<WritingSegment> CurrentSpeakingNotesSegments =>
-        BuildSpeakingDictionarySegments(CurrentSpeakingNotes, SpeakingVocabulary.Values);
+        BuildSpeakingDictionarySegments(CurrentSpeakingNotes, SpeakingVocabulary, useKeys: false);
 
     public IReadOnlyList<WritingSegment> CurrentSpeakingTopicSegments =>
-        BuildWordHighlightSegments(CurrentSpeakingTopic, _currentSpeakingWordIndex, SpeakingVocabulary.Keys);
+        BuildWordHighlightSegments(CurrentSpeakingTopic, _currentSpeakingWordIndex, SpeakingVocabulary);
 
     /// <summary>Fraction (0–1) of words spoken so far. -1 when not active.</summary>
     public double SpeakingWordProgress =>
@@ -2076,7 +2076,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
                   .ToList();
 
     private static IReadOnlyList<WritingSegment> BuildWordHighlightSegments(
-        string text, int currentWordIndex, ICollection<string>? boldItalicWords = null)
+        string text, int currentWordIndex, IReadOnlyDictionary<string, string>? vocabDict = null)
     {
         var segments = new List<WritingSegment>();
         if (string.IsNullOrEmpty(text)) return segments;
@@ -2099,13 +2099,19 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
             {
                 var token = text[wStart..i];
                 var strippedToken = token.Trim('.', ',', '!', '?', ';', ':', '(', ')', '"', '\'', '–', '-');
-                bool isBoldItalic = boldItalicWords is not null &&
-                    boldItalicWords.Any(w => string.Equals(strippedToken, w, StringComparison.OrdinalIgnoreCase));
+                bool isBoldItalic = false;
+                string? tooltip = null;
+                if (vocabDict is not null && vocabDict.TryGetValue(strippedToken, out var tooltipVal))
+                {
+                    isBoldItalic = true;
+                    tooltip = tooltipVal;
+                }
                 segments.Add(new WritingSegment
                 {
                     Text = token,
                     IsHighlighted = currentWordIndex >= 0 && wordIdx == currentWordIndex,
                     IsBoldItalic = isBoldItalic,
+                    Tooltip = tooltip,
                 });
                 wordIdx++;
             }
@@ -2115,17 +2121,22 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     }
 
     /// <summary>
-    /// Builds segments for a plain text field by finding whole-word matches in
-    /// <paramref name="boldItalicWords"/> and marking them with <see cref="WritingSegment.IsBoldItalic"/>.
+    /// Builds segments for a plain text field by finding whole-word matches against vocabulary keys
+    /// (when <paramref name="useKeys"/> is true) or values (when false), marking them bold+italic.
+    /// Key matches also carry a tooltip showing the corresponding English value.
     /// </summary>
     private static IReadOnlyList<WritingSegment> BuildSpeakingDictionarySegments(
-        string text, ICollection<string> boldItalicWords)
+        string text, IReadOnlyDictionary<string, string> vocab, bool useKeys)
     {
         if (string.IsNullOrEmpty(text))
             return [new WritingSegment { Text = string.Empty }];
 
-        if (boldItalicWords.Count == 0)
+        if (vocab.Count == 0)
             return [new WritingSegment { Text = text }];
+
+        var wordsToFind = useKeys
+            ? (IEnumerable<string>)vocab.Keys
+            : (IEnumerable<string>)vocab.Values;
 
         var segments = new List<WritingSegment>();
         int pos = 0;
@@ -2134,8 +2145,9 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         {
             int earliest = -1;
             int earliestLen = 0;
+            string? earliestWord = null;
 
-            foreach (var word in boldItalicWords)
+            foreach (var word in wordsToFind)
             {
                 if (string.IsNullOrWhiteSpace(word)) continue;
                 int searchFrom = pos;
@@ -2154,6 +2166,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
                         {
                             earliest = idx;
                             earliestLen = word.Length;
+                            earliestWord = word;
                         }
                         break;
                     }
@@ -2170,10 +2183,16 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
             if (earliest > pos)
                 segments.Add(new WritingSegment { Text = text[pos..earliest] });
 
+            // Only key matches carry a tooltip (showing the English value).
+            string? tooltip = null;
+            if (useKeys && earliestWord is not null && vocab.TryGetValue(earliestWord, out var val))
+                tooltip = val;
+
             segments.Add(new WritingSegment
             {
                 Text = text[earliest..(earliest + earliestLen)],
                 IsBoldItalic = true,
+                Tooltip = tooltip,
             });
             pos = earliest + earliestLen;
         }
