@@ -1969,8 +1969,8 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         _speakingWordTimer ??= new DispatcherTimer();
         _speakingWordTimer.Tick -= OnSpeakingWordTimerTick;
         _speakingWordTimer.Tick += OnSpeakingWordTimerTick;
-        // 600 ms lead-in before the first word is highlighted
-        _speakingWordTimer.Interval = TimeSpan.FromMilliseconds(600) + WordDelay(_speakingWords, 0);
+        // 350 ms lead-in before the first word is highlighted
+        _speakingWordTimer.Interval = TimeSpan.FromMilliseconds(350) + WordDelay(_speakingWords, 0);
         _speakingWordTimer.Start();
     }
 
@@ -2010,14 +2010,14 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
 
     /// <summary>
     /// Calculates the display duration for the word at <paramref name="index"/>.
-    /// Base rate: ~75 ms per character, minimum 210 ms.
-    /// Extra pause: +375 ms after sentence-ending punctuation (. ! ?),
-    ///              +185 ms after mid-sentence pauses (, ;).
+    /// Base rate: ~60 ms per character, minimum 170 ms.
+    /// Extra pause: +280 ms after sentence-ending punctuation (. ! ?),
+    ///              +140 ms after mid-sentence pauses (, ;).
     /// </summary>
     private static TimeSpan WordDelay(List<string> words, int index)
     {
         if (index < 0 || index >= words.Count)
-            return TimeSpan.FromMilliseconds(375);
+            return TimeSpan.FromMilliseconds(280);
 
         var word = words[index];
 
@@ -2027,14 +2027,14 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         {
             char last = word[^1];
             if (last == '.' || last == '!' || last == '?')
-                punctuationBonus = 375;
+                punctuationBonus = 350;
             else if (last == ',' || last == ';')
-                punctuationBonus = 185;
+                punctuationBonus = 140;
         }
 
         // Strip trailing punctuation for character count
         var stripped = word.TrimEnd('.', ',', '!', '?', ';', ':');
-        int ms = Math.Max(210, stripped.Length * 75) + punctuationBonus;
+        int ms = Math.Max(170, stripped.Length * 70) + punctuationBonus;
         return TimeSpan.FromMilliseconds(ms);
     }
 
