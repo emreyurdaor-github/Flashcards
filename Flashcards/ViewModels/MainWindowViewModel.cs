@@ -987,7 +987,8 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
          { "forurening", "pollution"},
          { "utrolig", "incredibly"},
          { "skinner", "tracks"},
-         { "gebyr", "fee"}
+         { "gebyr", "fee"},
+         { "gennemsnit", "average"}
 
     };
 
