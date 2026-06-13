@@ -976,7 +976,17 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
          { "op ad bakke", "uphill"},
          { "kræfter", "strength"},
          { "svedige", "sweaty"},
-         { "slipper", "avoid"}
+         { "slipper", "avoid"},
+         { "farligt", "dangerous"},
+         { "ulykker", "Accidents" },
+         { "cykelstien", "bike path"},
+         { "bevæger", "moves"},
+         { "almindelig", "regular"},
+         { "fodgængere", "pedestrians"},
+         { "skabe", "create"},
+         { "forurening", "pollution"},
+         { "utrolig", "incredibly"},
+         { "skinner", "tracks"}
 
     };
 
