@@ -890,6 +890,9 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
                 OnPropertyChanged(nameof(CurrentSpeakingNotes));
                 OnPropertyChanged(nameof(HasSpeakingEntries));
                 OnPropertyChanged(nameof(IsSpeakingTimerVisible));
+                OnPropertyChanged(nameof(CurrentSpeakingTitleSegments));
+                OnPropertyChanged(nameof(CurrentSpeakingNotesTitleSegments));
+                OnPropertyChanged(nameof(CurrentSpeakingNotesSegments));
                 ResetWordHighlight();
             }
         }
@@ -955,8 +958,33 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     public string CurrentSpeakingNotes => _currentSpeakingEntry?.Presentation ?? string.Empty;
     public bool HasSpeakingEntries => _currentSpeakingEntry is not null;
 
+    // ─── Speaking Vocabulary Dictionary ─────────────────────────────────────────
+    // Key = Danish word, Value = English word.
+    // Words found in Emne/Praesentation (key) or Subject/Presentation (value) are shown bold+italic.
+    private static readonly Dictionary<string, string> SpeakingVocabulary =
+        new(StringComparer.OrdinalIgnoreCase)
+    {
+        // Populate with your Danish → English pairs, e.g.:
+         { "ensomme", "lonely" },
+         { "gennemsnitlige", "average" },
+         { "raske", "healthy" },
+         { "færre", "fewer"},
+         { "nå", "achieve"},
+         { "grund", "reason"},
+         { "grunde", "reasons"}
+    };
+
+    public IReadOnlyList<WritingSegment> CurrentSpeakingTitleSegments =>
+        BuildSpeakingDictionarySegments(CurrentSpeakingTopicTitle, SpeakingVocabulary.Keys);
+
+    public IReadOnlyList<WritingSegment> CurrentSpeakingNotesTitleSegments =>
+        BuildSpeakingDictionarySegments(CurrentSpeakingNotesTitle, SpeakingVocabulary.Values);
+
+    public IReadOnlyList<WritingSegment> CurrentSpeakingNotesSegments =>
+        BuildSpeakingDictionarySegments(CurrentSpeakingNotes, SpeakingVocabulary.Values);
+
     public IReadOnlyList<WritingSegment> CurrentSpeakingTopicSegments =>
-        BuildWordHighlightSegments(CurrentSpeakingTopic, _currentSpeakingWordIndex);
+        BuildWordHighlightSegments(CurrentSpeakingTopic, _currentSpeakingWordIndex, SpeakingVocabulary.Keys);
 
     /// <summary>Fraction (0–1) of words spoken so far. -1 when not active.</summary>
     public double SpeakingWordProgress =>
@@ -2047,7 +2075,8 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
             : text.Split(new[] { ' ', '\t', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
                   .ToList();
 
-    private static IReadOnlyList<WritingSegment> BuildWordHighlightSegments(string text, int currentWordIndex)
+    private static IReadOnlyList<WritingSegment> BuildWordHighlightSegments(
+        string text, int currentWordIndex, ICollection<string>? boldItalicWords = null)
     {
         var segments = new List<WritingSegment>();
         if (string.IsNullOrEmpty(text)) return segments;
@@ -2068,13 +2097,85 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
             while (i < text.Length && !char.IsWhiteSpace(text[i])) i++;
             if (i > wStart)
             {
+                var token = text[wStart..i];
+                var strippedToken = token.Trim('.', ',', '!', '?', ';', ':', '(', ')', '"', '\'', '–', '-');
+                bool isBoldItalic = boldItalicWords is not null &&
+                    boldItalicWords.Any(w => string.Equals(strippedToken, w, StringComparison.OrdinalIgnoreCase));
                 segments.Add(new WritingSegment
                 {
-                    Text = text[wStart..i],
-                    IsHighlighted = currentWordIndex >= 0 && wordIdx == currentWordIndex
+                    Text = token,
+                    IsHighlighted = currentWordIndex >= 0 && wordIdx == currentWordIndex,
+                    IsBoldItalic = isBoldItalic,
                 });
                 wordIdx++;
             }
+        }
+
+        return segments;
+    }
+
+    /// <summary>
+    /// Builds segments for a plain text field by finding whole-word matches in
+    /// <paramref name="boldItalicWords"/> and marking them with <see cref="WritingSegment.IsBoldItalic"/>.
+    /// </summary>
+    private static IReadOnlyList<WritingSegment> BuildSpeakingDictionarySegments(
+        string text, ICollection<string> boldItalicWords)
+    {
+        if (string.IsNullOrEmpty(text))
+            return [new WritingSegment { Text = string.Empty }];
+
+        if (boldItalicWords.Count == 0)
+            return [new WritingSegment { Text = text }];
+
+        var segments = new List<WritingSegment>();
+        int pos = 0;
+
+        while (pos < text.Length)
+        {
+            int earliest = -1;
+            int earliestLen = 0;
+
+            foreach (var word in boldItalicWords)
+            {
+                if (string.IsNullOrWhiteSpace(word)) continue;
+                int searchFrom = pos;
+                while (searchFrom < text.Length)
+                {
+                    int idx = text.IndexOf(word, searchFrom, StringComparison.OrdinalIgnoreCase);
+                    if (idx < 0) break;
+
+                    bool startOk = idx == 0 || !char.IsLetterOrDigit(text[idx - 1]);
+                    bool endOk = idx + word.Length >= text.Length || !char.IsLetterOrDigit(text[idx + word.Length]);
+
+                    if (startOk && endOk)
+                    {
+                        if (earliest < 0 || idx < earliest ||
+                            (idx == earliest && word.Length > earliestLen))
+                        {
+                            earliest = idx;
+                            earliestLen = word.Length;
+                        }
+                        break;
+                    }
+                    searchFrom = idx + 1;
+                }
+            }
+
+            if (earliest < 0)
+            {
+                segments.Add(new WritingSegment { Text = text[pos..] });
+                break;
+            }
+
+            if (earliest > pos)
+                segments.Add(new WritingSegment { Text = text[pos..earliest] });
+
+            segments.Add(new WritingSegment
+            {
+                Text = text[earliest..(earliest + earliestLen)],
+                IsBoldItalic = true,
+            });
+            pos = earliest + earliestLen;
         }
 
         return segments;

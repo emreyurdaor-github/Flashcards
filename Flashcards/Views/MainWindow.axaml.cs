@@ -90,6 +90,9 @@ public partial class MainWindow : Window
             viewModel.PropertyChanged += OnViewModelPropertyChanged;
             RefreshDanishWritingInlines(viewModel);
             RefreshSpeakingTopicInlines(viewModel);
+            RefreshSpeakingTitleInlines(viewModel);
+            RefreshSpeakingNotesTitleInlines(viewModel);
+            RefreshSpeakingNotesInlines(viewModel);
 
             // Find and configure the AutoCompleteBox
             var autoCompleteBox = this.FindControl<AutoCompleteBox>("SearchBox");
@@ -128,6 +131,15 @@ public partial class MainWindow : Window
             RefreshSpeakingTopicInlines(vm);
             ScrollSpeakingTopicToWord(vm);
         }
+
+        if (e.PropertyName == nameof(MainWindowViewModel.CurrentSpeakingTitleSegments))
+            RefreshSpeakingTitleInlines(vm);
+
+        if (e.PropertyName == nameof(MainWindowViewModel.CurrentSpeakingNotesTitleSegments))
+            RefreshSpeakingNotesTitleInlines(vm);
+
+        if (e.PropertyName == nameof(MainWindowViewModel.CurrentSpeakingNotesSegments))
+            RefreshSpeakingNotesInlines(vm);
 
         if (e.PropertyName == nameof(MainWindowViewModel.SpeakingShowTopic))
             ApplySpeakingTopicVisibility(vm.SpeakingShowTopic);
@@ -177,7 +189,72 @@ public partial class MainWindow : Window
             tb.Inlines.Add(new Run
             {
                 Text = seg.Text,
-                Foreground = seg.IsHighlighted ? greenBrush : whiteBrush
+                Foreground = seg.IsHighlighted ? greenBrush : whiteBrush,
+                FontWeight = seg.IsBoldItalic ? FontWeight.Bold : FontWeight.Normal,
+                FontStyle = seg.IsBoldItalic ? FontStyle.Italic : FontStyle.Normal,
+            });
+        }
+    }
+
+    private void RefreshSpeakingTitleInlines(MainWindowViewModel vm)
+    {
+        var tb = this.FindControl<TextBlock>("SpeakingTopicTitleTextBlock");
+        if (tb == null) return;
+
+        tb.Inlines ??= new InlineCollection();
+        tb.Inlines.Clear();
+
+        var yellowBrush = new SolidColorBrush(Color.FromRgb(0xFB, 0xBF, 0x24)); // #FFFBBF24
+        foreach (var seg in vm.CurrentSpeakingTitleSegments)
+        {
+            tb.Inlines.Add(new Run
+            {
+                Text = seg.Text,
+                Foreground = yellowBrush,
+                FontWeight = seg.IsBoldItalic ? FontWeight.Bold : FontWeight.SemiBold,
+                FontStyle = seg.IsBoldItalic ? FontStyle.Italic : FontStyle.Normal,
+            });
+        }
+    }
+
+    private void RefreshSpeakingNotesTitleInlines(MainWindowViewModel vm)
+    {
+        var tb = this.FindControl<TextBlock>("SpeakingNotesTitleTextBlock");
+        if (tb == null) return;
+
+        tb.Inlines ??= new InlineCollection();
+        tb.Inlines.Clear();
+
+        var yellowBrush = new SolidColorBrush(Color.FromRgb(0xFB, 0xBF, 0x24));
+        foreach (var seg in vm.CurrentSpeakingNotesTitleSegments)
+        {
+            tb.Inlines.Add(new Run
+            {
+                Text = seg.Text,
+                Foreground = yellowBrush,
+                FontWeight = seg.IsBoldItalic ? FontWeight.Bold : FontWeight.SemiBold,
+                FontStyle = seg.IsBoldItalic ? FontStyle.Italic : FontStyle.Normal,
+            });
+        }
+    }
+
+    private void RefreshSpeakingNotesInlines(MainWindowViewModel vm)
+    {
+        var tb = this.FindControl<TextBlock>("SpeakingNotesTextBlock");
+        if (tb == null) return;
+
+        tb.Inlines ??= new InlineCollection();
+        tb.Inlines.Clear();
+
+        var whiteBrush = new SolidColorBrush(Color.FromArgb(0xFF, 0xCB, 0xD5, 0xE1));
+        foreach (var seg in vm.CurrentSpeakingNotesSegments)
+        {
+            tb.Inlines.Add(new Run
+            {
+                Text = seg.Text,
+                Foreground = whiteBrush,
+                FontWeight = seg.IsBoldItalic ? FontWeight.Bold : FontWeight.Normal,
+                FontStyle = seg.IsBoldItalic ? FontStyle.Italic : FontStyle.Normal,
             });
         }
     }

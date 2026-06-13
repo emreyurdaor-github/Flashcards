@@ -727,8 +727,8 @@
                         </Grid>
                         <!-- Topic title -->
                         <TextBlock
+                            x:Name="SpeakingTopicTitleTextBlock"
                             Grid.Row="1"
-                            Text="{Binding CurrentSpeakingTopicTitle}"
                             FontSize="20"
                             Foreground="#FFFBBF24"
                             FontWeight="SemiBold"
@@ -760,8 +760,8 @@
                     IsVisible="{Binding SpeakingShowTopic}">
                     <Grid RowDefinitions="Auto,*">
                         <TextBlock
+                            x:Name="SpeakingNotesTitleTextBlock"
                             Grid.Row="0"
-                            Text="{Binding CurrentSpeakingNotesTitle}"
                             FontSize="20"
                             Foreground="#FFFBBF24"
                             FontWeight="SemiBold"
@@ -773,7 +773,7 @@
                             VerticalScrollBarVisibility="Auto"
                             HorizontalScrollBarVisibility="Disabled">
                             <TextBlock
-                                Text="{Binding CurrentSpeakingNotes}"
+                                x:Name="SpeakingNotesTextBlock"
                                 FontSize="24"
                                 Foreground="#FFCBD5E1"
                                 TextWrapping="Wrap" />
