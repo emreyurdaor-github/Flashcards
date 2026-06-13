@@ -971,7 +971,13 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
          { "færre", "fewer"},
          { "nå", "achieve"},
          { "grund", "reason"},
-         { "grunde", "reasons"}
+         { "grunde", "reasons"},
+         { "bilkø", "traffic jams"},
+         { "op ad bakke", "uphill"},
+         { "kræfter", "strength"},
+         { "svedige", "sweaty"},
+         { "slipper", "avoid"}
+
     };
 
     public IReadOnlyList<WritingSegment> CurrentSpeakingTitleSegments =>
