@@ -908,7 +908,7 @@
                         </Grid>
                         <!-- Topic title -->
                         <TextBlock
-                            x:Name="SpeakingTopicTitleTextBlock"
+                            x:Name="Emne"
                             Grid.Row="1"
                             FontSize="14"
                             Foreground="#FFFBBF24"
@@ -1038,25 +1038,25 @@
                 <TextBox
                     Grid.Row="1"
                     Text="{Binding NewSpeakingTopicTitle}"
-                    Watermark="Topic title (optional)"
+                    Watermark="Emne"
                     Margin="0,0,0,4"
                     HorizontalAlignment="Stretch" />
                 <TextBox
                     Grid.Row="2"
                     Text="{Binding NewSpeakingTopic}"
-                    Watermark="Topic text"
+                    Watermark="Præsenttation"
                     AcceptsReturn="True" TextWrapping="Wrap"
                     Margin="0,0,0,8" VerticalAlignment="Stretch" />
                 <TextBox
                     Grid.Row="3"
                     Text="{Binding NewSpeakingNotesTitle}"
-                    Watermark="Notes title (optional)"
+                    Watermark="Subject"
                     Margin="0,0,0,4"
                     HorizontalAlignment="Stretch" />
                 <TextBox
                     Grid.Row="4"
                     Text="{Binding NewSpeakingNotes}"
-                    Watermark="Notes text"
+                    Watermark="Presentation"
                     AcceptsReturn="True" TextWrapping="Wrap"
                     Margin="0,0,0,8" VerticalAlignment="Stretch" />
                 <TextBox

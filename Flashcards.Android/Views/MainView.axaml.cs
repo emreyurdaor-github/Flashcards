@@ -288,7 +288,7 @@ public partial class MainView : UserControl
 
     private void RefreshSpeakingTitleInlines(MainWindowViewModel vm)
     {
-        var tb = this.FindControl<TextBlock>("SpeakingTopicTitleTextBlock");
+        var tb = this.FindControl<TextBlock>("Emne");
         if (tb == null) return;
 
         tb.Inlines ??= new InlineCollection();

@@ -25,7 +25,7 @@ public class AudioService : IDisposable
         }
     }
 
-    public Task PlayDanishPronunciation(string word) => PlayTts(word, "da");
+    public Task PlayDanishPronunciation(string word, bool slow = false) => PlayTts(word, "da", slow);
 
     public Task PlayEnglishPronunciation(string word) => PlayTts(word, "en");
 
@@ -75,7 +75,7 @@ public class AudioService : IDisposable
         }
     }
 
-    private async Task PlayTts(string word, string lang)
+    private async Task PlayTts(string word, string lang, bool slow = false)
     {
         if (string.IsNullOrWhiteSpace(word))
             return;
@@ -102,7 +102,7 @@ public class AudioService : IDisposable
             await System.IO.File.WriteAllBytesAsync(tempFile, audioBytes);
             System.Diagnostics.Debug.WriteLine($"[AudioService.Android] Saved to: {tempFile}");
 
-            await PlayFileAsync(tempFile);
+            await PlayFileAsync(tempFile, slow);
 
             try { System.IO.File.Delete(tempFile); } catch { }
         }
@@ -112,7 +112,7 @@ public class AudioService : IDisposable
         }
     }
 
-    private static async Task PlayFileAsync(string filePath)
+    private static async Task PlayFileAsync(string filePath, bool slow = false)
     {
         var tcs = new TaskCompletionSource<bool>();
 
@@ -121,6 +121,14 @@ public class AudioService : IDisposable
         {
             player.SetDataSource(filePath);
             player.Prepare();
+
+            if (slow)
+            {
+                var pp = new Android.Media.PlaybackParams();
+                pp.SetSpeed(0.82f);
+                player.PlaybackParams = pp;
+                System.Diagnostics.Debug.WriteLine("[AudioService.Android] Slow mode: 0.82x speed");
+            }
 
             player.Completion += (_, _) =>
             {
