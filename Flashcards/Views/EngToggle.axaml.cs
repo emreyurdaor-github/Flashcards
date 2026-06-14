@@ -15,6 +15,9 @@ public partial class EngToggle : UserControl
             nameof(IsChecked),
             defaultBindingMode: Avalonia.Data.BindingMode.TwoWay);
 
+    public static readonly StyledProperty<string> LabelProperty =
+        AvaloniaProperty.Register<EngToggle, string>(nameof(Label), "Eng");
+
     public static readonly StyledProperty<double> TrackWidthProperty =
         AvaloniaProperty.Register<EngToggle, double>(nameof(TrackWidth), 68);
 
@@ -31,6 +34,12 @@ public partial class EngToggle : UserControl
     {
         get => GetValue(IsCheckedProperty);
         set => SetValue(IsCheckedProperty, value);
+    }
+
+    public string Label
+    {
+        get => GetValue(LabelProperty);
+        set => SetValue(LabelProperty, value);
     }
 
     public double TrackWidth
@@ -68,6 +77,11 @@ public partial class EngToggle : UserControl
     static EngToggle()
     {
         IsCheckedProperty.Changed.AddClassHandler<EngToggle>((x, _) => x.UpdateVisualState());
+        LabelProperty.Changed.AddClassHandler<EngToggle>((x, e) =>
+        {
+            if (x._labelText is not null)
+                x._labelText.Text = (string)(e.NewValue ?? "Eng");
+        });
     }
 
     public EngToggle()
@@ -81,6 +95,10 @@ public partial class EngToggle : UserControl
         _offText    = OffText;
         _onSegment  = OnSegment;
         _onText     = OnText;
+
+        // Apply initial Label value (in case it was set before load)
+        if (_labelText is not null)
+            _labelText.Text = Label;
 
         Cursor = new Cursor(StandardCursorType.Hand);
         UpdateVisualState();
@@ -96,6 +114,8 @@ public partial class EngToggle : UserControl
             _track.Height = (double)change.NewValue!;
         else if (change.Property == LabelFontSizeProperty && _labelText is not null)
             _labelText.FontSize = (double)change.NewValue!;
+        else if (change.Property == LabelProperty && _labelText is not null)
+            _labelText.Text = (string)(change.NewValue ?? "Eng");
         else if (change.Property == SegmentFontSizeProperty)
         {
             var size = (double)change.NewValue!;

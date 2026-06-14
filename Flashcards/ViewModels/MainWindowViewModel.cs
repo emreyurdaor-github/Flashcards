@@ -66,6 +66,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
 
     // Speaking repeat
     private bool _isSpeakingRepeatEnabled = false;
+    private bool _isSpeakingSlowMode = false;
     private CancellationTokenSource? _speakingPlayCts;
 
     // MBSP
@@ -1236,6 +1237,12 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         }
     }
 
+    public bool IsSpeakingSlowMode
+    {
+        get => _isSpeakingSlowMode;
+        set => SetProperty(ref _isSpeakingSlowMode, value);
+    }
+
     public bool MbspAnswerRevealed
     {
         get => _mbspAnswerRevealed;
@@ -2057,7 +2064,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
                     foreach (var chunk in SplitIntoTtsChunks(text))
                     {
                         if (cts.IsCancellationRequested) return;
-                        await _audioService.PlayDanishPronunciation(chunk, slow: true);
+                        await _audioService.PlayDanishPronunciation(chunk, slow: _isSpeakingSlowMode);
                     }
 
                     if (_isSpeakingRepeatEnabled && !cts.IsCancellationRequested)
@@ -2085,7 +2092,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         foreach (var chunk in SplitIntoTtsChunks(emne))
         {
             if (cts.IsCancellationRequested) return;
-            await _audioService.PlayDanishPronunciation(chunk, slow: true);
+            await _audioService.PlayDanishPronunciation(chunk, slow: _isSpeakingSlowMode);
         }
 
         // 2-second pause between Emne and Praesentation
@@ -2570,7 +2577,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
                 foreach (var chunk in SplitIntoTtsChunks(text))
                 {
                     if (cts.IsCancellationRequested) return;
-                    await _audioService.PlayDanishPronunciation(chunk, slow: true);
+                    await _audioService.PlayDanishPronunciation(chunk, slow: _isSpeakingSlowMode);
                 }
 
                 if (_isSpeakingRepeatEnabled && !cts.IsCancellationRequested)

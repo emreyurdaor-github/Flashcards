@@ -1013,7 +1013,8 @@
                 Grid.Row="6"
                 Orientation="Horizontal"
                 HorizontalAlignment="Left"
-                VerticalAlignment="Center">
+                VerticalAlignment="Center"
+                Spacing="8">
                 <StackPanel.IsVisible>
                     <MultiBinding Converter="{StaticResource MultiBooleanAndConverter}">
                         <Binding Path="SelectedTabIndex" Converter="{StaticResource EqualityConverter}" ConverterParameter="3" />
@@ -1023,6 +1024,11 @@
                 <views:EngToggle
                     IsChecked="{Binding SpeakingShowTopic, Mode=TwoWay}"
                     ToolTip.Tip="Show / hide Topic" />
+                <!-- Slow audio toggle -->
+                <views:EngToggle
+                    Label="Slow"
+                    IsChecked="{Binding IsSpeakingSlowMode, Mode=TwoWay}"
+                    ToolTip.Tip="Play audio at slow speed" />
             </StackPanel>
 
             <!-- Add Speaking Page -->
