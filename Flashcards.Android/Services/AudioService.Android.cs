@@ -124,7 +124,7 @@ public class AudioService : IDisposable
 
             if (slow)
             {
-                var pp = new Android.Media.PlaybackParams();
+                var pp = new global::Android.Media.PlaybackParams();
                 pp.SetSpeed(0.82f);
                 player.PlaybackParams = pp;
                 System.Diagnostics.Debug.WriteLine("[AudioService.Android] Slow mode: 0.82x speed");
