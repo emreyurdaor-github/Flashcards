@@ -1,5 +1,7 @@
 using System;
 using System.ComponentModel;
+using System.Threading;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
@@ -272,7 +274,23 @@ public partial class MainWindow : Window
             if (onHoverPlayDanish is not null)
             {
                 inner.Cursor = new Cursor(StandardCursorType.Hand);
-                inner.PointerEntered += (_, _) => onHoverPlayDanish(seg.Text);
+                CancellationTokenSource? holdCts = null;
+                inner.PointerEntered += (_, _) =>
+                {
+                    holdCts?.Cancel();
+                    holdCts = new CancellationTokenSource();
+                    var token = holdCts.Token;
+                    Task.Delay(1000, token).ContinueWith(t =>
+                    {
+                        if (!t.IsCanceled)
+                            onHoverPlayDanish(seg.Text);
+                    }, TaskScheduler.Default);
+                };
+                inner.PointerExited += (_, _) =>
+                {
+                    holdCts?.Cancel();
+                    holdCts = null;
+                };
             }
             return new InlineUIContainer { Child = inner };
         }
