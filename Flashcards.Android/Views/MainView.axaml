@@ -765,7 +765,7 @@
                         <TextBlock
                             x:Name="Emne"
                             Grid.Row="1"
-                            FontSize="20"
+                            FontSize="16"
                             Foreground="#FFFBBF24"
                             FontWeight="SemiBold"
                             TextWrapping="Wrap"
@@ -777,7 +777,7 @@
                             HorizontalScrollBarVisibility="Disabled">
                             <TextBlock
                                 x:Name="SpeakingTopicTextBlock"
-                                FontSize="24"
+                                FontSize="18"
                                 Foreground="#FFCBD5E1"
                                 TextWrapping="Wrap" />
                         </ScrollViewer>
@@ -798,7 +798,7 @@
                         <TextBlock
                             x:Name="SpeakingNotesTitleTextBlock"
                             Grid.Row="0"
-                            FontSize="20"
+                            FontSize="16"
                             Foreground="#FFFBBF24"
                             FontWeight="SemiBold"
                             TextWrapping="Wrap"
@@ -810,7 +810,7 @@
                             HorizontalScrollBarVisibility="Disabled">
                             <TextBlock
                                 x:Name="SpeakingNotesTextBlock"
-                                FontSize="24"
+                                FontSize="18"
                                 Foreground="#FFCBD5E1"
                                 TextWrapping="Wrap" />
                         </ScrollViewer>
@@ -875,19 +875,19 @@
                 </StackPanel.IsVisible>
                 <views:EngToggle
                     IsChecked="{Binding SpeakingShowTopic, Mode=TwoWay}"
-                    TrackWidth="90"
-                    TrackHeight="36"
-                    LabelFontSize="20"
-                    SegmentFontSize="14"
+                    TrackWidth="60"
+                    TrackHeight="26"
+                    LabelFontSize="14"
+                    SegmentFontSize="10"
                     ToolTip.Tip="Show / hide Topic" />
                 <!-- Slow audio toggle -->
                 <views:EngToggle
                     Label="Slow"
                     IsChecked="{Binding IsSpeakingSlowMode, Mode=TwoWay}"
-                    TrackWidth="90"
-                    TrackHeight="36"
-                    LabelFontSize="20"
-                    SegmentFontSize="14"
+                    TrackWidth="60"
+                    TrackHeight="26"
+                    LabelFontSize="14"
+                    SegmentFontSize="10"
                     ToolTip.Tip="Play audio at slow speed" />
             </StackPanel>
 

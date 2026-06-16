@@ -363,8 +363,21 @@ public partial class MainView : UserControl
                 ToolTip.SetTip(inner, seg.Tooltip);
             if (onHoverPlayDanish is not null)
             {
-                inner.Cursor = new Cursor(StandardCursorType.Hand);
-                inner.PointerEntered += (_, _) => onHoverPlayDanish(seg.Text);
+                // Android: long-press (hold ~600 ms) triggers audio playback
+                System.Threading.CancellationTokenSource? holdCts = null;
+                inner.PointerPressed += (_, pe) =>
+                {
+                    holdCts?.Cancel();
+                    holdCts = new System.Threading.CancellationTokenSource();
+                    var token = holdCts.Token;
+                    System.Threading.Tasks.Task.Delay(600, token).ContinueWith(t =>
+                    {
+                        if (!t.IsCanceled)
+                            onHoverPlayDanish(seg.Text);
+                    }, System.Threading.Tasks.TaskScheduler.Default);
+                };
+                inner.PointerReleased += (_, _) => { holdCts?.Cancel(); holdCts = null; };
+                inner.PointerCaptureLost += (_, _) => { holdCts?.Cancel(); holdCts = null; };
             }
             return new InlineUIContainer { Child = inner };
         }
