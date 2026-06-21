@@ -1,0 +1,169 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net10.0-android</TargetFramework>
+        <OutputType>Exe</OutputType>
+        <AndroidPackageFormat>apk</AndroidPackageFormat>
+        <Nullable>enable</Nullable>
+        <ApplicationId>com.flashcards.app</ApplicationId>
+        <ApplicationVersion>1</ApplicationVersion>
+        <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+        <ApplicationTitle>Flashcards</ApplicationTitle>
+        <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+        <TrimmerRootDescriptor>Platforms\Android\linker.xml</TrimmerRootDescriptor>
+        <RootNamespace>Flashcards</RootNamespace>
+        <SupportedOSPlatformVersion>21.0</SupportedOSPlatformVersion>
+        <RuntimeIdentifiers>android-arm;android-arm64;android-x64;android-x86</RuntimeIdentifiers>
+        <!-- Embed all assemblies into the APK so they are always available on device -->
+        <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
+        <!-- Disable Fast Deployment to avoid ADB0010 "Can't find service: package" errors -->
+        <AndroidFastDeploymentType>None</AndroidFastDeploymentType>
+    </PropertyGroup>
+
+    <!-- Link shared source files from the Flashcards project -->
+    <ItemGroup>
+        <!-- App.axaml.cs is NOT linked - Android has its own App.axaml.cs below -->
+        <Compile Include="..\Danish.Widget\BuildInfo.g.cs">
+          <Link>BuildInfo.g.cs</Link>
+        </Compile>
+        <Compile Include="..\Danish.Widget\Converters\BoolNegationConverter.cs">
+          <Link>BoolNegationConverter.cs</Link>
+        </Compile>
+        <Compile Include="..\Danish.Widget\Converters\EqualityConverter.cs">
+          <Link>EqualityConverter.cs</Link>
+        </Compile>
+        <Compile Include="..\Danish.Widget\Converters\HighlightWordConverter.cs">
+          <Link>HighlightWordConverter.cs</Link>
+        </Compile>
+        <Compile Include="..\Danish.Widget\Converters\MultiBooleanAndConverter.cs">
+          <Link>MultiBooleanAndConverter.cs</Link>
+        </Compile>
+        <Compile Include="..\Danish.Widget\Data\FlashcardDataSource.cs">
+          <Link>FlashcardDataSource.cs</Link>
+        </Compile>
+        <Compile Include="..\Danish.Widget\Data\MbspDataSource.cs">
+          <Link>MbspDataSource.cs</Link>
+        </Compile>
+        <Compile Include="..\Danish.Widget\Data\SpeakingDataSource.cs">
+          <Link>SpeakingDataSource.cs</Link>
+        </Compile>
+        <Compile Include="..\Danish.Widget\Data\WritingDataSource.cs">
+          <Link>WritingDataSource.cs</Link>
+        </Compile>
+        <Compile Include="..\Danish.Widget\Models\FlashcardEntry.cs">
+          <Link>FlashcardEntry.cs</Link>
+        </Compile>
+        <Compile Include="..\Danish.Widget\Models\FormattedExampleText.cs">
+          <Link>FormattedExampleText.cs</Link>
+        </Compile>
+        <Compile Include="..\Danish.Widget\Models\MbspQuestion.cs">
+          <Link>MbspQuestion.cs</Link>
+        </Compile>
+        <Compile Include="..\Danish.Widget\Models\WritingSegment.cs">
+          <Link>WritingSegment.cs</Link>
+        </Compile>
+        <Compile Include="..\Danish.Widget\ViewLocator.cs">
+          <Link>ViewLocator.cs</Link>
+        </Compile>
+        <Compile Include="..\Danish.Widget\ViewModels\MainWindowViewModel.cs">
+          <Link>MainWindowViewModel.cs</Link>
+        </Compile>
+        <Compile Include="..\Danish.Widget\ViewModels\ViewModelBase.cs">
+          <Link>ViewModelBase.cs</Link>
+        </Compile>
+        <Compile Include="..\Danish.Widget\Views\EngToggle.axaml.cs">
+          <Link>EngToggle.axaml.cs</Link>
+        </Compile>
+        <Compile Include="..\Flashcards\BuildInfo.g.cs" Condition="Exists('..\Flashcards\BuildInfo.g.cs')" />
+        <Compile Include="..\Flashcards\Converters\*.cs" />
+        <Compile Include="..\Flashcards\Models\*.cs" />
+        <Compile Include="..\Flashcards\ViewModels\*.cs" />
+        <!-- MainWindow.axaml.cs is NOT linked - Android uses MainView instead -->
+    </ItemGroup>
+
+    <!-- Link shared XAML/Avalonia resources -->
+    <ItemGroup>
+        <!-- MainWindow.axaml is NOT linked - Android has its own MainView.axaml -->
+        <AvaloniaXaml Include="..\Danish.Widget\App.axaml">
+          <Link>Flashcards\App.axaml</Link>
+        </AvaloniaXaml>
+        <AvaloniaResource Include="..\Danish.Widget\Assets\app.ico">
+          <Link>Flashcards\Assets\app.ico</Link>
+        </AvaloniaResource>
+        <AvaloniaResource Include="..\Danish.Widget\Assets\app.png">
+          <Link>Flashcards\Assets\app.png</Link>
+        </AvaloniaResource>
+        <AvaloniaResource Include="..\Danish.Widget\Assets\app.svg">
+          <Link>Flashcards\Assets\app.svg</Link>
+        </AvaloniaResource>
+        <AvaloniaResource Include="..\Danish.Widget\Assets\avalonia-logo.ico">
+          <Link>Flashcards\Assets\avalonia-logo.ico</Link>
+        </AvaloniaResource>
+        <AvaloniaResource Include="..\Danish.Widget\Assets\Sounds\correct.mp3">
+          <Link>Flashcards\Assets\Sounds\correct.mp3</Link>
+        </AvaloniaResource>
+        <AvaloniaResource Include="..\Danish.Widget\Assets\Sounds\wrong.mp3">
+          <Link>Flashcards\Assets\Sounds\wrong.mp3</Link>
+        </AvaloniaResource>
+        <AvaloniaResource Include="..\Flashcards\Assets\**" />
+        <AvaloniaXaml Include="..\Danish.Widget\Views\EngToggle.axaml">
+          <Link>Flashcards\Views\EngToggle.axaml</Link>
+        </AvaloniaXaml>
+    </ItemGroup>
+
+    <!-- Link the CSV data files and sound assets -->
+    <ItemGroup>
+        <AndroidAsset Include="..\Danish.Widget\Assets\Sounds\correct.mp3">
+          <Link>Flashcards\Assets\Sounds\correct.mp3</Link>
+        </AndroidAsset>
+        <AndroidAsset Include="..\Danish.Widget\Assets\Sounds\wrong.mp3">
+          <Link>Flashcards\Assets\Sounds\wrong.mp3</Link>
+        </AndroidAsset>
+        <AndroidAsset Include="..\Danish.Widget\Data\flashcards.csv">
+          <Link>Flashcards\Data\flashcards.csv</Link>
+        </AndroidAsset>
+        <AndroidAsset Include="..\Danish.Widget\Data\medborgerskabsproeven.csv">
+          <Link>Flashcards\Data\medborgerskabsproeven.csv</Link>
+        </AndroidAsset>
+        <AndroidAsset Include="..\Danish.Widget\Data\speaking.csv">
+          <Link>Flashcards\Data\speaking.csv</Link>
+        </AndroidAsset>
+        <AndroidAsset Include="..\Danish.Widget\Data\writing.csv">
+          <Link>Flashcards\Data\writing.csv</Link>
+        </AndroidAsset>
+    </ItemGroup>
+
+    <!-- Mipmap icons for all densities -->
+    <ItemGroup>
+        <AndroidResource Include="Resources\mipmap-mdpi\ic_launcher.png" />
+        <AndroidResource Include="Resources\mipmap-mdpi\ic_launcher_round.png" />
+        <AndroidResource Include="Resources\mipmap-mdpi\ic_launcher_foreground.png" />
+        <AndroidResource Include="Resources\mipmap-hdpi\ic_launcher.png" />
+        <AndroidResource Include="Resources\mipmap-hdpi\ic_launcher_round.png" />
+        <AndroidResource Include="Resources\mipmap-hdpi\ic_launcher_foreground.png" />
+        <AndroidResource Include="Resources\mipmap-xhdpi\ic_launcher.png" />
+        <AndroidResource Include="Resources\mipmap-xhdpi\ic_launcher_round.png" />
+        <AndroidResource Include="Resources\mipmap-xhdpi\ic_launcher_foreground.png" />
+        <AndroidResource Include="Resources\mipmap-xxhdpi\ic_launcher.png" />
+        <AndroidResource Include="Resources\mipmap-xxhdpi\ic_launcher_round.png" />
+        <AndroidResource Include="Resources\mipmap-xxhdpi\ic_launcher_foreground.png" />
+        <AndroidResource Include="Resources\mipmap-xxxhdpi\ic_launcher.png" />
+        <AndroidResource Include="Resources\mipmap-xxxhdpi\ic_launcher_round.png" />
+        <AndroidResource Include="Resources\mipmap-xxxhdpi\ic_launcher_foreground.png" />
+        <AndroidResource Include="Resources\mipmap-anydpi-v26\ic_launcher.xml" />
+        <AndroidResource Include="Resources\mipmap-anydpi-v26\ic_launcher_round.xml" />
+        <AndroidResource Include="Resources\values\colors.xml" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Avalonia" Version="11.3.8" />
+        <PackageReference Include="Avalonia.Android" Version="11.3.8" />
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.8" />
+        <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.8" />
+        <PackageReference Include="Avalonia.Diagnostics" Version="11.3.8">
+            <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
+            <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1" />
+    </ItemGroup>
+
+</Project>
