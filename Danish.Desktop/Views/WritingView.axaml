@@ -1,0 +1,31 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignWidth="880" d:DesignHeight="750"
+             x:Class="Danish.Desktop.Views.WritingView">
+
+    <Border
+        Margin="32"
+        Padding="28"
+        CornerRadius="12"
+        Background="#1E293B"
+        BorderBrush="#334BA3C7"
+        BorderThickness="1">
+        <StackPanel Spacing="12" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <TextBlock
+                Text="✍️ Writing"
+                FontSize="28"
+                FontWeight="Bold"
+                Foreground="#FFFBBF24"
+                HorizontalAlignment="Center" />
+            <TextBlock
+                Text="Writing exercises will appear here."
+                FontSize="16"
+                Foreground="#FF94A3B8"
+                HorizontalAlignment="Center" />
+        </StackPanel>
+    </Border>
+
+</UserControl>

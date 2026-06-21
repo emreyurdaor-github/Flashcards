@@ -1,9 +1,198 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Danish.Desktop.ViewModels"
+        xmlns:views="using:Danish.Desktop.Views"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        mc:Ignorable="d"
+        d:DesignWidth="1100" d:DesignHeight="750"
         x:Class="Danish.Desktop.MainWindow"
-        Title="Danish.Desktop">
-    Welcome to Avalonia!
+        x:DataType="vm:MainWindowViewModel"
+        Title="Danish"
+        Width="1100" Height="750"
+        MinWidth="800" MinHeight="500"
+        WindowStartupLocation="CenterScreen"
+        Background="#0F172A">
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel />
+    </Design.DataContext>
+
+    <Window.Styles>
+        <!-- Sidebar nav button base -->
+        <Style Selector="Button.nav-btn">
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="16,12" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Foreground" Value="#FF94A3B8" />
+            <Setter Property="CornerRadius" Value="8" />
+        </Style>
+        <Style Selector="Button.nav-btn:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#22FFFFFF" />
+        </Style>
+        <Style Selector="Button.nav-btn:pressed /template/ ContentPresenter">
+            <Setter Property="Background" Value="#33FFFFFF" />
+        </Style>
+
+        <!-- Active nav button -->
+        <Style Selector="Button.nav-btn-active">
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Background" Value="#1E3A5F" />
+            <Setter Property="BorderThickness" Value="0,0,3,0" />
+            <Setter Property="BorderBrush" Value="#FF38BDF8" />
+            <Setter Property="Padding" Value="16,12" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="#FFE2E8F0" />
+            <Setter Property="CornerRadius" Value="8" />
+        </Style>
+        <Style Selector="Button.nav-btn-active:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#1E3A5F" />
+        </Style>
+    </Window.Styles>
+
+    <Grid ColumnDefinitions="220,*">
+
+        <!-- ═══════════════ LEFT SIDEBAR ═══════════════ -->
+        <Border
+            Grid.Column="0"
+            Background="#1E293B"
+            BorderBrush="#33475569"
+            BorderThickness="0,0,1,0">
+            <Grid RowDefinitions="Auto,*,Auto">
+
+                <!-- App header -->
+                <StackPanel
+                    Grid.Row="0"
+                    Margin="16,24,16,20"
+                    Spacing="4">
+                    <TextBlock
+                        Text="🇩🇰"
+                        FontSize="32"
+                        HorizontalAlignment="Center" />
+                    <TextBlock
+                        Text="Danish"
+                        FontSize="18"
+                        FontWeight="Bold"
+                        Foreground="#FFE2E8F0"
+                        HorizontalAlignment="Center" />
+                    <TextBlock
+                        Text="Study Tool"
+                        FontSize="11"
+                        Foreground="#FF64748B"
+                        HorizontalAlignment="Center" />
+                </StackPanel>
+
+                <!-- Separator -->
+                <Rectangle
+                    Grid.Row="0"
+                    Height="1"
+                    Fill="#33475569"
+                    Margin="16,88,16,0"
+                    VerticalAlignment="Bottom" />
+
+                <!-- Navigation items -->
+                <StackPanel
+                    Grid.Row="1"
+                    Margin="8,16,8,0"
+                    Spacing="2">
+
+                    <!-- Flashcards -->
+                    <Button
+                        Classes.nav-btn="{Binding !IsFlashcardsTab}"
+                        Classes.nav-btn-active="{Binding IsFlashcardsTab}"
+                        Command="{Binding SelectTabCommand}"
+                        CommandParameter="0">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Text="🗂" FontSize="16" VerticalAlignment="Center" />
+                            <TextBlock Text="Flashcards" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    <!-- Quiz -->
+                    <Button
+                        Classes.nav-btn="{Binding !IsQuizTab}"
+                        Classes.nav-btn-active="{Binding IsQuizTab}"
+                        Command="{Binding SelectTabCommand}"
+                        CommandParameter="1">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Text="❓" FontSize="16" VerticalAlignment="Center" />
+                            <TextBlock Text="Quiz" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    <!-- Writing -->
+                    <Button
+                        Classes.nav-btn="{Binding !IsWritingTab}"
+                        Classes.nav-btn-active="{Binding IsWritingTab}"
+                        Command="{Binding SelectTabCommand}"
+                        CommandParameter="2">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Text="✍" FontSize="16" VerticalAlignment="Center" />
+                            <TextBlock Text="Writing" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    <!-- Speaking -->
+                    <Button
+                        Classes.nav-btn="{Binding !IsSpeakingTab}"
+                        Classes.nav-btn-active="{Binding IsSpeakingTab}"
+                        Command="{Binding SelectTabCommand}"
+                        CommandParameter="3">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Text="🎙" FontSize="16" VerticalAlignment="Center" />
+                            <TextBlock Text="Speaking" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    <!-- MedborgerskabsPrøven -->
+                    <Button
+                        Classes.nav-btn="{Binding !IsMbspTab}"
+                        Classes.nav-btn-active="{Binding IsMbspTab}"
+                        Command="{Binding SelectTabCommand}"
+                        CommandParameter="4">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Text="📋" FontSize="16" VerticalAlignment="Center" />
+                            <TextBlock Text="MedborgerskabsPrøven" FontSize="12" VerticalAlignment="Center" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Button>
+
+                </StackPanel>
+
+                <!-- Bottom version info -->
+                <StackPanel
+                    Grid.Row="2"
+                    Margin="16,0,16,16"
+                    Spacing="2">
+                    <Rectangle Height="1" Fill="#33475569" Margin="0,0,0,12" />
+                    <TextBlock
+                        Text="Danish Desktop"
+                        FontSize="11"
+                        Foreground="#FF475569"
+                        HorizontalAlignment="Center" />
+                </StackPanel>
+
+            </Grid>
+        </Border>
+
+        <!-- ═══════════════ CONTENT AREA ═══════════════ -->
+        <Grid Grid.Column="1" Background="#0F172A">
+
+            <views:FlashcardsView IsVisible="{Binding IsFlashcardsTab}" />
+            <views:QuizView       IsVisible="{Binding IsQuizTab}" />
+            <views:WritingView    IsVisible="{Binding IsWritingTab}" />
+            <views:SpeakingView   IsVisible="{Binding IsSpeakingTab}" />
+            <views:MbspView       IsVisible="{Binding IsMbspTab}" />
+
+        </Grid>
+
+    </Grid>
 </Window>
