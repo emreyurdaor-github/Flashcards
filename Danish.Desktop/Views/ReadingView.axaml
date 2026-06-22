@@ -1,0 +1,209 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignWidth="880" d:DesignHeight="750"
+             x:Class="Danish.Desktop.Views.ReadingView">
+
+    <UserControl.Styles>
+        <Style Selector="Button.icon-btn">
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+        <Style Selector="Button.icon-btn:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#22FFFFFF" />
+        </Style>
+        <Style Selector="Button.icon-btn:pressed /template/ ContentPresenter">
+            <Setter Property="Background" Value="#44FFFFFF" />
+        </Style>
+    </UserControl.Styles>
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto" ColumnDefinitions="*,2*,2*,*">
+
+        <!-- ── Row 0: toolbar ── -->
+        <Grid Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2"
+              ColumnDefinitions="*,Auto" Margin="24,24,24,12">
+            <TextBlock Grid.Column="0"
+                       Text="📖  Læseforståelse"
+                       FontSize="13"
+                       Foreground="#FF64748B"
+                       VerticalAlignment="Center" />
+            <Button Grid.Column="1"
+                    Content="+ Ny tekst"
+                    FontSize="14" FontWeight="SemiBold"
+                    Foreground="#FF38BDF8"
+                    Background="#1138BDF8"
+                    BorderBrush="#3338BDF8" BorderThickness="1"
+                    CornerRadius="8" Padding="14,8"
+                    Cursor="Hand" />
+        </Grid>
+
+        <!-- ── Row 1: page header ── -->
+        <StackPanel Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"
+                    Orientation="Horizontal" Spacing="12"
+                    Margin="24,0,24,16">
+            <TextBlock Text="📖" FontSize="38" VerticalAlignment="Center" />
+            <TextBlock Text="Læseforståelse"
+                       FontSize="38" FontWeight="Bold"
+                       Foreground="#FF38BDF8"
+                       VerticalAlignment="Center" />
+        </StackPanel>
+
+        <!-- ── Row 2, Col 1: Reading passage (left) ── -->
+        <Border Grid.Row="2" Grid.Column="1"
+                Margin="24,0,8,0"
+                Padding="0" CornerRadius="14"
+                Background="#1E293B"
+                BorderBrush="#3338BDF8" BorderThickness="1"
+                ClipToBounds="True">
+            <Grid RowDefinitions="Auto,*">
+
+                <!-- Column header -->
+                <Border Grid.Row="0"
+                        Background="#0F38BDF8"
+                        BorderBrush="#2238BDF8" BorderThickness="0,0,0,1"
+                        Padding="20,14,20,14">
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <TextBlock Text="📄" FontSize="18" VerticalAlignment="Center" />
+                        <TextBlock Text="Tekst"
+                                   FontSize="16" FontWeight="SemiBold"
+                                   Foreground="#FFE2E8F0"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Scrollable passage body -->
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="20,16,20,16">
+                    <StackPanel Spacing="16">
+
+                        <!-- Title placeholder -->
+                        <TextBlock
+                            Text="Vælg en tekst for at begynde"
+                            FontSize="20" FontWeight="SemiBold"
+                            Foreground="#FFFBBF24"
+                            TextWrapping="Wrap" />
+
+                        <!-- Body placeholder -->
+                        <TextBlock
+                            FontSize="18" Foreground="#FFCBD5E1"
+                            TextWrapping="Wrap" LineHeight="30">
+Ingen tekst er indlæst endnu. Klik på "＋ Ny tekst" for at tilføje en dansk læsetekst til denne øvelse.
+                        </TextBlock>
+
+                        <!-- Divider -->
+                        <Rectangle Height="1" Fill="#22475569" Margin="0,8,0,8" />
+
+                        <!-- Vocabulary hint section -->
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="📚 Ordforråd"
+                                       FontSize="14" FontWeight="SemiBold"
+                                       Foreground="#FF64748B" />
+                            <TextBlock
+                                Text="Ukendte ord vil fremgå her."
+                                FontSize="16" Foreground="#FF475569"
+                                FontStyle="Italic" TextWrapping="Wrap" />
+                        </StackPanel>
+
+                    </StackPanel>
+                </ScrollViewer>
+
+            </Grid>
+        </Border>
+
+        <!-- ── Row 2, Col 2: Comprehension questions (right) ── -->
+        <Border Grid.Row="2" Grid.Column="2"
+                Margin="8,0,24,0"
+                Padding="0" CornerRadius="14"
+                Background="#1E293B"
+                BorderBrush="#33A855F7" BorderThickness="1"
+                ClipToBounds="True">
+            <Grid RowDefinitions="Auto,*">
+
+                <!-- Column header -->
+                <Border Grid.Row="0"
+                        Background="#0FA855F7"
+                        BorderBrush="#22A855F7" BorderThickness="0,0,0,1"
+                        Padding="20,14,20,14">
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <TextBlock Text="❓" FontSize="18" VerticalAlignment="Center" />
+                        <TextBlock Text="Forståelsesspørgsmål"
+                                   FontSize="16" FontWeight="SemiBold"
+                                   Foreground="#FFE2E8F0"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Scrollable questions body -->
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="20,16,20,16">
+                    <StackPanel Spacing="20">
+
+                        <!-- Placeholder question card -->
+                        <Border Padding="18,14" CornerRadius="10"
+                                Background="#22A855F7"
+                                BorderBrush="#44A855F7" BorderThickness="1">
+                            <StackPanel Spacing="10">
+                                <TextBlock
+                                    Text="Ingen spørgsmål endnu"
+                                    FontSize="17" FontWeight="SemiBold"
+                                    Foreground="#FFD8B4FE"
+                                    TextWrapping="Wrap" />
+                                <TextBlock
+                                    Text="Spørgsmål til teksten vil vises her, når en tekst er valgt."
+                                    FontSize="15" Foreground="#FF94A3B8"
+                                    TextWrapping="Wrap" />
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Answer input placeholder -->
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="✏️ Dit svar:"
+                                       FontSize="14" FontWeight="SemiBold"
+                                       Foreground="#FF64748B" />
+                            <TextBox
+                                PlaceholderText="Skriv dit svar her…"
+                                AcceptsReturn="True"
+                                TextWrapping="Wrap"
+                                Height="100"
+                                FontSize="16"
+                                Background="#22334155"
+                                BorderBrush="#44475569" BorderThickness="1"
+                                CornerRadius="8"
+                                Padding="12,10"
+                                Foreground="#FFE2E8F0" />
+                        </StackPanel>
+
+                        <!-- Submit button placeholder -->
+                        <Button Content="Tjek svar  ✓"
+                                FontSize="16" FontWeight="SemiBold"
+                                HorizontalAlignment="Right"
+                                Padding="18,10"
+                                CornerRadius="8"
+                                Background="#33A855F7"
+                                BorderBrush="#55A855F7" BorderThickness="1"
+                                Foreground="#FFD8B4FE"
+                                Cursor="Hand" />
+
+                    </StackPanel>
+                </ScrollViewer>
+
+            </Grid>
+        </Border>
+
+        <!-- ── Row 3: status / progress bar ── -->
+        <Grid Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2"
+              Margin="24,10,24,20">
+            <TextBlock
+                Text="0 tekster · 0 spørgsmål besvaret"
+                FontSize="14" FontWeight="SemiBold"
+                Foreground="#FF475569"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Center" />
+        </Grid>
+
+    </Grid>
+</UserControl>

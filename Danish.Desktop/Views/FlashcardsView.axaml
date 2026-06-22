@@ -1,31 +1,307 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Danish.Desktop.ViewModels"
+             xmlns:models="using:Danish.Desktop.Models"
+             xmlns:converters="using:Danish.Desktop.Converters"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
              d:DesignWidth="880" d:DesignHeight="750"
-             x:Class="Danish.Desktop.Views.FlashcardsView">
+             x:Class="Danish.Desktop.Views.FlashcardsView"
+             x:DataType="vm:FlashcardsViewModel">
 
-    <Border
-        Margin="32"
-        Padding="28"
-        CornerRadius="12"
-        Background="#1E293B"
-        BorderBrush="#334BA3C7"
-        BorderThickness="1">
-        <StackPanel Spacing="12" VerticalAlignment="Center" HorizontalAlignment="Center">
-            <TextBlock
-                Text="🗂️ Flashcards"
-                FontSize="28"
-                FontWeight="Bold"
-                Foreground="#FFFBBF24"
-                HorizontalAlignment="Center" />
-            <TextBlock
-                Text="Flashcard content will appear here."
-                FontSize="16"
-                Foreground="#FF94A3B8"
-                HorizontalAlignment="Center" />
+    <UserControl.Resources>
+        <converters:BoolNegationConverter   x:Key="BoolNeg" />
+        <converters:MultiBooleanAndConverter x:Key="MultiBoolAnd" />
+    </UserControl.Resources>
+
+    <UserControl.Styles>
+        <Style Selector="Button.icon-btn">
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+        <Style Selector="Button.icon-btn:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#33FFFFFF" />
+        </Style>
+        <Style Selector="Button.icon-btn:pressed /template/ ContentPresenter">
+            <Setter Property="Background" Value="#55FFFFFF" />
+        </Style>
+        <Style Selector="Button.icon-btn:disabled /template/ ContentPresenter">
+            <Setter Property="Opacity" Value="0.35" />
+        </Style>
+    </UserControl.Styles>
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto,Auto" ColumnDefinitions="*,2*,2*,*">
+
+        <!-- ── Row 0: toolbar (mute | search | type-filter) ── -->
+        <Grid Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2"
+              ColumnDefinitions="Auto,*,Auto,Auto" Margin="24,24,24,12">
+
+            <!-- Mute button -->
+            <Button Grid.Column="0" Width="34" Height="34" Classes="icon-btn" CornerRadius="6"
+                    ToolTip.Tip="{Binding MuteTooltip}" Command="{Binding ToggleMuteCommand}"
+                    VerticalAlignment="Center" Margin="0,0,10,0">
+                <Panel Width="20" Height="20">
+                    <Path Fill="#FFE2E8F0" Stretch="Uniform"
+                          Data="M6,4 L6,14 L2,11 L2,7 Z M6,4 L12,1 L12,17 L6,14 Z M14,7 Q16,9 14,11" />
+                    <Path IsVisible="{Binding IsMuted}" Stroke="#FFEF4444" StrokeThickness="2"
+                          StrokeLineCap="Round" Stretch="Uniform"
+                          Data="M14,6 L18,12 M18,6 L14,12" />
+                    <Path IsVisible="{Binding IsMuted, Converter={StaticResource BoolNeg}}"
+                          Stroke="#FF86EFAC" StrokeThickness="1.5" StrokeLineCap="Round" Fill="Transparent"
+                          Stretch="Uniform"
+                          Data="M14,7 Q16,9 14,11 M15.5,5.5 Q19,9 15.5,12.5" />
+                </Panel>
+            </Button>
+
+            <!-- Search -->
+            <AutoCompleteBox Grid.Column="1"
+                             Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             ItemsSource="{Binding SearchResults}"
+                             FilterMode="None"
+                             PlaceholderText="🔍 Search Danish…"
+                             IsTextCompletionEnabled="False"
+                             Padding="10,8"
+                             FontSize="18"
+                             MaxWidth="360"
+                             HorizontalAlignment="Left"
+                             Background="Transparent">
+                <AutoCompleteBox.ItemTemplate>
+                    <DataTemplate DataType="models:FlashcardEntry">
+                        <StackPanel>
+                            <TextBlock Text="{Binding Danish}"  FontSize="19" FontWeight="SemiBold" Foreground="#FFFBBF24" />
+                            <TextBlock Text="{Binding English}" FontSize="17" Foreground="#FFCBD5E1" />
+                        </StackPanel>
+                    </DataTemplate>
+                </AutoCompleteBox.ItemTemplate>
+            </AutoCompleteBox>
+
+            <!-- Type filter -->
+            <ComboBox Grid.Column="3"
+                      ItemsSource="{Binding TypeFilters}"
+                      SelectedItem="{Binding SelectedTypeFilter, Mode=TwoWay}"
+                      FontSize="18" FontWeight="SemiBold"
+                      Foreground="#FFE2E8F0" Background="#22334155"
+                      BorderBrush="#33475569" BorderThickness="1"
+                      Padding="10,8" MinWidth="100"
+                      HorizontalAlignment="Right"
+                      VerticalAlignment="Center" />
+        </Grid>
+
+        <!-- ── Row 1: page header (template style) ── -->
+        <StackPanel Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"
+                    Orientation="Horizontal" Spacing="12"
+                    Margin="24,0,24,20"
+                    IsVisible="{Binding IsFlashcardPage}">
+            <TextBlock Text="🗂️" FontSize="38" VerticalAlignment="Center" />
+            <TextBlock Text="Flashcards"
+                       FontSize="38" FontWeight="Bold"
+                       Foreground="#FFFBBF24"
+                       VerticalAlignment="Center" />
         </StackPanel>
-    </Border>
 
+        <!-- ── Row 2: main flashcard content ── -->
+        <ScrollViewer Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2"
+                      Margin="24,0,24,0"
+                      VerticalScrollBarVisibility="Auto">
+          <Panel>
+            <StackPanel Spacing="16" IsVisible="{Binding IsFlashcardPage}">
+
+                <!-- Card: Danish word + English -->
+                <Border Padding="24" CornerRadius="14"
+                        Background="#332E3A4F" BorderBrush="#334BA3C7" BorderThickness="1">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <StackPanel Grid.Column="0" Spacing="10">
+                            <!-- Danish + type badges -->
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
+                                <TextBlock Text="{Binding CurrentDanish}" FontSize="52" FontWeight="Bold"
+                                           Foreground="#FFFBBF24" VerticalAlignment="Center" />
+                                <ItemsControl ItemsSource="{Binding CurrentTypes}"
+                                              IsVisible="{Binding HasCurrentType}"
+                                              VerticalAlignment="Center">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate><WrapPanel Orientation="Horizontal" /></ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Margin="2" Padding="6,3" CornerRadius="8"
+                                                    Background="#442563A0" BorderBrush="#884BA3C7" BorderThickness="1">
+                                                <TextBlock Text="{Binding}" FontSize="16" FontStyle="Italic"
+                                                           Foreground="#FF94A3B8" VerticalAlignment="Center" />
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+
+                            <!-- Conjugation -->
+                            <TextBlock Text="{Binding CurrentConjugation}"
+                                       IsVisible="{Binding HasCurrentConjugation}"
+                                       FontSize="19" FontStyle="Italic"
+                                       Foreground="#FFCBD5E1" HorizontalAlignment="Center" />
+
+                            <!-- English -->
+                            <TextBlock Text="{Binding CurrentEnglish}"
+                                       IsVisible="{Binding HasFlashcards}"
+                                       FontSize="36" Foreground="#FFE2E8F0"
+                                       HorizontalAlignment="Center" />
+                        </StackPanel>
+
+                        <!-- Play word button -->
+                        <Button Grid.Column="1" Width="42" Height="42" Classes="icon-btn"
+                                CornerRadius="8" VerticalAlignment="Top"
+                                Command="{Binding PlayDanishWordCommand}">
+                            <Path Width="22" Height="22" Fill="#FF94D9FF" Stretch="Uniform"
+                                  Data="M4,5 L4,13 L1,11 L1,7 Z M4,5 L10,2 L10,16 L4,13 Z M11,7 Q13,9 11,11 M12,5.5 Q15,9 12,12.5" />
+                        </Button>
+                    </Grid>
+                </Border>
+
+                <!-- Example Danish sentence -->
+                <Border Padding="20" CornerRadius="14"
+                        Background="#332E3A4F" BorderBrush="#334BA3C7" BorderThickness="1"
+                        IsVisible="{Binding HasCurrentExampleDanish}">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Grid.Column="0" FontSize="21" TextWrapping="Wrap" Foreground="#FFCBD5E1">
+                            <Run Text="{Binding HighlightedExampleDanish.BeforeWord}" FontSize="21" />
+                            <Run Text="{Binding HighlightedExampleDanish.HighlightedWord}"
+                                 TextDecorations="Underline" FontWeight="SemiBold"
+                                 Foreground="#FFFBBF24" FontSize="21" />
+                            <Run Text="{Binding HighlightedExampleDanish.AfterWord}" FontSize="21" />
+                        </TextBlock>
+                        <TextBlock Grid.Column="0" FontSize="21" TextWrapping="Wrap" Foreground="#FFCBD5E1"
+                                   Text="{Binding HighlightedExampleDanish.FullText}"
+                                   IsVisible="{Binding HighlightedExampleDanish.IsFullTextOnly}" />
+                        <Button Grid.Column="1" Width="34" Height="34" Classes="icon-btn" CornerRadius="6"
+                                VerticalAlignment="Top" Command="{Binding PlayDanishExampleCommand}">
+                            <Path Width="18" Height="18" Fill="#FF94D9FF" Stretch="Uniform"
+                                  Data="M4,5 L4,13 L1,11 L1,7 Z M4,5 L10,2 L10,16 L4,13 Z M11,7 Q13,9 11,11 M12,5.5 Q15,9 12,12.5" />
+                        </Button>
+                    </Grid>
+                </Border>
+
+                <!-- Example English sentence -->
+                <Border Padding="20" CornerRadius="14"
+                        Background="#332E3A4F" BorderBrush="#334BA3C7" BorderThickness="1"
+                        IsVisible="{Binding HasCurrentExampleEnglish}">
+                    <TextBlock FontSize="21" TextWrapping="Wrap" Foreground="#FFCBD5E1">
+                        <Run Text="{Binding HighlightedExampleEnglish.BeforeWord}" FontSize="21" />
+                        <Run Text="{Binding HighlightedExampleEnglish.HighlightedWord}"
+                             TextDecorations="Underline" FontWeight="SemiBold" FontSize="21" />
+                        <Run Text="{Binding HighlightedExampleEnglish.AfterWord}" FontSize="21" />
+                    </TextBlock>
+                </Border>
+
+            </StackPanel>
+
+            <!-- ── Add / Edit form ── -->
+            <StackPanel Spacing="12" IsVisible="{Binding IsAddRecordPage}">
+                <TextBlock Text="Add / Edit Flashcard" FontSize="24" FontWeight="SemiBold"
+                           Foreground="White" Margin="0,0,0,4" />
+                <TextBox Text="{Binding NewDanish}"        PlaceholderText="Danish"                      AcceptsReturn="True" TextWrapping="Wrap" Height="70"  FontSize="19" />
+                <TextBox Text="{Binding NewEnglish}"       PlaceholderText="English"                     AcceptsReturn="True" TextWrapping="Wrap" Height="70"  FontSize="19" />
+                <TextBox Text="{Binding NewType}"          PlaceholderText="Type (required, e.g. v.)"    FontSize="19" />
+                <TextBox Text="{Binding NewConjugation}"   PlaceholderText="Conjugation (optional)"      AcceptsReturn="True" TextWrapping="Wrap" Height="56"  FontSize="19" />
+                <TextBox Text="{Binding NewExampleDanish}" PlaceholderText="Example Danish (optional)"   AcceptsReturn="True" TextWrapping="Wrap" Height="56"  FontSize="19" />
+                <TextBox Text="{Binding NewExampleEnglish}" PlaceholderText="Example English (optional)" AcceptsReturn="True" TextWrapping="Wrap" Height="56"  FontSize="19" />
+                <TextBox Text="{Binding NewContextualTip}" PlaceholderText="Contextual tip (optional)"   AcceptsReturn="True" TextWrapping="Wrap" Height="56"  FontSize="19" />
+                <TextBox Text="{Binding NewMnemonic}"      PlaceholderText="Mnemonic (optional)"         AcceptsReturn="True" TextWrapping="Wrap" Height="56"  FontSize="19" />
+                <TextBlock Text="{Binding ValidationMessage}" IsVisible="{Binding HasValidationMessage}"
+                           Foreground="#FFFCA5A5" FontSize="17" TextWrapping="Wrap" />
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+                    <Button Content="Cancel" FontSize="18" Command="{Binding CancelAddRecordCommand}" />
+                    <Button Content="Save"   FontSize="18" Command="{Binding SaveNewRecordCommand}" />
+                </StackPanel>
+            </StackPanel>
+          </Panel>
+        </ScrollViewer>
+
+        <!-- ── Row 3: mnemonic + tip (always visible above the counter) ── -->
+        <StackPanel Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2"
+                    Margin="24,8,24,0" Spacing="8"
+                    IsVisible="{Binding IsFlashcardPage}">
+
+            <Border Padding="16,12" CornerRadius="12"
+                    Background="#22A855F7" BorderBrush="#44A855F7" BorderThickness="1"
+                    IsVisible="{Binding HasCurrentMnemonic}">
+                <Grid ColumnDefinitions="Auto,*">
+                    <TextBlock Grid.Column="0" Text="🧠" FontSize="21" VerticalAlignment="Top" Margin="0,0,10,0" />
+                    <TextBlock Grid.Column="1" Text="{Binding CurrentMnemonic}"
+                               FontSize="21" TextWrapping="Wrap" Foreground="#FFD8B4FE" />
+                </Grid>
+            </Border>
+
+            <Border Padding="14,10" CornerRadius="10"
+                    Background="#22F59E0B"
+                    IsVisible="{Binding HasCurrentContextualTip}">
+                <Grid ColumnDefinitions="Auto,*">
+                    <TextBlock Grid.Column="0" Text="💡" FontSize="21" VerticalAlignment="Top" Margin="0,0,8,0" />
+                    <TextBlock Grid.Column="1" Text="{Binding CurrentContextualTip}"
+                               FontSize="21" TextWrapping="Wrap" Foreground="#FFFBBF24" />
+                </Grid>
+            </Border>
+
+        </StackPanel>
+
+        <!-- ── Row 4: progress counter + action bar ── -->
+        <Grid Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2"
+              RowDefinitions="Auto,Auto" Margin="24,6,24,20"
+              IsVisible="{Binding IsFlashcardPage}">
+
+            <!-- Progress counter -->
+            <TextBlock Grid.Row="0"
+                       Text="{Binding FlashcardProgressText}"
+                       FontSize="18" FontWeight="SemiBold"
+                       Foreground="#FF94A3B8"
+                       HorizontalAlignment="Right"
+                       Margin="0,0,0,6" />
+
+            <!-- Action buttons -->
+            <Grid Grid.Row="1">
+
+                <!-- Auto-rotate play/pause (left) -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Spacing="10" VerticalAlignment="Center">
+                <Button Width="42" Height="42" CornerRadius="21" FontSize="17" FontWeight="SemiBold"
+                        Content="▶" Command="{Binding PlayCommand}"
+                        IsEnabled="{Binding IsRotationPaused}"
+                        HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
+                <Button Width="42" Height="42" CornerRadius="21" FontSize="17" FontWeight="SemiBold"
+                        Content="⏸" Command="{Binding PauseCommand}"
+                        IsEnabled="{Binding IsRotationPlaying}"
+                        HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
+            </StackPanel>
+
+            <!-- Prev / Next (centre) -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="14" VerticalAlignment="Center">
+                <Button Width="42" Height="42" CornerRadius="21" FontSize="21" FontWeight="SemiBold"
+                        Content="◀" Command="{Binding PreviousCardCommand}"
+                        IsEnabled="{Binding CanNavigateFlashcards}"
+                        HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
+                <Button Width="42" Height="42" CornerRadius="21" FontSize="21" FontWeight="SemiBold"
+                        Content="▶" Command="{Binding NextCardCommand}"
+                        IsEnabled="{Binding CanNavigateFlashcards}"
+                        HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
+            </StackPanel>
+
+            <!-- Edit / Add buttons (right) -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" VerticalAlignment="Center">
+                <Button Width="42" Height="42" Classes="icon-btn" CornerRadius="21"
+                        Background="#334155" Command="{Binding ShowEditRecordCommand}"
+                        IsVisible="{Binding HasFlashcards}">
+                    <Path Width="18" Height="18" Fill="#FFFBBF24" Stretch="Uniform"
+                          Data="M12,2 L14,4 L5,13 L2,14 L3,11 Z M13,3 L15,5" />
+                </Button>
+                <Button Width="42" Height="42" CornerRadius="21" FontSize="24" FontWeight="Bold"
+                        Content="+" Command="{Binding ShowAddRecordCommand}"
+                        HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
+            </StackPanel>
+
+            </Grid><!-- action buttons -->
+        </Grid><!-- Row 4 -->
+
+    </Grid>
 </UserControl>

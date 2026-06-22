@@ -165,6 +165,18 @@
                         </StackPanel>
                     </Button>
 
+                    <!-- Læseforståelse -->
+                    <Button
+                        Classes.nav-btn="{Binding !IsReadingTab}"
+                        Classes.nav-btn-active="{Binding IsReadingTab}"
+                        Command="{Binding SelectTabCommand}"
+                        CommandParameter="5">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Text="📖" FontSize="16" VerticalAlignment="Center" />
+                            <TextBlock Text="Læseforståelse" FontSize="13" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
                 </StackPanel>
 
                 <!-- Bottom version info -->
@@ -186,11 +198,14 @@
         <!-- ═══════════════ CONTENT AREA ═══════════════ -->
         <Grid Grid.Column="1" Background="#0F172A">
 
-            <views:FlashcardsView IsVisible="{Binding IsFlashcardsTab}" />
+            <Panel IsVisible="{Binding IsFlashcardsTab}">
+                <views:FlashcardsView />
+            </Panel>
             <views:QuizView       IsVisible="{Binding IsQuizTab}" />
             <views:WritingView    IsVisible="{Binding IsWritingTab}" />
             <views:SpeakingView   IsVisible="{Binding IsSpeakingTab}" />
             <views:MbspView       IsVisible="{Binding IsMbspTab}" />
+            <views:ReadingView    IsVisible="{Binding IsReadingTab}" />
 
         </Grid>
 

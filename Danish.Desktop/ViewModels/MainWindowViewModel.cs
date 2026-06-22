@@ -4,6 +4,7 @@ namespace Danish.Desktop.ViewModels;
 
 public class MainWindowViewModel : ViewModelBase
 {
+
     private int _selectedTabIndex = 0;
 
     public int SelectedTabIndex
@@ -18,6 +19,7 @@ public class MainWindowViewModel : ViewModelBase
                 OnPropertyChanged(nameof(IsWritingTab));
                 OnPropertyChanged(nameof(IsSpeakingTab));
                 OnPropertyChanged(nameof(IsMbspTab));
+                OnPropertyChanged(nameof(IsReadingTab));
             }
         }
     }
@@ -27,6 +29,7 @@ public class MainWindowViewModel : ViewModelBase
     public bool IsWritingTab   => SelectedTabIndex == 2;
     public bool IsSpeakingTab  => SelectedTabIndex == 3;
     public bool IsMbspTab      => SelectedTabIndex == 4;
+    public bool IsReadingTab   => SelectedTabIndex == 5;
 
     public IRelayCommand<string?> SelectTabCommand { get; }
 
